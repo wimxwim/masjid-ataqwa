@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #10b981;
+  --color-primary-dark: #059669;
+  --color-primary-deep: #0e7a45;
+  --color-header: #0e7a45;
+  --color-finance: #0a5c34;
+  --color-accent: #c8a84e;
+  --color-bg: #f9fafb;
+  --color-surface: #ffffff;
+  --color-ink: #1a1b22;
+  --color-muted: #6b7280;
+  --color-outline: #e5e7eb;
+  --color-success-subtle: #ecfdf5;
+
+  --color-emerald-950: #022c22;
+  --color-emerald-900: #064e3b;
+  --color-emerald-800: #065f46;
+  --color-emerald-700: #047857;
+  --color-emerald-600: #059669;
+  --color-emerald-500: #10b981;
+  --color-emerald-100: #d1fae5;
+  --color-emerald-50: #ecfdf5;
+
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-outfit), sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --radius-card: 1.5rem;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes slide-left {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+@utility animate-slide-left {
+  animation: slide-left 0.3s ease-out;
+}
+@utility animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+@utility animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@media print {
+  nav,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}

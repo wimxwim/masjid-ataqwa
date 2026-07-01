@@ -1,0 +1,83 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1782736118096,
+      "tag": "0000_good_machine_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1782786147066,
+      "tag": "0001_nappy_cargill",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1782789518679,
+      "tag": "0002_strong_cerise",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1782872703665,
+      "tag": "0003_fund_type_transactions",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1748797200000,
+      "tag": "0005_fund_type_transactions",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1748800800000,
+      "tag": "0006_fix_rls_security",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1748804400000,
+      "tag": "0007_mustahik_upgrade",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1748808000000,
+      "tag": "0008_create_muzzaki",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1748811600000,
+      "tag": "0009_create_wakaf",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1748815200000,
+      "tag": "0010_loans_npf",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1751328000000,
+      "tag": "0011_rls_fixes",
+      "breakpoints": true
+    }
+  ]
+}

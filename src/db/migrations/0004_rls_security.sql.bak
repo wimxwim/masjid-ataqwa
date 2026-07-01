@@ -1,0 +1,330 @@
+-- RLS policies untuk keamanan data multi-tenant
+
+-- 1. donations — public bisa insert, hanya pengurus masjid bisa lihat
+ALTER TABLE donations ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY donations_insert_public ON donations
+  FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY donations_select_admin ON donations
+  FOR SELECT
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY donations_update_admin ON donations
+  FOR UPDATE
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+-- 2. transactions — hanya pengurus masjid
+ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY transactions_select_admin ON transactions
+  FOR SELECT
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY transactions_insert_admin ON transactions
+  FOR INSERT
+  WITH CHECK (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY transactions_update_admin ON transactions
+  FOR UPDATE
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY transactions_delete_admin ON transactions
+  FOR DELETE
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+-- 3. mustahiks — hanya pengurus masjid
+ALTER TABLE mustahiks ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY mustahiks_select_admin ON mustahiks
+  FOR SELECT
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY mustahiks_insert_admin ON mustahiks
+  FOR INSERT
+  WITH CHECK (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY mustahiks_update_admin ON mustahiks
+  FOR UPDATE
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY mustahiks_delete_admin ON mustahiks
+  FOR DELETE
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+-- 4. mushafir_aid — hanya pengurus masjid
+ALTER TABLE mushafir_aid ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY mushafir_aid_select_admin ON mushafir_aid
+  FOR SELECT
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY mushafir_aid_insert_admin ON mushafir_aid
+  FOR INSERT
+  WITH CHECK (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY mushafir_aid_update_admin ON mushafir_aid
+  FOR UPDATE
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+-- 5. audit_logs — hanya pengurus masjid bisa lihat
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY audit_logs_select_admin ON audit_logs
+  FOR SELECT
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+-- 6. activity_feed — publik bisa lihat, hanya pengurus bisa insert/update/delete
+ALTER TABLE activity_feed ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY activity_feed_select_public ON activity_feed
+  FOR SELECT
+  USING (true);
+
+CREATE POLICY activity_feed_insert_admin ON activity_feed
+  FOR INSERT
+  WITH CHECK (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY activity_feed_update_admin ON activity_feed
+  FOR UPDATE
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY activity_feed_delete_admin ON activity_feed
+  FOR DELETE
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+-- 7. santri — hanya pengurus masjid
+ALTER TABLE santri ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY santri_select_admin ON santri
+  FOR SELECT
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY santri_insert_admin ON santri
+  FOR INSERT
+  WITH CHECK (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY santri_update_admin ON santri
+  FOR UPDATE
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY santri_delete_admin ON santri
+  FOR DELETE
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+-- 8. employees — hanya pengurus masjid
+ALTER TABLE employees ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY employees_select_admin ON employees
+  FOR SELECT
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY employees_insert_admin ON employees
+  FOR INSERT
+  WITH CHECK (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY employees_update_admin ON employees
+  FOR UPDATE
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+-- 9. programs — publik bisa lihat, hanya pengurus bisa ubah
+ALTER TABLE programs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY programs_select_public ON programs
+  FOR SELECT
+  USING (true);
+
+CREATE POLICY programs_insert_admin ON programs
+  FOR INSERT
+  WITH CHECK (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY programs_update_admin ON programs
+  FOR UPDATE
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+-- 10. ziswaf_requests — hanya pengurus masjid
+ALTER TABLE ziswaf_requests ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY ziswaf_requests_select_admin ON ziswaf_requests
+  FOR SELECT
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY ziswaf_requests_insert_admin ON ziswaf_requests
+  FOR INSERT
+  WITH CHECK (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+-- 11. loan_installments — hanya pengurus masjid
+ALTER TABLE loan_installments ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY loan_installments_select_admin ON loan_installments
+  FOR SELECT
+  USING (
+    loan_id IN (
+      SELECT id FROM loans WHERE mosque_id IN (
+        SELECT mosque_id FROM profiles
+        WHERE id = auth.uid() AND deleted_at IS NULL
+      )
+    )
+  );
+
+-- 12. loans — hanya pengurus masjid
+ALTER TABLE loans ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY loans_select_admin ON loans
+  FOR SELECT
+  USING (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY loans_insert_admin ON loans
+  FOR INSERT
+  WITH CHECK (
+    mosque_id IN (
+      SELECT mosque_id FROM profiles
+      WHERE id = auth.uid() AND deleted_at IS NULL
+    )
+  );
