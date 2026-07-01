@@ -31,8 +31,9 @@ export async function getZakatPayments(mosqueId?: string) {
     .orderBy(desc(zakat_payments.paid_at));
 }
 
-export async function getZakatPaymentById(id: string) {
-  const [row] = await db.select().from(zakat_payments).where(eq(zakat_payments.id, id)).limit(1);
+export async function getZakatPaymentById(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db.select().from(zakat_payments).where(and(eq(zakat_payments.id, id), eq(zakat_payments.mosque_id, mid))).limit(1);
   return row ?? null;
 }
 

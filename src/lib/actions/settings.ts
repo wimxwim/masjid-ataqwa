@@ -2,7 +2,7 @@
 
 import { db } from "@/db/client";
 import { mosques } from "@/db/schema";
-import { requireAuth } from "@/lib/auth/server";
+import { requireAuth, requireRole } from "@/lib/auth/server";
 import { resolveMosqueId } from "./_helpers";
 import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -44,8 +44,9 @@ export async function getMosqueSettings(): Promise<MosqueSettings> {
 }
 
 export async function updateMosqueSettings(formData: FormData): Promise<{ success: boolean; error?: string }> {
-  await requireAuth();
+  const profile = await requireAuth();
   const mosqueId = await resolveMosqueId();
+  await requireRole(mosqueId, "superadmin", "admin_dkm");
 
   const name = formData.get("name") as string;
   const address = formData.get("address") as string;

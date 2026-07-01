@@ -31,16 +31,18 @@ export async function getMushafirAid(mosqueId?: string) {
     .orderBy(desc(mushafir_aid.given_date));
 }
 
-export async function getMushafirById(id: string) {
-  const [row] = await db.select().from(mushafir_aid).where(eq(mushafir_aid.id, id)).limit(1);
+export async function getMushafirById(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db.select().from(mushafir_aid).where(and(eq(mushafir_aid.id, id), eq(mushafir_aid.mosque_id, mid))).limit(1);
   return row ?? null;
 }
 
-export async function checkDuplicateNik(nikHash: string) {
+export async function checkDuplicateNik(nikHash: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
   const existing = await db
     .select()
     .from(mushafir_aid)
-    .where(eq(mushafir_aid.nik_hash, nikHash))
+    .where(and(eq(mushafir_aid.nik_hash, nikHash), eq(mushafir_aid.mosque_id, mid)))
     .limit(1);
   return existing[0] ?? null;
 }
@@ -50,7 +52,7 @@ export async function createMushafir(data: InsertMushafir) {
   const mid = await resolveMosqueId();
 
   if (data.nik_hash) {
-    const dup = await checkDuplicateNik(data.nik_hash);
+    const dup = await checkDuplicateNik(data.nik_hash, mid);
     if (dup) {
       throw new Error(`DUPLICATE:NIK sudah terdaftar atas nama "${dup.name}" pada ${dup.given_date}`);
     }

@@ -3,6 +3,7 @@
 import { db } from "@/db/client";
 import { testimonials, audit_logs } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
+import { resolveMosqueId } from "./_helpers";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -31,17 +32,19 @@ export async function getTestimonials(mosqueId: string, activeOnly = false) {
     .orderBy(desc(testimonials.created_at));
 }
 
-export async function getTestimonialById(id: string) {
-  const [row] = await db.select().from(testimonials).where(eq(testimonials.id, id)).limit(1);
+export async function getTestimonialById(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db.select().from(testimonials).where(and(eq(testimonials.id, id), eq(testimonials.mosque_id, mid))).limit(1);
   return row ?? null;
 }
 
 export async function createTestimonial(data: InsertTestimonial) {
   const profile = await requireAuth();
+  const mid = await resolveMosqueId();
   const [row] = await db
     .insert(testimonials)
     .values({
-      mosque_id: data.mosque_id,
+      mosque_id: mid,
       mustahik_id: data.mustahik_id ?? null,
       nama: data.nama,
       usia: data.usia ?? null,
@@ -57,7 +60,7 @@ export async function createTestimonial(data: InsertTestimonial) {
   if (!row) throw new Error("Operation failed");
 
   await db.insert(audit_logs).values({
-    mosque_id: data.mosque_id,
+    mosque_id: mid,
     action: "insert",
     entity_type: "testimonials",
     entity_id: row.id,
@@ -65,7 +68,7 @@ export async function createTestimonial(data: InsertTestimonial) {
     changes: data,
   });
 
-  revalidatePath(`/admin/${data.mosque_id}/testimonials`);
+  revalidatePath(`/admin/${mid}/testimonials`);
   return row;
 }
 

@@ -31,8 +31,9 @@ export async function getMuzzakiList(mosqueId?: string) {
     .orderBy(desc(muzzaki.created_at));
 }
 
-export async function getMuzzakiById(id: string) {
-  const [row] = await db.select().from(muzzaki).where(eq(muzzaki.id, id)).limit(1);
+export async function getMuzzakiById(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db.select().from(muzzaki).where(and(eq(muzzaki.id, id), eq(muzzaki.mosque_id, mid))).limit(1);
   return row ?? null;
 }
 

@@ -27,8 +27,9 @@ export async function getZiswafRequests(mosqueId?: string) {
     .orderBy(desc(ziswaf_requests.created_at));
 }
 
-export async function getZiswafRequestById(id: string) {
-  const [row] = await db.select().from(ziswaf_requests).where(eq(ziswaf_requests.id, id)).limit(1);
+export async function getZiswafRequestById(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db.select().from(ziswaf_requests).where(and(eq(ziswaf_requests.id, id), eq(ziswaf_requests.mosque_id, mid))).limit(1);
   return row ?? null;
 }
 

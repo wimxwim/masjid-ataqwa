@@ -2,6 +2,7 @@
 
 import { db } from "@/db/client";
 import { donations, activity_feed, audit_logs } from "@/db/schema";
+import { requireAuth } from "@/lib/auth/server";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -17,6 +18,7 @@ export type InsertDonation = {
 };
 
 export async function getDonations(mosqueId: string) {
+  await requireAuth();
   return db
     .select()
     .from(donations)

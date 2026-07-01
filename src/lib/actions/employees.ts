@@ -30,8 +30,9 @@ export async function getEmployees(mosqueId?: string) {
     .orderBy(desc(employees.created_at));
 }
 
-export async function getEmployee(id: string) {
-  const [row] = await db.select().from(employees).where(eq(employees.id, id)).limit(1);
+export async function getEmployee(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db.select().from(employees).where(and(eq(employees.id, id), eq(employees.mosque_id, mid))).limit(1);
   return row ?? null;
 }
 

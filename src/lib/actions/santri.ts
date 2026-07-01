@@ -51,8 +51,9 @@ export async function getSantri(mosqueId?: string) {
     .orderBy(desc(santri.created_at));
 }
 
-export async function getSantriById(id: string) {
-  const [row] = await db.select().from(santri).where(eq(santri.id, id)).limit(1);
+export async function getSantriById(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db.select().from(santri).where(and(eq(santri.id, id), eq(santri.mosque_id, mid))).limit(1);
   return row ?? null;
 }
 

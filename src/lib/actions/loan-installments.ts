@@ -4,7 +4,7 @@ import { db } from "@/db/client";
 import { loan_installments, loans, audit_logs } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
 import { resolveMosqueId } from "./_helpers";
-import { eq, and, desc, asc, sql } from "drizzle-orm";
+import { eq, and, desc, asc, sql, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export type InsertLoanInstallment = {
@@ -19,7 +19,12 @@ export type InsertLoanInstallment = {
 };
 
 export async function getLoanInstallments(loanId: string) {
-  await requireAuth();
+  const profile = await requireAuth();
+  const mid = await resolveMosqueId();
+  const [loan] = await db.select({ id: loans.id }).from(loans)
+    .where(and(eq(loans.id, loanId), eq(loans.mosque_id, mid))).limit(1);
+  if (!loan) throw new Error("Loan tidak ditemukan");
+
   return db
     .select()
     .from(loan_installments)
@@ -62,11 +67,11 @@ export async function createLoanInstallment(data: InsertLoanInstallment) {
 
 export async function payInstallment(id: string, amount_paid: number) {
   const profile = await requireAuth();
-  const old = await getLoanInstallmentById(id);
+  const mid = await resolveMosqueId();
+  const old = await getLoanInstallmentById(id, mid);
   if (!old) throw new Error("Cicilan tidak ditemukan");
 
-  const [loan] = await db.select({ mosque_id: loans.mosque_id }).from(loans).where(eq(loans.id, old.loan_id)).limit(1);
-  const mosque_id = loan?.mosque_id ?? "";
+  const mosque_id = mid;
 
   const isLunas = amount_paid >= old.amount_due;
   const [row] = await db
@@ -92,7 +97,20 @@ export async function payInstallment(id: string, amount_paid: number) {
   return row;
 }
 
-async function getLoanInstallmentById(id: string) {
-  const [row] = await db.select().from(loan_installments).where(eq(loan_installments.id, id)).limit(1);
+async function getLoanInstallmentById(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db
+    .select()
+    .from(loan_installments)
+    .where(
+      and(
+        eq(loan_installments.id, id),
+        inArray(
+          loan_installments.loan_id,
+          db.select({ id: loans.id }).from(loans).where(eq(loans.mosque_id, mid))
+        )
+      )
+    )
+    .limit(1);
   return row ?? null;
 }

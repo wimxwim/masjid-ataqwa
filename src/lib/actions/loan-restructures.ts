@@ -30,7 +30,12 @@ export async function getLoanRestructures(mosqueId?: string) {
 }
 
 export async function getLoanRestructuresByLoan(loanId: string) {
-  await requireAuth();
+  const profile = await requireAuth();
+  const mid = await resolveMosqueId();
+  const [loan] = await db.select({ id: loans.id }).from(loans)
+    .where(and(eq(loans.id, loanId), eq(loans.mosque_id, mid))).limit(1);
+  if (!loan) throw new Error("Loan tidak ditemukan");
+
   return db
     .select()
     .from(loan_restructures)

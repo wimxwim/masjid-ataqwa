@@ -44,8 +44,9 @@ export async function getWakafAssets(mosqueId?: string) {
     .orderBy(desc(wakaf_assets.created_at));
 }
 
-export async function getWakafAssetById(id: string) {
-  const [row] = await db.select().from(wakaf_assets).where(eq(wakaf_assets.id, id)).limit(1);
+export async function getWakafAssetById(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db.select().from(wakaf_assets).where(and(eq(wakaf_assets.id, id), eq(wakaf_assets.mosque_id, mid))).limit(1);
   return row ?? null;
 }
 

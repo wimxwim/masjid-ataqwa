@@ -27,8 +27,9 @@ export async function getPrograms(mosqueId?: string) {
     .orderBy(asc(programs.sort_order), desc(programs.created_at));
 }
 
-export async function getProgram(id: string) {
-  const [row] = await db.select().from(programs).where(eq(programs.id, id)).limit(1);
+export async function getProgram(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db.select().from(programs).where(and(eq(programs.id, id), eq(programs.mosque_id, mid))).limit(1);
   return row ?? null;
 }
 

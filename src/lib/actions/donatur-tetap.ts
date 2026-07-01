@@ -30,8 +30,9 @@ export async function getDonaturTetap(mosqueId?: string) {
     .orderBy(desc(donatur_tetap.created_at));
 }
 
-export async function getDonaturTetapById(id: string) {
-  const [row] = await db.select().from(donatur_tetap).where(eq(donatur_tetap.id, id)).limit(1);
+export async function getDonaturTetapById(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db.select().from(donatur_tetap).where(and(eq(donatur_tetap.id, id), eq(donatur_tetap.mosque_id, mid))).limit(1);
   return row ?? null;
 }
 
