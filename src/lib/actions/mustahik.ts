@@ -31,8 +31,13 @@ export async function getMustahiks(mosqueId?: string): Promise<MustahikDb[]> {
   return serializeRows(rows as unknown as Record<string, unknown>[]) as unknown as MustahikDb[];
 }
 
-export async function getMustahikById(id: string): Promise<MustahikDb | null> {
-  const [row] = await db.select().from(mustahiks).where(eq(mustahiks.id, id)).limit(1);
+export async function getMustahikById(id: string, mosqueId?: string): Promise<MustahikDb | null> {
+  const mid = await resolveMosqueId(mosqueId);
+  const [row] = await db
+    .select()
+    .from(mustahiks)
+    .where(and(eq(mustahiks.id, id), eq(mustahiks.mosque_id, mid)))
+    .limit(1);
   return row ? (serializeRow(row as unknown as Record<string, unknown>) as unknown as MustahikDb) : null;
 }
 

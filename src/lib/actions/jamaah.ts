@@ -3,6 +3,7 @@
 import { db } from "@/db/client";
 import { jamaah, audit_logs } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
+import { resolveMosqueId } from "./_helpers";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { createJamaahSchema } from "@/lib/validation";
@@ -25,8 +26,13 @@ export async function getJamaah(mosqueId: string) {
     .orderBy(desc(jamaah.created_at));
 }
 
-export async function getJamaahById(id: string) {
-  const [row] = await db.select().from(jamaah).where(eq(jamaah.id, id)).limit(1);
+export async function getJamaahById(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db
+    .select()
+    .from(jamaah)
+    .where(and(eq(jamaah.id, id), eq(jamaah.mosque_id, mid)))
+    .limit(1);
   return row ?? null;
 }
 

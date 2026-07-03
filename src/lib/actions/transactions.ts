@@ -3,6 +3,7 @@
 import { db } from "@/db/client";
 import { transactions, audit_logs, fundTypeEnum, akadTypeEnum } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
+import { resolveMosqueId } from "./_helpers";
 import { eq, and, desc, asc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { createTransactionSchema } from "@/lib/validation";
@@ -105,9 +106,14 @@ export async function getTransactions(mosqueId: string, type?: string) {
     .orderBy(desc(transactions.transaction_date), asc(transactions.created_at));
 }
 
-export async function getTransaction(id: string) {
-  const row = await db.select().from(transactions).where(eq(transactions.id, id)).limit(1);
-  return row[0] ?? null;
+export async function getTransaction(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db
+    .select()
+    .from(transactions)
+    .where(and(eq(transactions.id, id), eq(transactions.mosque_id, mid)))
+    .limit(1);
+  return row ?? null;
 }
 
 export async function createTransaction(data: InsertTransaction) {

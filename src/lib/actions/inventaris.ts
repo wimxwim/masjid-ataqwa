@@ -3,6 +3,7 @@
 import { db } from "@/db/client";
 import { inventaris, audit_logs } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
+import { resolveMosqueId } from "./_helpers";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { createInventarisSchema } from "@/lib/validation";
@@ -25,8 +26,13 @@ export async function getInventaris(mosqueId: string) {
     .orderBy(desc(inventaris.created_at));
 }
 
-export async function getInventarisById(id: string) {
-  const [row] = await db.select().from(inventaris).where(eq(inventaris.id, id)).limit(1);
+export async function getInventarisById(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db
+    .select()
+    .from(inventaris)
+    .where(and(eq(inventaris.id, id), eq(inventaris.mosque_id, mid)))
+    .limit(1);
   return row ?? null;
 }
 

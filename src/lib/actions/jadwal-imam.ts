@@ -3,6 +3,7 @@
 import { db } from "@/db/client";
 import { jadwal_imam, audit_logs } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
+import { resolveMosqueId } from "./_helpers";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -26,8 +27,13 @@ export async function getJadwalImam(mosqueId: string) {
     .orderBy(desc(jadwal_imam.tanggal));
 }
 
-export async function getJadwalById(id: string) {
-  const [row] = await db.select().from(jadwal_imam).where(eq(jadwal_imam.id, id)).limit(1);
+export async function getJadwalById(id: string, mosqueId?: string) {
+  const mid = mosqueId ?? await resolveMosqueId();
+  const [row] = await db
+    .select()
+    .from(jadwal_imam)
+    .where(and(eq(jadwal_imam.id, id), eq(jadwal_imam.mosque_id, mid)))
+    .limit(1);
   return row ?? null;
 }
 

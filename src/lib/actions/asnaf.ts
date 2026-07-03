@@ -26,8 +26,13 @@ export async function getAsnafList(mosqueId?: string) {
     .orderBy(asc(asnaf.priority));
 }
 
-export async function getAsnafById(id: string) {
-  const [row] = await db.select().from(asnaf).where(eq(asnaf.id, id)).limit(1);
+export async function getAsnafById(id: string, mosqueId?: string) {
+  const mid = await resolveMosqueId(mosqueId);
+  const [row] = await db
+    .select()
+    .from(asnaf)
+    .where(and(eq(asnaf.id, id), eq(asnaf.mosque_id, mid)))
+    .limit(1);
   return row ?? null;
 }
 
