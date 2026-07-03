@@ -1,6 +1,7 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useEffect } from "react";
 import L from "leaflet";
 import type { MustahikDb } from "@/types";
 import { Phone } from "lucide-react";
@@ -12,6 +13,17 @@ interface Props {
   desilColor: Record<string, string>;
   desilLabel: Record<string, string>;
   ringLabel: (r: number | null) => string;
+}
+
+function MapResizer() {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [map]);
+  return null;
 }
 
 export default function MustahikMap({ filtered, MOSQUE_CENTER, desilColor, desilLabel, ringLabel }: Props) {
@@ -45,9 +57,10 @@ export default function MustahikMap({ filtered, MOSQUE_CENTER, desilColor, desil
         style={{ height: "100%", width: "100%", minHeight: "400px" }}
         zoomControl={false}
       >
+        <MapResizer />
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
       
       {/* Mosque center marker */}
