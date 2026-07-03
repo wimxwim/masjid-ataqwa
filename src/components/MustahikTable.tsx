@@ -530,7 +530,7 @@ function MustahikForm({
                 </button>
               </label>
               
-              <div className="h-[250px] mb-2 rounded-xl overflow-hidden relative z-0">
+              <div className="mb-2 relative z-0">
                 <MapPicker 
                   defaultLat={initial?.lat || undefined} 
                   defaultLng={initial?.lng || undefined} 

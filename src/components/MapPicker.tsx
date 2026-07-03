@@ -80,7 +80,7 @@ export default function MapPicker({ defaultLat, defaultLng, onPositionChange }: 
         .leaflet-container .leaflet-tile { max-width: none !important; }
         .leaflet-container { z-index: 0 !important; cursor: crosshair; }
       `}</style>
-      <div className="w-full h-full relative overflow-hidden rounded-xl border border-outline bg-surface">
+      <div className="w-full h-[250px] relative overflow-hidden rounded-xl border border-outline bg-surface">
         <MapContainer 
           center={initPos} 
           zoom={15} 
