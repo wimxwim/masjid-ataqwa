@@ -2,13 +2,17 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getLoanApplications, reviewLoanApplication, deleteLoanApplication } from "@/lib/actions/loan-applications";
-import { Search, X, CheckCircle2, XCircle, Clock, Trash2, Eye } from "lucide-react";
+import { evaluateNPF } from "@/lib/actions/npf-engine";
+import { Search, X, CheckCircle2, XCircle, Clock, Trash2, Eye, ShieldAlert } from "lucide-react";
+import { useAppContext } from "@/stores/app-context";
 
 type App = Awaited<ReturnType<typeof getLoanApplications>>[number];
 
 export default function AdminSahabatInfaqPage() {
+  const { triggerToast } = useAppContext();
   const [data, setData] = useState<App[]>([]);
   const [loading, setLoading] = useState(true);
+  const [evaluating, setEvaluating] = useState(false);
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
   const [detail, setDetail] = useState<App | null>(null);
@@ -54,6 +58,21 @@ export default function AdminSahabatInfaqPage() {
     catch { setError("Gagal menghapus"); }
   };
 
+  const handleRunNPF = async () => {
+    if (!confirm("Jalankan Mesin NPF Mata Elang sekarang? Ini akan mengevaluasi kolektibilitas seluruh pinjaman aktif.")) return;
+    setEvaluating(true);
+    try {
+      const res = await evaluateNPF();
+      if (res.success) {
+        triggerToast("NPF Evaluated", `Berhasil mengevaluasi ${res.evaluated} pinjaman. Terupdate: ${res.updated} data.`);
+      }
+    } catch (err: any) {
+      triggerToast("Error NPF", err.message || "Gagal menjalankan mesin NPF");
+    } finally {
+      setEvaluating(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -61,6 +80,14 @@ export default function AdminSahabatInfaqPage() {
           <h2 className="font-display font-bold text-xl text-ink">Pengajuan Bank Infaq</h2>
           <p className="text-sm text-muted">{data.length} pengajuan</p>
         </div>
+        <button
+          onClick={handleRunNPF}
+          disabled={evaluating}
+          className="bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 font-bold py-2 px-4 rounded-xl text-sm transition-all flex items-center gap-2"
+        >
+          <ShieldAlert className={`w-4 h-4 ${evaluating ? "animate-spin" : ""}`} />
+          {evaluating ? "Mengevaluasi NPF..." : "Mata Elang (Cek NPF)"}
+        </button>
       </div>
 
       {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}

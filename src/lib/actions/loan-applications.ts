@@ -27,7 +27,7 @@ export type InsertLoanApplication = {
 
 export async function getLoanApplications(mosqueId?: string) {
   const mid = await resolveMosqueId(mosqueId);
-  await requireRole(mid, "superadmin", "admin_dkm", "social_lead");
+  await requireRole(mid, "superadmin", "admin_dkm", "social_lead", "finance_director");
   return db
     .select()
     .from(loan_applications)
@@ -75,7 +75,7 @@ export async function reviewLoanApplication(id: string, status: string, notes?: 
     .where(eq(loan_applications.id, id))
     .limit(1);
   if (!old) throw new Error("Pengajuan tidak ditemukan");
-  await requireRole(old.mosque_id, "superadmin", "admin_dkm", "social_lead");
+  await requireRole(old.mosque_id, "superadmin", "admin_dkm", "social_lead", "finance_director");
 
   const [row] = await db
     .update(loan_applications)

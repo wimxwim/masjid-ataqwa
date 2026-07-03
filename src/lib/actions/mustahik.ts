@@ -61,7 +61,27 @@ export async function createMustahik(formData: FormData) {
 
   const asnaf_id = formData.get("asnaf_id") as string;
   const sub_asnaf = formData.get("sub_asnaf") as string;
-  const had_kifayah_score = formData.get("had_kifayah_score") as string;
+  let had_kifayah_score = formData.get("had_kifayah_score") as string;
+  let computed_desil_level = formData.get("desil_level") as string;
+
+  // AUTO-COMPUTE HAD KIFAYAH (Standar BAZNAS 2026 - Kebutuhan Dasar)
+  const numIncome = monthly_income ? parseInt(monthly_income) : 0;
+  const numDependents = dependents ? parseInt(dependents) : 0;
+  const minimumRequirement = 1500000 + (numDependents * 800000); // 1.5M Kepala Kel + 800k/anggota
+  let autoScore = (numIncome / minimumRequirement) * 100;
+  
+  if (!had_kifayah_score) {
+    had_kifayah_score = Math.round(autoScore).toString();
+  } else {
+    autoScore = parseInt(had_kifayah_score, 10);
+  }
+
+  if (!computed_desil_level) {
+    if (autoScore < 30) computed_desil_level = "1"; // Sangat Miskin (Desil 1)
+    else if (autoScore < 60) computed_desil_level = "2"; // Miskin (Desil 2)
+    else if (autoScore < 85) computed_desil_level = "3"; // Rentan Miskin (Desil 3)
+    else computed_desil_level = "4"; // Hampir Miskin (Desil 4)
+  }
   const nomor_induk_mustahik = formData.get("nomor_induk_mustahik") as string;
   const program_type = formData.get("program_type") as string;
 
@@ -74,7 +94,7 @@ export async function createMustahik(formData: FormData) {
       name,
       phone: phone || null,
       address,
-      desil_level: (desil_level as "1" | "2" | "3" | "4") || null,
+      desil_level: (computed_desil_level as "1" | "2" | "3" | "4") || null,
       ring_number: ring_number ? parseInt(ring_number) : null,
       monthly_income: monthly_income ? parseInt(monthly_income) : null,
       dependents: dependents ? parseInt(dependents) : null,
@@ -86,7 +106,7 @@ export async function createMustahik(formData: FormData) {
       created_by: profile.id,
       asnaf_id: asnaf_id || null,
       sub_asnaf: sub_asnaf || null,
-      had_kifayah_score: had_kifayah_score ? parseFloat(had_kifayah_score) : null,
+      had_kifayah_score: had_kifayah_score ? parseInt(had_kifayah_score, 10) : null,
       nomor_induk_mustahik: nomor_induk_mustahik || null,
       program_type: (program_type as "zakat" | "infaq" | "qardhul_hasan" | "beasiswa" | "pemberdayaan") || null,
     })
@@ -119,7 +139,27 @@ export async function updateMustahik(id: string, formData: FormData) {
 
   const asnaf_id = formData.get("asnaf_id") as string;
   const sub_asnaf = formData.get("sub_asnaf") as string;
-  const had_kifayah_score = formData.get("had_kifayah_score") as string;
+  let had_kifayah_score = formData.get("had_kifayah_score") as string;
+  let computed_desil_level = formData.get("desil_level") as string;
+
+  // AUTO-COMPUTE HAD KIFAYAH (Standar BAZNAS 2026 - Kebutuhan Dasar)
+  const numIncome = monthly_income ? parseInt(monthly_income) : 0;
+  const numDependents = dependents ? parseInt(dependents) : 0;
+  const minimumRequirement = 1500000 + (numDependents * 800000);
+  let autoScore = (numIncome / minimumRequirement) * 100;
+  
+  if (!had_kifayah_score) {
+    had_kifayah_score = Math.round(autoScore).toString();
+  } else {
+    autoScore = parseInt(had_kifayah_score, 10);
+  }
+
+  if (!computed_desil_level) {
+    if (autoScore < 30) computed_desil_level = "1";
+    else if (autoScore < 60) computed_desil_level = "2";
+    else if (autoScore < 85) computed_desil_level = "3";
+    else computed_desil_level = "4";
+  }
   const nomor_induk_mustahik = formData.get("nomor_induk_mustahik") as string;
   const program_type = formData.get("program_type") as string;
 
@@ -131,7 +171,7 @@ export async function updateMustahik(id: string, formData: FormData) {
       name,
       phone: phone || null,
       address,
-      desil_level: (desil_level as "1" | "2" | "3" | "4") || null,
+      desil_level: (computed_desil_level as "1" | "2" | "3" | "4") || null,
       ring_number: ring_number ? parseInt(ring_number) : null,
       monthly_income: monthly_income ? parseInt(monthly_income) : null,
       dependents: dependents ? parseInt(dependents) : null,
@@ -142,7 +182,7 @@ export async function updateMustahik(id: string, formData: FormData) {
       is_active: is_active === "true",
       asnaf_id: asnaf_id || null,
       sub_asnaf: sub_asnaf || null,
-      had_kifayah_score: had_kifayah_score ? parseFloat(had_kifayah_score) : null,
+      had_kifayah_score: had_kifayah_score ? parseInt(had_kifayah_score, 10) : null,
       nomor_induk_mustahik: nomor_induk_mustahik || null,
       program_type: (program_type as "zakat" | "infaq" | "qardhul_hasan" | "beasiswa" | "pemberdayaan") || null,
       updated_at: sql`NOW()`,

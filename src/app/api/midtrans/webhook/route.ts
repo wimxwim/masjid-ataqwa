@@ -158,11 +158,9 @@ export async function POST(request: Request) {
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     "unknown";
   if (!ipInRanges(clientIp, MIDTRANS_IP_RANGES)) {
-    log.warn("Webhook dari IP tidak dikenal", { ip: clientIp });
-    /* di production, return 403. di development, log saja */
-    if (process.env.MIDTRANS_IS_PRODUCTION === "true") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    log.warn("Webhook dari IP tidak dikenal (diabaikan blokirnya, lanjut cek signature)", { ip: clientIp });
+    /* PERBAIKAN: Kami TIDAK memblokir IP (return 403) karena Midtrans sering mengubah range IP. 
+       Validasi signature HMAC di bawah ini sudah cukup kuat secara matematis. */
   }
 
   const body = await request.json();

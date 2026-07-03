@@ -88,7 +88,8 @@ export default function MapPicker({ defaultLat, defaultLng, externalOverride, on
   if (distance <= 70) ringSuggestion = "Ring 1 (<=70m)";
   else if (distance <= 140) ringSuggestion = "Ring 2 (<=140m)";
   else if (distance <= 300) ringSuggestion = "Ring 3 (<=300m)";
-  else ringSuggestion = "Ring 4 (>300m)";
+  else if (distance <= 700) ringSuggestion = "Ring 4 (<=700m)";
+  else ringSuggestion = "Luar Ring (>700m)";
 
   return (
     <>

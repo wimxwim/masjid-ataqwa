@@ -23,7 +23,7 @@ export type InsertMushafir = {
 
 export async function getMushafirAid(mosqueId?: string) {
   const mid = await resolveMosqueId(mosqueId);
-  await requireRole(mid, "superadmin", "admin_dkm", "social_lead");
+  await requireRole(mid, "superadmin", "admin_dkm", "social_lead", "finance_director");
   return db
     .select()
     .from(mushafir_aid)
@@ -97,7 +97,7 @@ export async function updateMushafir(id: string, data: Partial<InsertMushafir>) 
   const profile = await requireAuth();
   const old = await getMushafirById(id);
   if (!old) throw new Error("Data tidak ditemukan");
-  await requireRole(old.mosque_id, "superadmin", "admin_dkm", "social_lead");
+  await requireRole(old.mosque_id, "superadmin", "admin_dkm", "social_lead", "finance_director");
   if (data.photo_ktp_url !== undefined) validateImageUrl(data.photo_ktp_url);
 
   const [row] = await db
@@ -124,7 +124,7 @@ export async function deleteMushafir(id: string) {
   const profile = await requireAuth();
   const old = await getMushafirById(id);
   if (!old) throw new Error("Data tidak ditemukan");
-  await requireRole(old.mosque_id, "superadmin", "admin_dkm", "social_lead");
+  await requireRole(old.mosque_id, "superadmin", "admin_dkm", "social_lead", "finance_director");
 
   await db
     .update(mushafir_aid)

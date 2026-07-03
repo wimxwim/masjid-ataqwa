@@ -121,10 +121,10 @@ export default function MustahikTable() {
           className="px-3 py-2 rounded-xl border border-outline bg-surface text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/40"
         >
           <option value="all">Semua Ring</option>
-          <option value={1}>Ring 1</option>
-          <option value={2}>Ring 2</option>
-          <option value={3}>Ring 3</option>
-          <option value={4}>Ring 4</option>
+          <option value={1}>Ring 1 (&lt;= 70m)</option>
+          <option value={2}>Ring 2 (&lt;= 140m)</option>
+          <option value={3}>Ring 3 (&lt;= 300m)</option>
+          <option value={4}>Ring 4 (&lt;= 700m)</option>
         </select>
       </div>
 
@@ -384,7 +384,7 @@ function MustahikForm({
                 <option value="1">Ring 1 (&lt;= 70m)</option>
                 <option value="2">Ring 2 (&lt;= 140m)</option>
                 <option value="3">Ring 3 (&lt;= 300m)</option>
-                <option value="4">Ring 4 (&gt; 300m)</option>
+                <option value="4">Ring 4 (&lt;= 700m)</option>
               </select>
             </div>
 

@@ -19,7 +19,7 @@ export type InsertZiswafRequest = {
 
 export async function getZiswafRequests(mosqueId?: string) {
   const mid = await resolveMosqueId(mosqueId);
-  await requireRole(mid, "superadmin", "admin_dkm", "social_lead");
+  await requireRole(mid, "superadmin", "admin_dkm", "social_lead", "finance_director");
   return db
     .select()
     .from(ziswaf_requests)
@@ -36,7 +36,7 @@ export async function getZiswafRequestById(id: string, mosqueId?: string) {
 export async function createZiswafRequest(data: InsertZiswafRequest) {
   const profile = await requireAuth();
   const mid = await resolveMosqueId();
-  await requireRole(mid, "superadmin", "admin_dkm", "social_lead");
+  await requireRole(mid, "superadmin", "admin_dkm", "social_lead", "finance_director");
 
   const [row] = await db
     .insert(ziswaf_requests)
@@ -70,7 +70,7 @@ export async function reviewZiswafRequest(id: string, status: string, notes?: st
   const profile = await requireAuth();
   const old = await getZiswafRequestById(id);
   if (!old) throw new Error("Permohonan tidak ditemukan");
-  await requireRole(old.mosque_id, "superadmin", "admin_dkm", "social_lead");
+  await requireRole(old.mosque_id, "superadmin", "admin_dkm", "social_lead", "finance_director");
 
   const [row] = await db
     .update(ziswaf_requests)

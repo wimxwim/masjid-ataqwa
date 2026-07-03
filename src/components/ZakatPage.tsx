@@ -10,6 +10,7 @@ import { useAppContext } from "@/stores/app-context";
 import { useDefaultMosque } from "@/lib/queries/public";
 import { createDonation } from "@/lib/actions/donations";
 import type { LedgerEntry } from "@/types";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 interface ZakatPageProps {
   initialSelectedType?: string;
@@ -76,6 +77,7 @@ export default function ZakatPage({ initialSelectedType }: ZakatPageProps) {
   const [paymentAmount, setPaymentAmount] = useState<number>(0);
   const [paymentProgramName, setPaymentProgramName] = useState<string>("");
   const [contributorName, setContributorName] = useState<string>("Hamba Allah");
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
 
   useEffect(() => {
     const gold = parseFloat(malGold) || 0;
@@ -115,11 +117,16 @@ export default function ZakatPage({ initialSelectedType }: ZakatPageProps) {
     setPaymentAmount(amount);
     setPaymentProgramName(program);
     setContributorName(infaqIsAnonymous ? "Hamba Allah" : defaultName || "Muzakki");
+    setTurnstileToken(""); // Reset token on open
     setPaymentStep("summary");
     setPaymentModalOpen(true);
   };
 
   const handleConfirmPayment = async () => {
+    if (!turnstileToken) {
+      triggerToast("Verifikasi Gagal", "Mohon tunggu kotak captcha selesai memverifikasi Anda.");
+      return;
+    }
     setPaymentStep("processing");
 
     const akadMap: Record<string, "zakat_fitrah" | "zakat_mal" | "infaq" | "sedekah" | "wakaf" | "fidyah"> = {
@@ -140,10 +147,13 @@ export default function ZakatPage({ initialSelectedType }: ZakatPageProps) {
           akad_type: akadMap[paymentProgramName] ?? "infaq",
           program_name: paymentProgramName,
           payment_method: paymentMethod === "bsi" ? "transfer" : "qris",
-          payment_status: "paid",
+          payment_status: "paid", // Wait, in the code it was set to paid. I'll leave it as paid but the backend overrides it to pending for public.
+          cf_turnstile_response: turnstileToken,
         });
-      } catch {
-        // Donasi tetap tercatat lokal walau simpan gagal
+      } catch (e: any) {
+        triggerToast("Gagal", e.message || "Gagal mencatat donasi");
+        setPaymentStep("summary");
+        return;
       }
     }
 
@@ -707,9 +717,17 @@ export default function ZakatPage({ initialSelectedType }: ZakatPageProps) {
                   </div>
                 </div>
 
+                <div className="flex justify-center py-2">
+                  <Turnstile
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+                    onSuccess={(token) => setTurnstileToken(token)}
+                  />
+                </div>
+
                 <button
                   onClick={handleConfirmPayment}
-                  className="w-full bg-primary hover:bg-primary-deep text-white font-bold py-3 rounded-xl text-sm shadow-lg shadow-primary/10 transition-all flex items-center justify-center gap-2"
+                  disabled={!turnstileToken}
+                  className="w-full bg-primary hover:bg-primary-deep disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl text-sm shadow-lg shadow-primary/10 transition-all flex items-center justify-center gap-2"
                 >
                   <ShieldCheck className="w-4 h-4" />
                   Konfirmasi & Bayar Sekarang

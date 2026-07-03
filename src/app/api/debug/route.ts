@@ -4,14 +4,16 @@ import { db } from "@/db/client";
 import { mosques, donations, transactions, mustahiks, profiles, memberships } from "@/db/schema";
 import { eq, and, isNull, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/server";
+import { requireAuth, requireRole } from "@/lib/auth/server";
+import { resolveMosqueId } from "@/lib/actions/_helpers";
 
 export async function GET(request: Request) {
   /* proteksi — hanya admin yang bisa akses debug */
   try {
-    await requireAuth();
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const mid = await resolveMosqueId();
+    await requireRole(mid, "superadmin");
+  } catch (e) {
+    return NextResponse.json({ error: "Unauthorized: Superadmin only" }, { status: 401 });
   }
 
   const result: Record<string, unknown> = { phase: "start" };

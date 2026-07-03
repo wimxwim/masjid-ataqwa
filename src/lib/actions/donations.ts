@@ -22,7 +22,21 @@ export type InsertDonation = {
   program_name?: string | null;
   payment_method?: string | null;
   payment_status?: string;
+  cf_turnstile_response?: string;
 };
+
+async function verifyTurnstile(token: string) {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) return true; // Bypass if not configured (e.g. local dev)
+
+  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `secret=${encodeURIComponent(secret)}&response=${encodeURIComponent(token)}`,
+  });
+  const data = await res.json();
+  return data.success === true;
+}
 
 export async function getDonations(mosqueId: string) {
   await requireAuth();
@@ -42,6 +56,16 @@ export async function createDonation(data: InsertDonation) {
     await requireRole(data.mosque_id, "superadmin", "admin_dkm", "finance_director");
     userIsAdmin = true;
   } catch { /* public user — keep false */ }
+
+  if (!userIsAdmin) {
+    if (!data.cf_turnstile_response) {
+      throw new Error("Tantangan keamanan gagal (Captcha kosong). Anda robot?");
+    }
+    const isHuman = await verifyTurnstile(data.cf_turnstile_response);
+    if (!isHuman) {
+      throw new Error("Verifikasi keamanan (Anti-Spam) gagal. Silakan coba lagi.");
+    }
+  }
 
   const paymentStatus = userIsAdmin ? (data.payment_status ?? "pending") : "pending";
 
