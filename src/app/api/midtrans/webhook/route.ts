@@ -8,6 +8,23 @@ import { createLogger } from "@/lib/logger";
 
 const log = createLogger("midtrans-webhook");
 
+/* IP range Midtrans (production & sandbox) — verified from docs via webfetch */
+/* Pastikan update jika Midtrans mengubah IP range mereka */
+const MIDTRANS_IP_RANGES = [
+  "103.10.63.0/24",   // Midtrans production notification
+  "103.207.99.0/24",  // Midtrans sandbox notification
+];
+
+function ipInRanges(ip: string, ranges: string[]): boolean {
+  const ipNum = ip.split(".").reduce((acc, oct) => (acc << 8) + parseInt(oct, 10), 0);
+  return ranges.some((range) => {
+    const [base, bits] = range.split("/");
+    const baseNum = base!.split(".").reduce((acc, oct) => (acc << 8) + parseInt(oct, 10), 0);
+    const mask = ~(2 ** (32 - parseInt(bits!)) - 1);
+    return (ipNum & mask) === (baseNum & mask);
+  });
+}
+
 /* ─── verifikasi signature HMAC Midtrans ─── */
 function verifySignature(
   body: Record<string, unknown>,
@@ -133,6 +150,19 @@ export async function POST(request: Request) {
   if (!serverKey) {
     log.warn("Webhook diterima tapi MIDTRANS_SERVER_KEY belum diisi");
     return NextResponse.json({ status: "ok" });
+  }
+
+  /* verifikasi IP origin — hanya terima dari Midtrans */
+  const clientIp =
+    request.headers.get("cf-connecting-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown";
+  if (!ipInRanges(clientIp, MIDTRANS_IP_RANGES)) {
+    log.warn("Webhook dari IP tidak dikenal", { ip: clientIp });
+    /* di production, return 403. di development, log saja */
+    if (process.env.MIDTRANS_IS_PRODUCTION === "true") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
   }
 
   const body = await request.json();

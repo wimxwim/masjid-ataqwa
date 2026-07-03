@@ -14,7 +14,7 @@ export type InsertLoanApplication = {
   name: string;
   phone: string;
   nik: string;
-  turnstileToken?: string;
+  turnstileToken: string;
   home_status: string;
   business_name: string;
   business_type: string;
@@ -39,10 +39,8 @@ export async function createLoanApplication(data: InsertLoanApplication) {
   createLoanApplicationSchema.parse(data);
   const mid = await resolveMosqueId();
 
-  if (data.turnstileToken) {
-    const valid = await verifyTurnstile(data.turnstileToken);
-    if (!valid) throw new Error("Verifikasi keamanan gagal. Refresh halaman dan coba lagi.");
-  }
+  const valid = await verifyTurnstile(data.turnstileToken);
+  if (!valid) throw new Error("Verifikasi keamanan gagal. Refresh halaman dan coba lagi.");
 
   const [row] = await db
     .insert(loan_applications)
