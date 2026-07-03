@@ -48,17 +48,17 @@ const logger = pino({
   },
 });
 
-function logWithRedact(level: "debug" | "info" | "warn" | "error", msg: string, data?: Record<string, unknown>, context: string) {
+function logWithRedact(level: "debug" | "info" | "warn" | "error", msg: string, context: string, data?: Record<string, unknown>) {
   const safeData = data ? redactSensitiveData(data) : undefined;
   logger[level]({ ...safeData, context }, msg);
 }
 
 export function createLogger(context: string) {
   return {
-    debug: (msg: string, data?: Record<string, unknown>) => logWithRedact("debug", msg, data, context),
-    info: (msg: string, data?: Record<string, unknown>) => logWithRedact("info", msg, data, context),
-    warn: (msg: string, data?: Record<string, unknown>) => logWithRedact("warn", msg, data, context),
-    error: (msg: string, data?: Record<string, unknown>) => logWithRedact("error", msg, data, context),
+    debug: (msg: string, data?: Record<string, unknown>) => logWithRedact("debug", msg, context, data),
+    info: (msg: string, data?: Record<string, unknown>) => logWithRedact("info", msg, context, data),
+    warn: (msg: string, data?: Record<string, unknown>) => logWithRedact("warn", msg, context, data),
+    error: (msg: string, data?: Record<string, unknown>) => logWithRedact("error", msg, context, data),
     redacted: (msg: string, data: Record<string, unknown>) => {
       logger.error({ ...redactSensitiveData(data), context, redacted: true }, msg);
     },
