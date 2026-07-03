@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAppContext } from "@/stores/app-context";
@@ -98,6 +98,8 @@ export default function LandingPage() {
     }
   }, [zakatType, assetValue, fitrahCount, zakatFitrahAmount]);
 
+  useEffect(() => { router.prefetch("/donasi"); }, [router]);
+
   const handleDonateClick = () => {
     setSelectedZakatTypePreset("Sedekah");
     router.push("/donasi");
@@ -181,6 +183,7 @@ export default function LandingPage() {
               src="https://images.unsplash.com/photo-1542810634-71277d95dcbb?auto=format&fit=crop&w=800&q=80"
               alt="At-Taqwa Mosque Dome"
               fill
+              priority
               sizes="(max-width: 1024px) 100vw, 40vw"
               className="object-cover"
             />

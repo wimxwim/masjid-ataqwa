@@ -26,8 +26,10 @@ function redactSensitiveData(obj: Record<string, unknown>, depth = 0): Record<st
   return result;
 }
 
+const LOG_LEVEL = process.env.LOG_LEVEL || (process.env.NODE_ENV === "production" ? "info" : "debug");
+
 const logger = pino({
-  level: process.env.NODE_ENV === "production" ? "info" : "debug",
+  level: LOG_LEVEL,
   formatters: {
     level: (label) => ({ level: label }),
   },
@@ -46,20 +48,17 @@ const logger = pino({
   },
 });
 
+function logWithRedact(level: "debug" | "info" | "warn" | "error", msg: string, data?: Record<string, unknown>, context: string) {
+  const safeData = data ? redactSensitiveData(data) : undefined;
+  logger[level]({ ...safeData, context }, msg);
+}
+
 export function createLogger(context: string) {
   return {
-    debug: (msg: string, data?: Record<string, unknown>) => {
-      logger.debug({ ...data, context }, msg);
-    },
-    info: (msg: string, data?: Record<string, unknown>) => {
-      logger.info({ ...data, context }, msg);
-    },
-    warn: (msg: string, data?: Record<string, unknown>) => {
-      logger.warn({ ...data, context }, msg);
-    },
-    error: (msg: string, data?: Record<string, unknown>) => {
-      logger.error({ ...data, context }, msg);
-    },
+    debug: (msg: string, data?: Record<string, unknown>) => logWithRedact("debug", msg, data, context),
+    info: (msg: string, data?: Record<string, unknown>) => logWithRedact("info", msg, data, context),
+    warn: (msg: string, data?: Record<string, unknown>) => logWithRedact("warn", msg, data, context),
+    error: (msg: string, data?: Record<string, unknown>) => logWithRedact("error", msg, data, context),
     redacted: (msg: string, data: Record<string, unknown>) => {
       logger.error({ ...redactSensitiveData(data), context, redacted: true }, msg);
     },

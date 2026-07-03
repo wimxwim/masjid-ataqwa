@@ -146,7 +146,7 @@ export default function AssetsTab({ mosqueId, inventarisList, setInventarisList 
                   <td className="p-3 text-center font-mono font-bold text-ink">{item.jumlah}</td>
                   <td className="p-3 text-center font-medium text-muted">{item.satuan}</td>
                   <td className="p-3 text-center">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold ${
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${
                       item.kondisi === "Baik"
                         ? "bg-success-subtle text-primary border border-primary/20"
                         : item.kondisi === "Rusak Ringan"

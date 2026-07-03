@@ -56,7 +56,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div>
               <div className="font-display font-bold text-sm text-white">At-Taqwa</div>
-              <p className="text-[9px] text-emerald-400 uppercase tracking-wider">Panel Admin</p>
+              <p className="text-[10px] text-emerald-400 uppercase tracking-wider">Panel Admin</p>
             </div>
           </Link>
         </div>

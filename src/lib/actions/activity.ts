@@ -103,6 +103,7 @@ export async function deleteActivity(id: string) {
     action: "delete",
     entity_type: "activity_feed",
     entity_id: id,
+    changes: row,
   });
 
   revalidatePath("/admin/activity");

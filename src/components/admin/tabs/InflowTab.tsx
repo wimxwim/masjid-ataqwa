@@ -208,7 +208,7 @@ export default function InflowTab({ mosqueId, onAddLedgerEntry }: InflowTabProps
                 </div>
                 <div>
                   <h5 className="font-bold text-xs text-white">Sekretariat At-Taqwa</h5>
-                  <p className="text-[9px] text-emerald-200 leading-none">Online</p>
+                  <p className="text-[10px] text-emerald-200 leading-none">Online</p>
                 </div>
               </div>
               <button
@@ -221,7 +221,7 @@ export default function InflowTab({ mosqueId, onAddLedgerEntry }: InflowTabProps
 
             <div className="bg-[#dcf8c6] text-ink p-3 rounded-lg text-xs leading-relaxed font-mono whitespace-pre-wrap shadow-xs relative">
               {simulatedWA.text}
-              <span className="absolute bottom-1 right-2 text-[9px] text-muted">
+              <span className="absolute bottom-1 right-2 text-[10px] text-muted">
                 {new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} ✓✓
               </span>
             </div>

@@ -76,7 +76,7 @@ export default function LiveActivityFeed() {
         <div className="my-8 bg-slate-900/80 border border-slate-800 rounded-xl p-5 space-y-3 relative z-10">
           <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-400 tracking-wider">
             <span className="flex items-center gap-1"><Calculator className="w-3.5 h-3.5 text-amber-400" /> TALLY HARI INI</span>
-            <span className="bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded font-mono text-[9px]">SINKRON</span>
+            <span className="bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded font-mono text-[10px]">SINKRON</span>
           </div>
           <div className="text-3xl sm:text-4xl font-mono font-black text-emerald-400 tracking-tight">
             Rp {tallyTotal.toLocaleString("id-ID")}

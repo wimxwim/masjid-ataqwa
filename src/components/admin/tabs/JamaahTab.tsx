@@ -169,7 +169,7 @@ export default function JamaahTab({ mosqueId }: JamaahTabProps) {
                       <td className="py-3 px-4 text-muted max-w-[200px] truncate" title={j.alamat ?? ""}>{j.alamat}</td>
                       <td className="py-3 px-4 text-center font-mono font-semibold text-ink">{j.rt_rw}</td>
                       <td className="py-3 px-4 text-center">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-bold ${
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold ${
                           j.peran === "Pengurus" ? "bg-accent/10 text-accent"
                             : j.peran === "REMISYA" ? "bg-indigo-50 text-indigo-700"
                               : j.peran === "Muzakki" ? "bg-success-subtle text-primary"

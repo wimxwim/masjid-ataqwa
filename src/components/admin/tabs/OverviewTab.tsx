@@ -146,7 +146,7 @@ export default function OverviewTab({ mustahikCount, jamaahData, ledgerEntries, 
               <span className="font-mono font-semibold text-ink">{fmt(totalDonasiOnline)}</span>
             </div>
           </div>
-          <p className="text-[9px] text-muted mt-1 italic">
+          <p className="text-[10px] text-muted mt-1 italic">
             * Kedua sumber dijumlah otomatis. Landing Page publik menampilkan angka Donasi Online.
           </p>
         </div>
@@ -221,7 +221,7 @@ export default function OverviewTab({ mustahikCount, jamaahData, ledgerEntries, 
                         {fmt(tx.jumlah)}
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-bold ${
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold ${
                           tx.tipe === "Pemasukan" ? "bg-success-subtle text-primary" : "bg-accent/10 text-accent"
                         }`}>
                           {tx.tipe}

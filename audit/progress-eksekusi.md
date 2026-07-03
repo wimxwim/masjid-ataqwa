@@ -106,3 +106,42 @@
 - **Commit**: 57a0b02 fix(P-012): [security] fix IDOR — tambah mosque_id filter
 
 >> CHECKPOINT P-001 + P-012 selesai. Lanjut batch 3 — Database & Bug Fixes (P-022, P-023, P-024, P-034, P-038, P-039)
+
+### [P-022] Bungkus createZakatPayment + muzzaki update dalam transaction
+- **Status verifikasi ulang**: Valid — 3 operasi (insert zakat_payments, audit_logs, update muzzaki) terpisah
+- **Riset**: Pattern db.transaction() sudah ada di loan-restructures.ts, donations.ts
+- **Perbaikan**: Bungkus 3 operasi dalam db.transaction(async (tx) => { ... })
+- **Sumber riset**: orm.drizzle.team/docs/transactions
+- **File**: src/lib/actions/zakat-payments.ts
+- **Commit**: cd8db94
+
+### [P-024] Validasi amount di updateTransaction
+- **Status verifikasi ulang**: Valid — createTransaction validasi amount, updateTransaction tidak
+- **Perbaikan**: Tambah `if (data.amount !== undefined && data.amount <= 0) throw`
+- **File**: src/lib/actions/transactions.ts
+- **Commit**: cd8db94
+
+### [P-034] Validasi URL gambar (XSS via image_url/photo_ktp_url)
+- **Status verifikasi ulang**: Valid — 3 fungsi simpan URL gambar tanpa validasi format/protokol
+- **Riset**: Zod bisa validasi URL, tapi action tidak pakai Zod untuk field individual. Buat helper di _helpers.ts
+  dengan URL constructor + cek protocol.
+- **Sumber riset**: UU PDP, OWASP A03:2021 Injection
+- **Perbaikan**:
+  1. Helper validateImageUrl() di _helpers.ts — cek URL valid + protokol HTTPS
+  2. Panggil di create/update testimonials, bumm_products, mushafir_aid
+- **File**: _helpers.ts, testimonials.ts, bumm.ts, mushafir.ts
+- **Commit**: cd8db94
+
+### [P-023] Fix getDonations / getZiswafRequests filter deleted_at
+- **Verifikasi ulang**: SKIP — tabel `donations` dan `ziswaf_requests` tidak punya kolom `deleted_at`.
+  Audit BUG-06/BUG-07 berdasarkan codebase versi lama. Tidak ada yang perlu diperbaiki.
+
+### [P-038] Login loading state
+- **Verifikasi ulang**: SUDAH ADA — LoginPage.tsx baris 11-12: `const [loading, setLoading] = useState(false)`
+  dan baris 91-95 menampilkan spinner + "Mengautentikasi..." saat loading. Tidak ada yang perlu diperbaiki.
+
+### [P-039] Signup error message
+- **Verifikasi ulang**: SKIP — Tidak ada halaman signup publik. Registrasi dilakukan oleh pengurus masjid
+  secara internal.
+
+>> CHECKPOINT P-022/P-024/P-034 selesai (3 fix). P-023/P-038/P-039 skip/stale. Lanjut batch 4 — Arsitektur & Keamanan (P-010, P-011, P-013, P-014)
