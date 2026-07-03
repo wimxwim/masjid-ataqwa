@@ -42,10 +42,6 @@ export const kolektibilitasEnum = pgEnum("kolektibilitas", [
   "5_macet",
 ]);
 
-export const repaymentStatusEnum = pgEnum("repayment_status", [
-  "lunas", "kurang", "ditanggung",
-]);
-
 export const commissionStatusEnum = pgEnum("commission_status", [
   "pending", "approved", "paid", "cancelled",
 ]);
@@ -410,31 +406,6 @@ export const loan_applications = pgTable("loan_applications", {
   index("loan_apps_mosque_idx").on(t.mosque_id),
   index("loan_apps_status_idx").on(t.status),
   index("loan_apps_nik_hash_idx").on(t.nik_hash),
-]);
-
-/** Cicilan + tanggung renteng. */
-export const repayments = pgTable("repayments", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  loan_id: uuid("loan_id").notNull().references(() => loans.id, { onDelete: "cascade" }),
-  amount_paid: bigint("amount_paid", { mode: "number" }).notNull(),
-  week_number: integer("week_number").notNull(),
-  status: repaymentStatusEnum("status").default("lunas"),
-
-  // Tanggung renteng
-  is_backstopped: boolean("is_backstopped").default(false),
-  backstopped_by: uuid("backstopped_by").references(() => profiles.id),
-  backstop_amount: bigint("backstop_amount", { mode: "number" }).default(0),
-
-  // Presensi kajian (syarat pinjaman)
-  is_present_taklim: boolean("is_present_taklim").default(false),
-
-  // IDEMPOTENCY KEY
-  idempotency_key: text("idempotency_key").unique(),
-
-  paid_at: timestamp("paid_at", { withTimezone: true }).defaultNow(),
-  created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-}, (t) => [
-  index("repayments_loan_idx").on(t.loan_id),
 ]);
 
 /* ============================== PROGRAM: KAJIAN ============================== */
