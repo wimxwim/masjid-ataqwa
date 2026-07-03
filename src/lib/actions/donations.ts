@@ -1,10 +1,27 @@
 "use server";
 
 import { db } from "@/db/client";
-import { donations, activity_feed, audit_logs } from "@/db/schema";
-import { requireAuth } from "@/lib/auth/server";
+import {
+  donations,
+  activity_feed,
+  audit_logs,
+  transactions,
+  type FundType,
+  type AkadType,
+} from "@/db/schema";
+import { requireAuth, requireRole } from "@/lib/auth/server";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+
+/* ─── mapping akad_type donasi → category + fund_type ─── */
+const CATEGORY_MAP: Record<string, { category: string; fund_type: FundType; akad: AkadType }> = {
+  zakat_fitrah: { category: "Zakat Fitrah", fund_type: "zakat_fitrah", akad: "tamlik" },
+  zakat_mal: { category: "Zakat Maal", fund_type: "zakat_maal", akad: "tamlik" },
+  infaq: { category: "Infaq", fund_type: "infaq_tidak_terikat", akad: "tabarru" },
+  sedekah: { category: "Sedekah", fund_type: "infaq_tidak_terikat", akad: "tabarru" },
+  wakaf: { category: "Wakaf", fund_type: "wakaf_pokok", akad: "wakaf" },
+  fidyah: { category: "Fidyah", fund_type: "zakat_fitrah", akad: "tamlik" },
+};
 
 export type InsertDonation = {
   mosque_id: string;
@@ -29,6 +46,15 @@ export async function getDonations(mosqueId: string) {
 export async function createDonation(data: InsertDonation) {
   if (data.amount <= 0) throw new Error("Jumlah donasi harus lebih dari 0");
 
+  /* Only admin can set payment_status directly — public donations always start as pending */
+  let userIsAdmin = false;
+  try {
+    await requireRole(data.mosque_id, "superadmin", "admin_dkm", "finance_director");
+    userIsAdmin = true;
+  } catch { /* public user — keep false */ }
+
+  const paymentStatus = userIsAdmin ? (data.payment_status ?? "pending") : "pending";
+
   const [row] = await db
     .insert(donations)
     .values({
@@ -39,19 +65,40 @@ export async function createDonation(data: InsertDonation) {
       akad_type: data.akad_type,
       program_name: data.program_name ?? null,
       payment_method: (data.payment_method ?? "transfer") as "qris" | "transfer" | "tunai" | "kitabisa",
-      payment_status: (data.payment_status ?? "paid") as "pending" | "paid" | "failed" | "refunded",
-      paid_at: sql`NOW()`,
+      payment_status: paymentStatus as "pending" | "paid" | "failed" | "refunded",
+      paid_at: paymentStatus === "paid" ? sql`NOW()` : null,
     })
     .returning();
   if (!row) throw new Error("Gagal menyimpan donasi");
 
-  await db.insert(activity_feed).values({
-    mosque_id: data.mosque_id,
-    type: "donation",
-    nama: data.donor_name ?? "Anonim",
-    detail: data.program_name ?? data.akad_type,
-    jumlah: data.amount,
-  });
+  const isPaid = paymentStatus === "paid";
+
+  if (isPaid) {
+    await db.insert(activity_feed).values({
+      mosque_id: data.mosque_id,
+      type: "donation",
+      nama: data.donor_name ?? "Anonim",
+      detail: data.program_name ?? data.akad_type,
+      jumlah: data.amount,
+    });
+
+    /* ─── sync ke buku besar ─── */
+    const m = CATEGORY_MAP[data.akad_type] ?? CATEGORY_MAP.infaq;
+    const progLabel = data.program_name ? ` – ${data.program_name}` : "";
+    const txValue: typeof transactions.$inferInsert = {
+      mosque_id: data.mosque_id,
+      type: "Pemasukan",
+      category: `${m!.category}${progLabel}`,
+      amount: data.amount,
+      description: `Donasi online dari ${data.donor_name ?? "Anonim"}`,
+      donor_name: data.donor_name ?? null,
+      phone: data.donor_phone ?? null,
+      transaction_date: new Date().toISOString().split("T")[0]!,
+      fund_type: m!.fund_type,
+      akad_type: m!.akad,
+    };
+    await db.insert(transactions).values(txValue);
+  }
 
   await db.insert(audit_logs).values({
     mosque_id: data.mosque_id,
@@ -68,5 +115,6 @@ export async function createDonation(data: InsertDonation) {
 
   revalidatePath("/");
   revalidatePath("/donasi");
+  revalidatePath("/transparansi");
   return row;
 }
