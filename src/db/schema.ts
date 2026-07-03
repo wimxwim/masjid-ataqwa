@@ -62,11 +62,13 @@ export const fundTypeEnum = pgEnum("fund_type", [
   "qardhul_hasan",
   "non_halal",
 ]);
+export type FundType = (typeof fundTypeEnum.enumValues)[number];
 
 /** akad_type — klasifikasi akad syariah untuk transaksi */
 export const akadTypeEnum = pgEnum("akad_type", [
   "tamlik", "tabarru", "wakaf", "qardh",
 ]);
+export type AkadType = (typeof akadTypeEnum.enumValues)[number];
 
 export const donationPaymentEnum = pgEnum("donation_payment", [
   "qris", "transfer", "tunai", "kitabisa",
@@ -106,10 +108,15 @@ export const mosques = pgTable("mosques", {
 
   // Konfigurasi (JSONB — flexible untuk tiap masjid)
   config: jsonb("config").default({
-    prayer_adjustment: 2,         // menit penyesuaian jadwal sholat
-    kajian_start_hour: 19,        // jam mulai kajian
-    zakat_fitrah_amount: 45000,   // nominal zakat fitrah
-    infaq_weekly_default: 50000,  // infaq mingguan default
+    prayer_adjustment: 2,
+    kajian_start_hour: 19,
+    zakat_fitrah_amount: 45000,
+    infaq_weekly_default: 50000,
+    stats: {
+      penerima_manfaat_langsung: 2418,
+      anak_asuh: 85,
+      umkm_bina: 42,
+    },
   }),
 
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -364,6 +371,43 @@ export const loans = pgTable("loans", {
   index("loans_kolektibilitas_idx").on(t.mosque_id, t.kolektibilitas),
   index("loans_purpose_idx").on(t.mosque_id, t.purpose),
   index("loans_npf_stage_idx").on(t.mosque_id, t.npf_stage),
+]);
+
+/** Pengajuan modal Qardhul Hasan dari publik (sebelum jadi mustahik/loan). */
+export const loan_applications = pgTable("loan_applications", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  mosque_id: uuid("mosque_id").notNull().references(() => mosques.id, { onDelete: "cascade" }),
+
+  name: text("name").notNull(),
+  phone: text("phone").notNull(),
+  nik: text("nik").notNull(),
+  nik_encrypted: text("nik_encrypted"),
+  nik_hash: text("nik_hash"),
+  home_status: text("home_status").notNull(),
+
+  business_name: text("business_name").notNull(),
+  business_type: text("business_type").notNull(),
+  business_age: text("business_age").notNull(),
+  business_address: text("business_address").notNull(),
+
+  amount: bigint("amount", { mode: "number" }).notNull(),
+  week_duration: integer("week_duration").notNull(),
+  purpose: text("purpose"),
+
+  status: text("status").default("pending"),
+  notes: text("notes"),
+
+  reviewed_by: uuid("reviewed_by").references(() => profiles.id),
+  reviewed_at: timestamp("reviewed_at", { withTimezone: true }),
+  converted_loan_id: uuid("converted_loan_id").references(() => loans.id),
+
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  deleted_at: timestamp("deleted_at", { withTimezone: true }),
+}, (t) => [
+  index("loan_apps_mosque_idx").on(t.mosque_id),
+  index("loan_apps_status_idx").on(t.status),
+  index("loan_apps_nik_hash_idx").on(t.nik_hash),
 ]);
 
 /** Cicilan + tanggung renteng. */
