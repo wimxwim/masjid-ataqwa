@@ -5,6 +5,7 @@ import { inventaris, audit_logs } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { createInventarisSchema } from "@/lib/validation";
 
 export type InsertInventaris = {
   mosque_id: string;
@@ -30,6 +31,7 @@ export async function getInventarisById(id: string) {
 }
 
 export async function createInventaris(data: InsertInventaris) {
+  createInventarisSchema.parse(data);
   const profile = await requireAuth();
   await requireRole(data.mosque_id, "superadmin", "admin_dkm");
   const [row] = await db

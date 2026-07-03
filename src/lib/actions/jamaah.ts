@@ -5,6 +5,7 @@ import { jamaah, audit_logs } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { createJamaahSchema } from "@/lib/validation";
 
 export type InsertJamaah = {
   mosque_id: string;
@@ -30,6 +31,7 @@ export async function getJamaahById(id: string) {
 }
 
 export async function createJamaah(data: InsertJamaah) {
+  createJamaahSchema.parse(data);
   const profile = await requireAuth();
   await requireRole(data.mosque_id, "superadmin", "admin_dkm");
   const [row] = await db

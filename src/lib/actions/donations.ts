@@ -11,6 +11,7 @@ import { requireAuth, requireRole } from "@/lib/auth/server";
 import { CATEGORY_MAP } from "@/lib/fund-mapping";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { createDonationSchema } from "@/lib/validation";
 
 export type InsertDonation = {
   mosque_id: string;
@@ -33,7 +34,7 @@ export async function getDonations(mosqueId: string) {
 }
 
 export async function createDonation(data: InsertDonation) {
-  if (data.amount <= 0) throw new Error("Jumlah donasi harus lebih dari 0");
+  createDonationSchema.parse(data);
 
   /* Only admin can set payment_status directly — public donations always start as pending */
   let userIsAdmin = false;

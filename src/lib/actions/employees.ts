@@ -6,6 +6,7 @@ import { requireAuth, requireRole } from "@/lib/auth/server";
 import { resolveMosqueId } from "./_helpers";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { createEmployeeSchema } from "@/lib/validation";
 
 export type InsertEmployee = {
   name: string;
@@ -37,6 +38,7 @@ export async function getEmployee(id: string, mosqueId?: string) {
 }
 
 export async function createEmployee(data: InsertEmployee) {
+  createEmployeeSchema.parse(data);
   const profile = await requireAuth();
   const mid = await resolveMosqueId();
   const [row] = await db

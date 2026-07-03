@@ -5,6 +5,7 @@ import { transactions, audit_logs, fundTypeEnum, akadTypeEnum } from "@/db/schem
 import { requireAuth, requireRole } from "@/lib/auth/server";
 import { eq, and, desc, asc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { createTransactionSchema } from "@/lib/validation";
 
 export type FundType = "zakat_fitrah" | "zakat_maal" | "infaq_terikat" | "infaq_tidak_terikat" | "wakaf_pokok" | "wakaf_hasil" | "qardhul_hasan" | "non_halal";
 export type AkadType = "tamlik" | "tabarru" | "wakaf" | "qardh";
@@ -110,6 +111,7 @@ export async function getTransaction(id: string) {
 }
 
 export async function createTransaction(data: InsertTransaction) {
+  createTransactionSchema.parse(data);
   const profile = await requireAuth();
   const mosqueId = data.mosque_id;
 

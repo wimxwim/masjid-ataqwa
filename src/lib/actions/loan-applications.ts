@@ -8,6 +8,7 @@ import { encryptNik, hashNikServer } from "@/lib/nik-crypto";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { eq, and, desc, sql, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { createLoanApplicationSchema } from "@/lib/validation";
 
 export type InsertLoanApplication = {
   name: string;
@@ -35,6 +36,7 @@ export async function getLoanApplications(mosqueId?: string) {
 }
 
 export async function createLoanApplication(data: InsertLoanApplication) {
+  createLoanApplicationSchema.parse(data);
   const mid = await resolveMosqueId();
 
   if (data.turnstileToken) {
