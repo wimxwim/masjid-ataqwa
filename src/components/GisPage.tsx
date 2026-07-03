@@ -6,10 +6,10 @@ import { getMustahiks, createMustahik } from "@/lib/actions/mustahik";
 import type { MustahikDb } from "@/types";
 import { Map, Filter, Compass, Phone } from "lucide-react";
 
-const MapContainer = dynamic(() => import("react-leaflet").then((m) => m.MapContainer), { ssr: false });
-const TileLayer = dynamic(() => import("react-leaflet").then((m) => m.TileLayer), { ssr: false });
-const Marker = dynamic(() => import("react-leaflet").then((m) => m.Marker), { ssr: false });
-const Popup = dynamic(() => import("react-leaflet").then((m) => m.Popup), { ssr: false });
+const MapComponent = dynamic(() => import("./MustahikMap"), { 
+  ssr: false, 
+  loading: () => <div className="w-full h-full flex items-center justify-center text-muted">Memuat Peta...</div> 
+});
 
 const MOSQUE_CENTER: [number, number] = [-6.228, 106.761];
 
@@ -33,43 +33,11 @@ const ringLabel = (r: number | null) => {
 };
 
 export default function GisPage() {
-  const LRef = useRef<any>(null);
-  const [leafletReady, setLeafletReady] = useState(false);
   const [mustahikList, setMustahikList] = useState<MustahikDb[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRing, setSelectedRing] = useState<string>("All");
   const [selectedDesil, setSelectedDesil] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    import("leaflet").then((mod) => {
-      LRef.current = mod.default || mod;
-      setLeafletReady(true);
-    });
-  }, []);
-
-  const getMarkerIcon = useCallback((desil: string | null) => {
-    const L = LRef.current;
-    if (!L) return null;
-    const color = desilColor[desil || ""] || "#6b7280";
-    return L.divIcon({
-      className: "",
-      html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`,
-      iconSize: [14, 14],
-      iconAnchor: [7, 7],
-    });
-  }, []);
-
-  const mosqueIcon = useCallback(() => {
-    const L = LRef.current;
-    if (!L) return null;
-    return L.divIcon({
-      className: "",
-      html: `<div style="width:24px;height:24px;border-radius:50%;background:#10b981;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:12px">🕌</div>`,
-      iconSize: [24, 24],
-      iconAnchor: [12, 12],
-    });
-  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -90,8 +58,6 @@ export default function GisPage() {
     const q = searchQuery.toLowerCase();
     return m.name.toLowerCase().includes(q) || m.address.toLowerCase().includes(q);
   });
-
-  const showMap = leafletReady && typeof window !== "undefined";
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-8" id="gis-portal-page">
@@ -123,44 +89,14 @@ export default function GisPage() {
             <span className="font-mono text-[10px] text-muted">Pusat: {Math.abs(MOSQUE_CENTER[0]).toFixed(3)}°{MOSQUE_CENTER[0] < 0 ? "S" : "N"}, {MOSQUE_CENTER[1].toFixed(3)}°E</span>
           </div>
 
-          <div className="relative w-full h-[450px] rounded-xl overflow-hidden border border-outline z-0">
-            {showMap && (
-              <MapContainer center={MOSQUE_CENTER} zoom={15} className="w-full h-full" zoomControl={false}>
-                <TileLayer
-                  attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-                  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                />
-                {/* Mosque center marker */}
-                <Marker position={MOSQUE_CENTER} icon={mosqueIcon()}>
-                  <Popup>
-                    <div className="text-xs font-bold">Masjid At-Taqwa Ulujami</div>
-                  </Popup>
-                </Marker>
-
-                {/* Mustahik markers */}
-                {filtered.map((m) => {
-                  if (!m.lat || !m.lng) return null;
-                  const icon = getMarkerIcon(m.desil_level);
-                  if (!icon) return null;
-                  return (
-                    <Marker key={m.id} position={[m.lat, m.lng]} icon={icon}>
-                      <Popup>
-                        <div className="text-xs space-y-1 min-w-[180px]">
-                          <div className="font-bold text-sm">{m.name}</div>
-                          <div className="text-muted">{m.address}</div>
-                          {m.phone && <div className="flex items-center gap-1"><Phone className="w-3 h-3" /> {m.phone}</div>}
-                          <div className="flex items-center gap-2 pt-1 border-t border-outline mt-1">
-                            <span>{desilLabel[m.desil_level || ""] || "-"}</span>
-                            <span className="text-muted">•</span>
-                            <span>{ringLabel(m.ring_number)}</span>
-                          </div>
-                        </div>
-                      </Popup>
-                    </Marker>
-                  );
-                })}
-              </MapContainer>
-            )}
+          <div className="relative w-full h-[450px] rounded-xl overflow-hidden border border-outline z-0 bg-surface">
+            <MapComponent 
+              filtered={filtered} 
+              MOSQUE_CENTER={MOSQUE_CENTER}
+              desilColor={desilColor}
+              desilLabel={desilLabel}
+              ringLabel={ringLabel}
+            />
           </div>
 
           {/* Legend */}
