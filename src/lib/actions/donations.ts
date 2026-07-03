@@ -6,22 +6,11 @@ import {
   activity_feed,
   audit_logs,
   transactions,
-  type FundType,
-  type AkadType,
 } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
+import { CATEGORY_MAP } from "@/lib/fund-mapping";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-
-/* ─── mapping akad_type donasi → category + fund_type ─── */
-const CATEGORY_MAP: Record<string, { category: string; fund_type: FundType; akad: AkadType }> = {
-  zakat_fitrah: { category: "Zakat Fitrah", fund_type: "zakat_fitrah", akad: "tamlik" },
-  zakat_mal: { category: "Zakat Maal", fund_type: "zakat_maal", akad: "tamlik" },
-  infaq: { category: "Infaq", fund_type: "infaq_tidak_terikat", akad: "tabarru" },
-  sedekah: { category: "Sedekah", fund_type: "infaq_tidak_terikat", akad: "tabarru" },
-  wakaf: { category: "Wakaf", fund_type: "wakaf_pokok", akad: "wakaf" },
-  fidyah: { category: "Fidyah", fund_type: "zakat_fitrah", akad: "tamlik" },
-};
 
 export type InsertDonation = {
   mosque_id: string;

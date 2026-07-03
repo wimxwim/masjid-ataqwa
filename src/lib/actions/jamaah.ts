@@ -31,6 +31,7 @@ export async function getJamaahById(id: string) {
 
 export async function createJamaah(data: InsertJamaah) {
   const profile = await requireAuth();
+  await requireRole(data.mosque_id, "superadmin", "admin_dkm");
   const [row] = await db
     .insert(jamaah)
     .values({

@@ -31,6 +31,7 @@ export async function getInventarisById(id: string) {
 
 export async function createInventaris(data: InsertInventaris) {
   const profile = await requireAuth();
+  await requireRole(data.mosque_id, "superadmin", "admin_dkm");
   const [row] = await db
     .insert(inventaris)
     .values({

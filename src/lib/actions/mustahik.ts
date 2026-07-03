@@ -3,7 +3,7 @@
 import { db } from "@/db/client";
 import { mustahiks } from "@/db/schema";
 import type { MustahikDb } from "@/types";
-import { requireAuth } from "@/lib/auth/server";
+import { requireAuth, requireRole } from "@/lib/auth/server";
 import { resolveMosqueId } from "./_helpers";
 import { eq, and, isNull, desc, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -39,6 +39,7 @@ export async function getMustahikById(id: string): Promise<MustahikDb | null> {
 export async function createMustahik(formData: FormData) {
   const profile = await requireAuth();
   const mosqueId = await resolveMosqueId();
+  await requireRole(mosqueId, "superadmin", "admin_dkm");
 
   const name = formData.get("name") as string;
   const phone = formData.get("phone") as string;
@@ -96,6 +97,7 @@ export async function updateMustahik(id: string, formData: FormData) {
   await requireAuth();
   const old = await getMustahikById(id);
   if (!old) return { error: "Mustahik tidak ditemukan." };
+  await requireRole(old.mosque_id, "superadmin", "admin_dkm");
 
   const name = formData.get("name") as string;
   const phone = formData.get("phone") as string;
@@ -153,6 +155,7 @@ export async function deleteMustahik(id: string) {
   await requireAuth();
   const old = await getMustahikById(id);
   if (!old) return { error: "Mustahik tidak ditemukan." };
+  await requireRole(old.mosque_id, "superadmin", "admin_dkm");
 
   await db
     .update(mustahiks)

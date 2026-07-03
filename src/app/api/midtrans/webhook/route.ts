@@ -3,17 +3,7 @@ import crypto from "crypto";
 import { db } from "@/db/client";
 import { donations, transactions, activity_feed, audit_logs } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
-import type { FundType, AkadType } from "@/db/schema";
-
-/* ─── mapping akad_type donasi → category + fund_type ─── */
-const CATEGORY_MAP: Record<string, { category: string; fund_type: FundType; akad: AkadType }> = {
-  zakat_fitrah: { category: "Zakat Fitrah", fund_type: "zakat_fitrah", akad: "tamlik" },
-  zakat_mal: { category: "Zakat Maal", fund_type: "zakat_maal", akad: "tamlik" },
-  infaq: { category: "Infaq", fund_type: "infaq_tidak_terikat", akad: "tabarru" },
-  sedekah: { category: "Sedekah", fund_type: "infaq_tidak_terikat", akad: "tabarru" },
-  wakaf: { category: "Wakaf", fund_type: "wakaf_pokok", akad: "wakaf" },
-  fidyah: { category: "Fidyah", fund_type: "zakat_fitrah", akad: "tamlik" },
-};
+import { CATEGORY_MAP } from "@/lib/fund-mapping";
 
 /* ─── verifikasi signature HMAC Midtrans ─── */
 function verifySignature(
