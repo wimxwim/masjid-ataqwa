@@ -148,10 +148,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
-  /* proses async — balas 200 dulu */
-  handlePaymentNotification(body).catch((err) => {
+  /* proses synchronously — await biar serverless tidak terminate sebelum selesai */
+  try {
+    await handlePaymentNotification(body);
+  } catch (err) {
     log.error("Webhook handler error", { error: String(err) });
-  });
+  }
 
   return NextResponse.json({ status: "ok" });
 }
