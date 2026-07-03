@@ -4,6 +4,8 @@ import { eq, and, desc, asc, isNull, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { AKAD_TO_FUND } from "@/lib/fund-mapping";
 
+export const dynamic = "force-dynamic";
+
 async function getDefaultMosque() {
   const [mosque] = await db
     .select()
