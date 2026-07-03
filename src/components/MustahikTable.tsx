@@ -372,9 +372,10 @@ function MustahikForm({
                 className="w-full px-3 py-2 rounded-xl border border-outline bg-bg text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/40"
               >
                 <option value="">Pilih Ring</option>
-                <option value="1">Ring 1 (&lt;500m)</option>
-                <option value="2">Ring 2 (500m - 1km)</option>
-                <option value="3">Ring 3 (&gt;1km)</option>
+                <option value="1">Ring 1 (&lt;= 70m)</option>
+                <option value="2">Ring 2 (&lt;= 140m)</option>
+                <option value="3">Ring 3 (&lt;= 300m)</option>
+                <option value="4">Ring 4 (&gt; 300m)</option>
               </select>
             </div>
 

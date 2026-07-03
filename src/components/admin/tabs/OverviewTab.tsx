@@ -112,7 +112,7 @@ export default function OverviewTab({ mustahikCount, jamaahData, ledgerEntries, 
           <div className="space-y-1">
             <span className="text-xs font-semibold text-muted uppercase tracking-wider block">Mustahik Ring 1</span>
             <span className="text-3xl font-mono font-black text-ink tracking-tight">{mustahikCount} KK</span>
-            <span className="text-[10px] text-primary font-medium bg-success-subtle px-1.5 py-0.5 rounded mt-1.5 inline-block">Terdata Radius 500m</span>
+            <span className="text-[10px] text-primary font-medium bg-success-subtle px-1.5 py-0.5 rounded mt-1.5 inline-block">Terdata Radius 70m</span>
           </div>
           <div className="w-12 h-12 rounded-xl bg-success-subtle text-primary flex items-center justify-center">
             <Users className="w-5 h-5" />

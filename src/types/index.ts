@@ -61,7 +61,7 @@ export interface Mustahik {
   alamat: string;
   telepon: string;
   desil: 1 | 2 | 3 | 4;
-  ring: "Ring 1 (<500m)" | "Ring 2 (500m - 1km)" | "Ring 3 (>1km)";
+  ring: "Ring 1 (<=70m)" | "Ring 2 (<=140m)" | "Ring 3 (<=300m)" | "Ring 4 (>300m)";
   kategoriBantuan: "Bank Infaq" | "Zakat Maal" | "Beasiswa" | "Wakaf Domba";
   latitude: number;
   longitude: number;

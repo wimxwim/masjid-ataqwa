@@ -29,7 +29,7 @@ const desilLabel: Record<string, string> = {
 
 const ringLabel = (r: number | null) => {
   if (!r) return "-";
-  return [``, `Ring 1 (<500m)`, `Ring 2 (500m-1km)`, `Ring 3 (>1km)`][r] || `Ring ${r}`;
+  return [``, `Ring 1 (<=70m)`, `Ring 2 (<=140m)`, `Ring 3 (<=300m)`, `Ring 4 (>300m)`][r] || `Ring ${r}`;
 };
 
 export default function GisPage() {
@@ -143,9 +143,10 @@ export default function GisPage() {
               className="w-full bg-bg border border-outline focus:border-primary focus:outline-none py-2 px-3.5 rounded-lg text-xs text-ink transition-colors"
             >
               <option value="All">Semua Ring</option>
-              <option value="1">Ring 1 (&lt;500m)</option>
-              <option value="2">Ring 2 (500m-1km)</option>
-              <option value="3">Ring 3 (&gt;1km)</option>
+              <option value="1">Ring 1 (&lt;= 70m)</option>
+              <option value="2">Ring 2 (&lt;= 140m)</option>
+              <option value="3">Ring 3 (&lt;= 300m)</option>
+              <option value="4">Ring 4 (&gt; 300m)</option>
             </select>
           </div>
 

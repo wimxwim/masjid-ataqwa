@@ -70,9 +70,10 @@ export default function MapPicker({ defaultLat, defaultLng, onPositionChange }: 
   const distance = Math.round(getDistanceInMeters(MOSQUE_CENTER[0], MOSQUE_CENTER[1], position[0], position[1]));
   
   let ringSuggestion = "";
-  if (distance < 500) ringSuggestion = "Ring 1 (Sangat Dekat)";
-  else if (distance <= 1000) ringSuggestion = "Ring 2 (Menengah)";
-  else ringSuggestion = "Ring 3 (Jauh)";
+  if (distance <= 70) ringSuggestion = "Ring 1 (<=70m)";
+  else if (distance <= 140) ringSuggestion = "Ring 2 (<=140m)";
+  else if (distance <= 300) ringSuggestion = "Ring 3 (<=300m)";
+  else ringSuggestion = "Ring 4 (>300m)";
 
   return (
     <>
@@ -103,7 +104,7 @@ export default function MapPicker({ defaultLat, defaultLng, onPositionChange }: 
       </div>
       <div className="mt-2 p-2.5 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-between text-xs">
         <div>
-          <span className="font-semibold text-emerald-800">📏 Kalkulasi Jarak Real-time:</span>
+          <span className="font-semibold text-emerald-800 flex items-center gap-1">📏 Kalkulasi Jarak Real-time <span className="bg-emerald-200 text-emerald-900 text-[8px] px-1.5 py-0.5 rounded-sm">Haversine Formula</span></span>
           <p className="text-emerald-700 mt-0.5">Jarak atap rumah ke pusat Masjid: <strong className="font-mono text-emerald-900">{distance} meter</strong></p>
         </div>
         <div className="text-right">
