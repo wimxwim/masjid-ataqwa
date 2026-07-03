@@ -69,55 +69,57 @@ async function handlePaymentNotification(notification: Record<string, unknown>) 
 
   if (!paymentStatus) return;
 
-  await db
-    .update(donations)
-    .set({
-      payment_status: paymentStatus as "pending" | "paid" | "failed" | "refunded",
-      midtrans_transaction_id: transactionId || donation.midtrans_transaction_id,
-      paid_at: paymentStatus === "paid" ? sql`NOW()` : donation.paid_at,
-    })
-    .where(eq(donations.id, donationId));
+  await db.transaction(async (tx) => {
+    await tx
+      .update(donations)
+      .set({
+        payment_status: paymentStatus as "pending" | "paid" | "failed" | "refunded",
+        midtrans_transaction_id: transactionId || donation.midtrans_transaction_id,
+        paid_at: paymentStatus === "paid" ? sql`NOW()` : donation.paid_at,
+      })
+      .where(eq(donations.id, donationId));
 
-  /* jika payment sukses, catat ke buku besar & activity_feed */
-  if (paymentStatus === "paid" && donation.payment_status !== "paid") {
-    const m = CATEGORY_MAP[donation.akad_type] ?? CATEGORY_MAP.infaq;
+    /* jika payment sukses, catat ke buku besar & activity_feed */
+    if (paymentStatus === "paid" && donation.payment_status !== "paid") {
+      const m = CATEGORY_MAP[donation.akad_type] ?? CATEGORY_MAP.infaq;
 
-    const txValue: typeof transactions.$inferInsert = {
+      const txValue: typeof transactions.$inferInsert = {
+        mosque_id: donation.mosque_id,
+        type: "Pemasukan",
+        category: `${m!.category}${donation.program_name ? ` – ${donation.program_name}` : ""}`,
+        amount: grossAmount,
+        description: `Donasi online via ${paymentType} dari ${donation.donor_name ?? "Anonim"}`,
+        donor_name: donation.donor_name ?? null,
+        phone: donation.donor_phone ?? null,
+        transaction_date: new Date().toISOString().split("T")[0]!,
+        fund_type: m!.fund_type,
+        akad_type: m!.akad,
+      };
+      await tx.insert(transactions).values(txValue);
+
+      await tx.insert(activity_feed).values({
+        mosque_id: donation.mosque_id,
+        type: "donation",
+        nama: donation.donor_name ?? "Anonim",
+        detail: donation.program_name ?? donation.akad_type,
+        jumlah: donation.amount,
+      });
+    }
+
+    /* catat audit log */
+    await tx.insert(audit_logs).values({
       mosque_id: donation.mosque_id,
-      type: "Pemasukan",
-      category: `${m!.category}${donation.program_name ? ` – ${donation.program_name}` : ""}`,
-      amount: grossAmount,
-      description: `Donasi online via ${paymentType} dari ${donation.donor_name ?? "Anonim"}`,
-      donor_name: donation.donor_name ?? null,
-      phone: donation.donor_phone ?? null,
-      transaction_date: new Date().toISOString().split("T")[0]!,
-      fund_type: m!.fund_type,
-      akad_type: m!.akad,
-    };
-    await db.insert(transactions).values(txValue);
-
-    await db.insert(activity_feed).values({
-      mosque_id: donation.mosque_id,
-      type: "donation",
-      nama: donation.donor_name ?? "Anonim",
-      detail: donation.program_name ?? donation.akad_type,
-      jumlah: donation.amount,
+      action: "update",
+      entity_type: "donations",
+      entity_id: donationId,
+      metadata: {
+        transaction_status: transactionStatus,
+        fraud_status: fraudStatus,
+        transaction_id: transactionId,
+        payment_type: paymentType,
+        gross_amount: grossAmount,
+      },
     });
-  }
-
-  /* catat audit log */
-  await db.insert(audit_logs).values({
-    mosque_id: donation.mosque_id,
-    action: "update",
-    entity_type: "donations",
-    entity_id: donationId,
-    metadata: {
-      transaction_status: transactionStatus,
-      fraud_status: fraudStatus,
-      transaction_id: transactionId,
-      payment_type: paymentType,
-      gross_amount: grossAmount,
-    },
   });
 }
 
