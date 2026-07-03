@@ -35,7 +35,11 @@ export async function getLoanInstallments(loanId: string) {
 export async function createLoanInstallment(data: InsertLoanInstallment) {
   const profile = await requireAuth();
   const [loan] = await db.select({ mosque_id: loans.mosque_id }).from(loans).where(eq(loans.id, data.loan_id)).limit(1);
-  const mosque_id = loan?.mosque_id ?? "";
+  if (!loan) throw new Error("Loan tidak ditemukan");
+  const mosque_id = loan.mosque_id;
+
+  /* verifikasi akses — user harus punya membership aktif di masjid ini */
+  await requireRole(mosque_id, "superadmin", "admin_dkm", "finance_director");
 
   const [row] = await db
     .insert(loan_installments)
