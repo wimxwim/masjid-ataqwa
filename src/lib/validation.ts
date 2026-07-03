@@ -49,7 +49,7 @@ export const createLoanApplicationSchema = z.object({
   amount: nominal,
   week_duration: z.number().int().min(1).max(104),
   purpose: z.string().max(500).optional(),
-  turnstile_token: z.string().optional(),
+  turnstileToken: z.string().min(1),
 });
 
 /* ─── Transactions ─── */
