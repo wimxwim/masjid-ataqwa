@@ -46,11 +46,11 @@ INSERT INTO programs (id, mosque_id, name, slug, description, category, is_activ
 
 -- 3. MUSTAHIK (5 KK)
 INSERT INTO mustahiks (id, mosque_id, name, phone, address, lat, lng, desil_level, ring_number, monthly_income, dependents, usaha_type, is_active) VALUES
-('e0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Siti Aminah', '081211111111', 'Jl. H. Syam 1, RT 03/05, Ulujami', -6.2280, 106.7580, '1', 1, 800000, 4, 'Jualan gorengan keliling', true),
-('e0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'Ahmad Rifa''i', '081222222222', 'Gg. H. Saidi II, RT 02/06, Ulujami', -6.2310, 106.7620, '2', 1, 1200000, 6, 'Kuli bangunan serabutan', true),
-('e0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'Maryam binti Umar', '081233333333', 'Jl. Ulujami Raya Gg. III, RT 01/04', -6.2360, 106.7580, '2', 2, 1000000, 3, 'Asisten rumah tangga', true),
-('e0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'Kusnadi', '081244444444', 'Kp. Ulujami Dalam, RT 05/07', -6.2240, 106.7650, '3', 2, 1500000, 5, 'Tukang ojek pangkalan', true),
-('e0000000-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000001', 'Jamilah', '081255555555', 'Jl. Swadaya I No. 12, RT 04/06', -6.2290, 106.7570, '1', 1, 600000, 7, 'Serabutan / jahit', true);
+('e0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Bapak Suherman', '081211111111', 'Jl. Swadarma Raya, RT 01/02, Ulujami', -6.2265, 106.7605, '1', 1, 800000, 4, 'Jualan gorengan keliling', true),
+('e0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'Ibu Ningsih', '081222222222', 'Jl. Swadaya 1, RT 04/02, Ulujami', -6.2270, 106.7585, '2', 1, 1200000, 6, 'Kuli bangunan serabutan', true),
+('e0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'Keluarga Budi', '081233333333', 'Jl. Haji Rohimin, RT 03/02, Ulujami', -6.2315, 106.7615, '2', 1, 1000000, 3, 'Asisten rumah tangga', true),
+('e0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'Mbah Roso', '081244444444', 'Jl. Haji Ridi, RT 05/04, Ulujami', -6.2357, 106.7632, '3', 2, 1500000, 5, 'Tukang ojek pangkalan', true),
+('e0000000-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000001', 'Ibu Fatimah', '081255555555', 'Jl. Ulujami Raya Gg. III, RT 07/03', -6.2340, 106.7600, '1', 2, 600000, 7, 'Serabutan / jahit', true);
 
 -- 4. JAMAAH
 INSERT INTO jamaah (id, mosque_id, nama, phone, alamat, rt_rw, peran) VALUES
