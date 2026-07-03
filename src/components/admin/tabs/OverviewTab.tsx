@@ -247,7 +247,7 @@ export default function OverviewTab({ mustahikCount, jamaahData, ledgerEntries, 
             </p>
           </div>
 
-          <div className="h-56 my-4">
+          <div className="h-56 my-4" role="img" aria-label="Diagram lingkaran distribusi dana per akad">
             {combinedPieData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>

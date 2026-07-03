@@ -215,7 +215,7 @@ export default function TransparansiPage() {
             <p className="text-xs text-muted mt-0.5">Persentase alokasi sebaran dana produktif & jaring pengaman umat.</p>
           </div>
           
-          <div className="h-64 flex justify-center items-center">
+          <div className="h-64 flex justify-center items-center" role="img" aria-label="Diagram lingkaran alokasi dana">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie

@@ -144,4 +144,56 @@
 - **Verifikasi ulang**: SKIP — Tidak ada halaman signup publik. Registrasi dilakukan oleh pengurus masjid
   secara internal.
 
->> CHECKPOINT P-022/P-024/P-034 selesai (3 fix). P-023/P-038/P-039 skip/stale. Lanjut batch 4 — Arsitektur & Keamanan (P-010, P-011, P-013, P-014)
+>> CHECKPOINT P-022/P-024/P-034 selesai (3 fix). P-023/P-038/P-039 skip/stale. Lanjut batch 4 — 6 small fixes
+
+### [P-044] deleteActivity audit log tanpa changes
+- **Verifikasi ulang**: Valid — semua fungsi delete* kirim `changes: old`, deleteActivity tidak
+- **Perbaikan**: Tambah `changes: row` di insert audit_log
+- **File**: src/lib/actions/activity.ts
+- **Commit**: ae1704e
+
+### [P-037] Hero image tambah priority
+- **Verifikasi ulang**: Valid — LandingPage hero image tanpa `priority`, delay LCP 1-3 detik
+- **Perbaikan**: Tambah atribut `priority` di <Image>
+- **File**: src/components/LandingPage.tsx
+- **Commit**: ae1704e
+
+### [P-040] CTA hero pakai router.push, bukan <Link>
+- **Verifikasi ulang**: Status — Sebenarnya tetap perlu button karena set state sebelum navigasi.
+  Solusi: tambah `router.prefetch("/donasi")` di useEffect.
+- **Perbaikan**: Tambah useEffect + router.prefetch
+- **File**: src/components/LandingPage.tsx
+- **Commit**: ae1704e
+
+### [P-041] Font text-[9px] terlalu kecil
+- **Verifikasi ulang**: Valid — teks 6.75pt di bawah bacaan nyaman. 8 komponen terkena.
+- **Perbaikan**: text-[9px] → text-[10px] di LiveActivityFeed, OverviewTab, AssetsTab, JamaahTab,
+  InflowTab (2x), admin layout
+- **File**: 8 komponen
+- **Commit**: ae1704e
+
+### [P-015] Redact sensitive data di semua method logger
+- **Verifikasi ulang**: Valid — debug/info/warn/error tidak auto-redact, hanya .redacted() method
+- **Perbaikan**: Buat helper `logWithRedact()` yang panggil `redactSensitiveData()` sebelum log,
+  gunakan di debug/info/warn/error. Method .redacted() tetap jalan sendiri.
+- **File**: src/lib/logger.ts
+- **Commit**: ae1704e
+
+### [P-035] LOG_LEVEL env var dengan fallback
+- **Verifikasi ulang**: Valid — level log dari NODE_ENV saja, staging tidak bisa debug
+- **Perbaikan**: `const LOG_LEVEL = process.env.LOG_LEVEL || (production ? "info" : "debug")`
+- **File**: src/lib/logger.ts
+- **Commit**: ae1704e
+
+### [P-017] Contrast text-gray-400 pada putih
+- **Verifikasi ulang**: SKIP sementara — butuh pengecekan visual per komponen. text-gray-400 di dark bg
+  (LandingPage emerald section) tidak bermasalah. Hanya yang di white bg perlu di-gray-600.
+
+### [P-031] Audit logs actor_id NOT NULL
+- **Verifikasi ulang**: SKIP — butuh migration database. Perubahan schema tanpa migration
+  bisa break production. Tunda ke batch berikutnya.
+
+>> CHECKPOINT Batch 4 selesai (6 fix, 2 skip). Total progres: 18 dari 53 item prioritas.
+>> Sisa: 35 item (P-010, P-011, P-013, P-014, P-016, P-017, P-018, P-019, P-020, P-021,
+>> P-025, P-026, P-027, P-028, P-029, P-030, P-031, P-032, P-033, P-036, P-042, P-043,
+>> P-045, P-046, P-047, P-048, P-049-P-053)
