@@ -80,9 +80,30 @@ export default function TransparansiPage() {
 
   const handleDownloadReport = (fileName: string) => {
     setDownloading(fileName);
-    setTimeout(() => {
-      setDownloading(null);
-    }, 1500);
+    const rows = selectedType === "All" ? ledgerEntries : filteredLedger;
+    const headers = ["Tanggal", "Kategori", "Keterangan", "Jumlah", "Tipe"];
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((e) =>
+        [
+          e.transaction_date,
+          `"${e.category.replace(/"/g, '""')}"`,
+          `"${(e.description ?? "").replace(/"/g, '""')}"`,
+          e.amount,
+          e.type,
+        ].join(",")
+      ),
+    ].join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;bom" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${fileName}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    setDownloading(null);
   };
 
   return (
