@@ -77,21 +77,31 @@ export async function payInstallment(id: string, amount_paid: number) {
 
   const mosque_id = mid;
 
-  const isLunas = amount_paid >= old.amount_due;
+  /* validasi: jumlah bayar tidak boleh melebihi sisa cicilan */
+  const alreadyPaid = old.amount_paid ?? 0;
+  const remaining = old.amount_due - alreadyPaid;
+  if (amount_paid > remaining) {
+    throw new Error(
+      `Jumlah bayar (Rp ${amount_paid.toLocaleString()}) melebihi sisa cicilan (Rp ${remaining.toLocaleString()})`,
+    );
+  }
+
+  const isLunas = alreadyPaid + amount_paid >= old.amount_due;
   let row: typeof loan_installments.$inferSelect | undefined;
 
   await db.transaction(async (tx) => {
+    /* atomic increment — bukan overwrite, hindari lost update */
     [row] = await tx
       .update(loan_installments)
       .set({
-        amount_paid,
+        amount_paid: sql`COALESCE(${loan_installments.amount_paid}, 0) + ${amount_paid}`,
         paid_date: sql`CURRENT_DATE`,
         status: isLunas ? "paid" : "late",
       })
       .where(eq(loan_installments.id, id))
       .returning();
 
-    /* update total_paid di tabel loans */
+    /* update total_paid di tabel loans — atomic increment */
     await tx
       .update(loans)
       .set({
