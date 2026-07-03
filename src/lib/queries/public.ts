@@ -94,3 +94,17 @@ export function useFundTypeBreakdown(mosqueId: string) {
     enabled: !!mosqueId,
   });
 }
+
+async function fetchPublicApi() {
+  const res = await fetch("/api/public");
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json();
+}
+
+export function usePublicData() {
+  return useQuery({
+    queryKey: ["public-api"],
+    queryFn: fetchPublicApi,
+    staleTime: 1000 * 60 * 5,
+  });
+}

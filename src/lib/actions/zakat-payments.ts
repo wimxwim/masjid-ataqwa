@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db/client";
-import { zakat_payments, audit_logs } from "@/db/schema";
+import { zakat_payments, audit_logs, muzzaki } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
 import { resolveMosqueId } from "./_helpers";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
@@ -71,7 +71,19 @@ export async function createZakatPayment(data: InsertZakatPayment) {
     changes: data,
   });
 
-  revalidatePath(`/admin/donatur`);
+  // Sync last_zakat_amount & last_zakat_year ke tabel muzzaki
+  if (data.muzzaki_id) {
+    await db
+      .update(muzzaki)
+      .set({
+        last_zakat_amount: data.amount,
+        last_zakat_year: data.zakat_year,
+        updated_at: sql`NOW()`,
+      })
+      .where(eq(muzzaki.id, data.muzzaki_id));
+  }
+
+  revalidatePath(`/admin/muzzaki`);
   return row;
 }
 
@@ -87,6 +99,6 @@ export async function verifyZakatPayment(id: string) {
     .where(eq(zakat_payments.id, id))
     .returning();
 
-  revalidatePath(`/admin/donatur`);
+  revalidatePath(`/admin/muzzaki`);
   return row;
 }

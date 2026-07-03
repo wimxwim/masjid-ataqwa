@@ -69,7 +69,7 @@ export async function createMuzzaki(data: InsertMuzzaki) {
     changes: data,
   });
 
-  revalidatePath(`/admin/donatur`);
+  revalidatePath(`/admin/muzzaki`);
   return row;
 }
 
@@ -95,7 +95,7 @@ export async function updateMuzzaki(id: string, data: Partial<InsertMuzzaki>) {
     changes: { old, new: data },
   });
 
-  revalidatePath(`/admin/donatur`);
+  revalidatePath(`/admin/muzzaki`);
   return row;
 }
 
@@ -119,5 +119,5 @@ export async function deleteMuzzaki(id: string) {
     changes: old,
   });
 
-  revalidatePath(`/admin/donatur`);
+  revalidatePath(`/admin/muzzaki`);
 }
