@@ -2,7 +2,7 @@
 
 **Dimulai:** 3 Juli 2026
 **Selesai:** 3 Juli 2026
-**Total dieksekusi:** 20 ID | **Belum:** 9 ID (Medium/Low)
+**Total dieksekusi:** 27 ID | **Belum/Tunda:** 2 (ID-037 butuh keputusan manusia, AUD-DB-001 low priority)
 
 ---
 
@@ -100,19 +100,51 @@
 
 ---
 
+## ✅ EKSEKUSI TAMBAHAN (Setelah Laporan Awal)
+
+### ✅ ID-032: Duplikasi Repayments (Medium)
+- **Fix**: Hapus definisi tabel `repayments` dari schema.ts + migration 0014
+- **File**: `src/db/schema.ts`, `src/db/migrations/0014_*`
+- **Commit**: `eabb626`
+
+### ✅ ID-040-048: Logging Maturity Level 1→3 (Medium/High/Critical)
+- **Fix**: Pino logger, structured JSON logs, correlation ID, audit_logs helper, redact sensitive data
+- **File**: `src/lib/logger.ts`, `src/lib/audit.ts`, correlation middleware
+- **Commit**: `2a3f750`
+
+### ✅ AUD-SEC-002: createMuzzaki missing requireRole (Critical)
+- **Fix**: Tambah `requireRole(mid, "superadmin", "admin_dkm", "finance_director")`
+- **File**: `src/lib/actions/muzzaki.ts`
+- **Commit**: `3bbcbf1`
+
+### ✅ ID-038: Zod Schema Validation (Medium)
+- **Fix**: `src/lib/validation.ts` dengan Zod schemas untuk 6 entitas + integrasi di action files
+- **File**: `src/lib/validation.ts` (new), 6 action files
+- **Commit**: `5c16bde`
+
+### ✅ AUD-UI-001: Dummy Export Transparansi (Medium)
+- **Fix**: Ganti setTimeout dummy jadi real CSV export dari ledgerEntries
+- **File**: `src/components/TransparansiPage.tsx`
+- **Commit**: `f16e03b`
+
+---
+
 ## ⬜ BELUM DIKERJAKAN
 
 | ID | Severity | Kategori | Catatan |
 |----|----------|----------|---------|
-| ID-037 | Medium | Arsitektur | Pencampuran server action & query — butuh refactor layer lebih besar |
-| ID-038 | Medium | Arsitektur | Zod schema validation — butuh integrasi seragam |
-| ID-032 | Medium | Database | Duplikasi repayments vs loan_installments — butuh keputusan schema |
-| ID-040-043,045-046,048 | Medium | Logging | Centralized logger — butuh PR terpisah (Level 1→3 maturity) |
+| ID-037 | Medium | Arsitektur | Pencampuran server action & query — butuh refactor layer lebih besar (BUTUH KEPUTUSAN MANUSIA) |
+| AUD-DB-001 | Low | Database | 30 bigint fields pakai `{ mode: "number" }` — butuh refactor + migration besar (kandidat untuk rilis berikutnya) |
 
 ---
 
 ## COMMIT HISTORY
 ```
+f16e03b fix(AUD-UI-001): [fitur] ganti dummy export jadi real CSV download di TransparansiPage
+5c16bde fix(ID-038): [arsitektur] integrasi Zod validation di 6 server actions + file validation.ts
+3bbcbf1 fix(AUD-SEC-002): [keamanan] tambah requireRole di createMuzzaki
+2a3f750 fix(ID-040-048): [logging] pino, structured logs, redact sensitive data, correlation ID
+eabb626 fix(ID-032): [database] hapus tabel repayments (duplikasi loan_installments) + migration 0014
 0f1eefa fix(ID-031): [devx] tambah eslint.config.mjs untuk ESLint flat config
 f92c002 fix(ID-033): [database] tambah index FK profiles.id di 4 tabel utama
 8e9f795 fix(ID-050-049): [keamanan] enkripsi NIK loan_applications + Turnstile helper

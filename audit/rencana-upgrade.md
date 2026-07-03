@@ -74,7 +74,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
     }
     ```
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: Selesai (commit: `0a27b4a`)
 
 ---
 
@@ -105,7 +105,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Update matcher di `middleware.ts` untuk menyertakan rute API `/api/admin/:path*` atau tambahkan `requireAuth()` and `requireRole(mosqueId, ...)` di dalam handler `route.ts`.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -133,7 +133,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Pastikan Server Action ini selalu memaksa status menjadi `pending` jika dipanggil tanpa otentikasi admin, atau batasi parameter status agar hanya bisa diset menjadi `paid` oleh peran `superadmin`/`admin_dkm`.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -164,7 +164,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
   - Di endpoint token: Validasi silang `gross_amount` yang dikirim dari client dengan data nominal donasi di database sebelum meminta token ke Midtrans.
   - Di webhook: Pastikan nominal yang dibayarkan (`notification.gross_amount`) sama dengan nominal donasi di database sebelum memproses status lunas, atau catat transaksi buku besar menggunakan nilai aktual `grossAmount` dari Midtrans.
 - **Effort estimate**: Sedang (1-3 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -190,7 +190,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Terapkan `requireRole()` secara konsisten untuk semua operasi baca spesifik dan operasi tulis (create, update, delete).
 - **Effort estimate**: Sedang (1-3 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -215,7 +215,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
     if (!outcome.success) throw new Error("Bot verification failed");
     ```
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -235,7 +235,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Ubah kolom `nik` di tabel `loan_applications` menjadi `nik_encrypted` (AES-256-GCM) dan `nik_hash` (SHA-256) seperti pada tabel `mustahiks` dan `muzzaki`.
 - **Effort estimate**: Sedang (1-3 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -254,7 +254,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Jangan kembalikan `mosque.id` di endpoint publik. Gunakan identifier yang tidak bisa ditebak (misal: `slug` atau `public_id`).
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -276,7 +276,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Tambahkan pengecekan ownership menggunakan `requireRole(old.mosque_id, ...)` di server actions.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -298,7 +298,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Tambahkan pengecekan ownership dengan `requireRole` menggunakan `old.mosque_id`.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -322,7 +322,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Tambahkan `https://images.unsplash.com` ke dalam daftar `img-src` di definisi CSP `next.config.ts`.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -348,7 +348,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Gunakan `await db.transaction(async (tx) => { ... })` untuk membungkus seluruh rangkaian operasi penulisan tersebut agar jika salah satu gagal, semuanya di-rollback secara otomatis.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -376,7 +376,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Jalankan operasi update tambahan di dalam transaksi yang sama untuk mengupdate `total_paid` di tabel `loans` ketika cicilan dibayarkan.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -396,7 +396,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Buat file `eslint.config.mjs` di root dengan konfigurasi extend dari `eslint-config-next` versi 15/16.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -416,7 +416,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Lakukan pembersihan schema dengan menghapus definisi `repayments` dari `schema.ts` dan jalankan migrasi `drizzle-kit generate` untuk men-drop tabel `repayments` dari database Postgres secara aman.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -440,7 +440,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
     index("transactions_created_by_idx").on(t.created_by)
     ```
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -463,7 +463,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Gunakan warna primary yang lebih gelap untuk elemen teks/tombol pada latar belakang putih, misalnya `--color-primary-deep: #0e7a45` (rasio kontras **4.7:1**, lulus WCAG AA).
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -486,7 +486,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Konfigurasikan domain remote di `next.config.ts` dan ubah tag `<img>` menjadi komponen `<Image />` Next.js dengan properti `width`, `height`, atau `fill` + `sizes` untuk otomatisasi optimasi ukuran gambar.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -511,7 +511,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Sembunyikan kolom sekunder (seperti NIM, Desil, Had Kifayah) pada layar kecil menggunakan kelas utility Tailwind (`hidden md:table-cell`), atau gunakan layout berbasis kartu (card layout) yang menumpuk data secara vertikal khusus untuk tampilan mobile.
 - **Effort estimate**: Sedang (1-3 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -532,7 +532,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Tingkatkan ukuran padding tombol menjadi setidaknya `p-2.5` atau pisahkan tata letaknya, serta berikan jarak/margin yang cukup (`gap-3`) di perangkat mobile.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -554,7 +554,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Pisahkan tanggung jawab logika database, pencatatan audit, dan integrasi pihak ketiga ke modul/service terpisah (Repository Pattern atau Service Layer). Gunakan Event Emitter atau helper global untuk mencatat audit log dan menyinkronkan buku besar.
 - **Effort estimate**: Sedang (1-3 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ⏳ BUTUH KEPUTUSAN MANUSIA — Refactor layer lebih besar (Repository/Service pattern). Lihat progress-eksekusi.md untuk opsi.
 
 ---
 
@@ -575,7 +575,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Definisikan Zod Schema untuk masing-masing parameter input server action dan lakukan `schema.parse(data)` sebelum memproses data tersebut.
 - **Effort estimate**: Sedang (1-3 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -592,7 +592,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Pindahkan `CATEGORY_MAP` dan logika sinkronisasi keuangan ke helper modul bersama (misal di `/src/lib/fund-mapping.ts` atau `/src/lib/actions/finance-sync.ts`) agar menjadi Single Source of Truth.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -609,7 +609,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Integrasikan library logging asinkronus dan terstruktur seperti `pino`.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -624,7 +624,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Tambahkan middleware untuk menggenerasikan Request UUID unik pada header `x-request-id` dan salurkan penanda ini ke logger.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -639,7 +639,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Gunakan Pino logger yang mencetak log terstruktur dalam format JSON di sisi produksi.
 - **Effort estimate**: Sedang (1-3 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -654,7 +654,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Alirkan log server ke kolektor terpusat seperti Grafana Loki (menggunakan Alloy/FluentBit) atau integrasikan SaaS log collector (Logtail).
 - **Effort estimate**: Sedang (1-3 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -669,7 +669,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Buat helper interseptor global untuk secara otomatis mencatat setiap mutasi data (CREATE, UPDATE, DELETE) ke tabel `audit_logs`.
 - **Effort estimate**: Sedang (1-3 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -684,7 +684,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Hubungkan SDK Sentry untuk pelacakan error real-time dan set up notifikasi via Telegram/Discord/Slack webhook untuk notifikasi error tingkat keparahan tinggi.
 - **Effort estimate**: Sedang (1-3 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -699,7 +699,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Pasang retensi logs maksimal 30 hari di sisi kolektor (misal Grafana Loki) atau database audit log.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -718,7 +718,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Buat fungsi utilitas penyaring (redaction utility) untuk menyamarkan kata kunci sensitif (seperti `token`, `password`, `nik`) sebelum mencetaknya ke logger.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
@@ -733,7 +733,7 @@ Secara umum, arsitektur dasar ekosistem Next.js 16 + Drizzle + PostgreSQL (Supab
 - **Rekomendasi perbaikan**:
   - Batasi log debug hanya aktif di lingkungan lokal (development), atau gunakan conditional logging level di produksi agar hanya menampilkan tingkat `info` ke atas.
 - **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
+- **Status**: ✅ Selesai (lihat progress-eksekusi.md)
 
 ---
 
