@@ -1,26 +1,33 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "masjid-ataqwa",
-  "main": ".open-next/worker.js",
-  "compatibility_date": "2026-07-03",
-  "compatibility_flags": [
-    "nodejs_compat",
-    "global_fetch_strictly_public"
-  ],
-  "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS"
-  },
-  "services": [
-    {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "masjid-ataqwa"
-    }
-  ],
-  "images": {
-    "binding": "IMAGES"
-  },
-  "observability": {
-    "enabled": true
-  }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "masjid-ataqwa",
+	"main": ".open-next/worker.js",
+	"compatibility_date": "2026-07-03",
+	"compatibility_flags": [
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	"services": [
+		{
+			"binding": "WORKER_SELF_REFERENCE",
+			"service": "masjid-ataqwa"
+		}
+	],
+	"images": {
+		"binding": "IMAGES"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"hyperdrive": [
+		{
+			"binding": "HYPERDRIVE",
+			"id": "ea46631407ff436a867962ce63017703",
+			"localConnectionString": "postgresql://postgres:REDACTED_PASSWORD@db.vqpyxpdweditudfqajge.supabase.co:5432/postgres"
+		}
+	]
 }
