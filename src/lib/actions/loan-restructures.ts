@@ -46,43 +46,49 @@ export async function getLoanRestructuresByLoan(loanId: string) {
 export async function createLoanRestructure(data: InsertLoanRestructure) {
   const profile = await requireAuth();
 
-  const [row] = await db
-    .insert(loan_restructures)
-    .values({
-      loan_id: data.loan_id,
-      old_amount: data.old_amount,
-      new_amount: data.new_amount,
-      old_weekly_payment: data.old_weekly_payment,
-      new_weekly_payment: data.new_weekly_payment,
-      old_week_duration: data.old_week_duration,
-      new_week_duration: data.new_week_duration,
-      reason: data.reason ?? null,
-      approved_by: profile.id,
-    })
-    .returning();
-  if (!row) throw new Error("Operation failed");
+  /* bungkus dalam transaction atomic — insert restructure log + update loan status
+     harus sukses semua atau gagal semua, hindari data inkonsisten */
+  const result = await db.transaction(async (tx) => {
+    const [row] = await tx
+      .insert(loan_restructures)
+      .values({
+        loan_id: data.loan_id,
+        old_amount: data.old_amount,
+        new_amount: data.new_amount,
+        old_weekly_payment: data.old_weekly_payment,
+        new_weekly_payment: data.new_weekly_payment,
+        old_week_duration: data.old_week_duration,
+        new_week_duration: data.new_week_duration,
+        reason: data.reason ?? null,
+        approved_by: profile.id,
+      })
+      .returning();
+    if (!row) throw new Error("Operation failed");
 
-  const [loan] = await db
-    .update(loans)
-    .set({
-      status: "restructured",
-      restructured: true,
-      restructured_at: sql`NOW()`,
-    })
-    .where(eq(loans.id, data.loan_id))
-    .returning();
+    const [loan] = await tx
+      .update(loans)
+      .set({
+        status: "restructured",
+        restructured: true,
+        restructured_at: sql`NOW()`,
+      })
+      .where(eq(loans.id, data.loan_id))
+      .returning();
 
-  if (!loan) throw new Error("Loan not found");
+    if (!loan) throw new Error("Loan not found");
 
-  await db.insert(audit_logs).values({
-    mosque_id: loan.mosque_id,
-    action: "insert",
-    entity_type: "loan_restructures",
-    entity_id: row.id,
-    actor_id: profile.id,
-    changes: data,
+    await tx.insert(audit_logs).values({
+      mosque_id: loan.mosque_id,
+      action: "insert",
+      entity_type: "loan_restructures",
+      entity_id: row.id,
+      actor_id: profile.id,
+      changes: data,
+    });
+
+    return { row, loan };
   });
 
   revalidatePath("/bank-infaq");
-  return row;
+  return result.row;
 }
