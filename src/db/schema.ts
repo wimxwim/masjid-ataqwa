@@ -235,6 +235,7 @@ export const mustahiks = pgTable("mustahiks", {
   index("mustahiks_asnaf_idx").on(t.mosque_id, t.asnaf_id),
   unique("mustahiks_nim_mosque_unique").on(t.mosque_id, t.nomor_induk_mustahik),
   index("mustahiks_had_kifayah_idx").on(t.mosque_id, t.had_kifayah_score),
+  index("mustahiks_created_by_idx").on(t.created_by),
 ]);
 
 /* ============================== PROGRAM: KAMPUNG QURAN ============================== */
@@ -367,6 +368,7 @@ export const loans = pgTable("loans", {
   index("loans_mustahik_idx").on(t.mustahik_id),
   index("loans_group_idx").on(t.group_id),
   index("loans_status_idx").on(t.status),
+  index("loans_approved_by_idx").on(t.approved_by),
   index("loans_mosque_idx").on(t.mosque_id),
   index("loans_kolektibilitas_idx").on(t.mosque_id, t.kolektibilitas),
   index("loans_purpose_idx").on(t.mosque_id, t.purpose),
@@ -549,6 +551,7 @@ export const donations = pgTable("donations", {
   index("donations_mosque_idx").on(t.mosque_id),
   index("donations_status_idx").on(t.payment_status),
   index("donations_program_idx").on(t.program_id),
+  index("donations_verified_by_idx").on(t.verified_by),
 ]);
 
 /* ============================== AUDIT ============================== */
@@ -606,6 +609,7 @@ export const transactions = pgTable("transactions", {
   index("transactions_type_idx").on(t.mosque_id, t.type),
   index("transactions_date_idx").on(t.transaction_date),
   index("transactions_fund_type_idx").on(t.mosque_id, t.fund_type),
+  index("transactions_created_by_idx").on(t.created_by),
 ]);
 
 /** Donatur tetap — komitmen rutin. */
