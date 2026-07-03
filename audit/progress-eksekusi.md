@@ -85,3 +85,24 @@
 - **Commit**: d2c67fb + 40f5720
 
 >> CHECKPOINT P-005 s.d. P-009: Batch Keamanan Critical selesai (8 dari 9 Critical). Lanjut batch 2 — Database & Integritas Data (P-001 NIK plaintext)
+
+### [P-001] Hapus NIK plaintext dari loan_applications
+- **Status verifikasi ulang**: Valid
+- **Riset**: Schema loan_applications punya 3 kolom: nik (plaintext), nik_encrypted (AES-256-GCM), nik_hash (SHA-256). nik_encrypted + nik_hash sudah cukup untuk semua operasi.
+- **Sumber riset**: UU PDP Pasal 15 — Data Pribadi Sensitif wajib dienkripsi
+- **Perbaikan**:
+  1. Migrasi 0015: ALTER TABLE loan_applications DROP COLUMN nik
+  2. Schema: hapus nik, nik_encrypted jadi NOT NULL
+  3. Action: stop simpan nik plaintext
+  4. UI: tampilkan hash suffix
+  5. Script backfill untuk data existing
+- **File**: schema.ts, loan-applications.ts, migrations/0015, sahabat-infaq/page.tsx, scripts/backfill-nik.ts
+- **Commit**: c2aa5fc fix(P-001): [security] hapus NIK plaintext dari loan_applications
+
+### [P-012] Fix IDOR di 6 fungsi get*ById
+- **Status verifikasi ulang**: Valid — 6 dari 17 fungsi get*ById tidak filter mosque_id
+- **Perbaikan**: Tambah resolveMosqueId() + and(eq(table.mosque_id, mid)) di semua fungsi
+- **File**: inventaris.ts, asnaf.ts, jadwal-imam.ts, mustahik.ts, jamaah.ts, transactions.ts
+- **Commit**: 57a0b02 fix(P-012): [security] fix IDOR — tambah mosque_id filter
+
+>> CHECKPOINT P-001 + P-012 selesai. Lanjut batch 3 — Database & Bug Fixes (P-022, P-023, P-024, P-034, P-038, P-039)

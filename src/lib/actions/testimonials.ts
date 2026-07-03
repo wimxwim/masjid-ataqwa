@@ -3,7 +3,7 @@
 import { db } from "@/db/client";
 import { testimonials, audit_logs } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
-import { resolveMosqueId } from "./_helpers";
+import { resolveMosqueId, validateImageUrl } from "./_helpers";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -41,6 +41,7 @@ export async function getTestimonialById(id: string, mosqueId?: string) {
 export async function createTestimonial(data: InsertTestimonial) {
   const profile = await requireAuth();
   const mid = await resolveMosqueId();
+  validateImageUrl(data.image_url);
   const [row] = await db
     .insert(testimonials)
     .values({
@@ -77,6 +78,7 @@ export async function updateTestimonial(id: string, data: Partial<InsertTestimon
   const old = await getTestimonialById(id);
   if (!old) throw new Error("Testimonial tidak ditemukan");
   await requireRole(old.mosque_id, "superadmin", "admin_dkm", "finance_director");
+  if (data.image_url !== undefined) validateImageUrl(data.image_url);
 
   const [row] = await db
     .update(testimonials)

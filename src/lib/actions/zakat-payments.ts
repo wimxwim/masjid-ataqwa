@@ -42,46 +42,49 @@ export async function createZakatPayment(data: InsertZakatPayment) {
   const mid = await resolveMosqueId();
   await requireRole(mid, "superadmin", "admin_dkm", "finance_director");
 
-  const [row] = await db
-    .insert(zakat_payments)
-    .values({
-      mosque_id: mid,
-      muzzaki_id: data.muzzaki_id ?? null,
-      zakat_type: data.zakat_type,
-      amount: data.amount,
-      asnaf_id: data.asnaf_id ?? null,
-      distribution_note: data.distribution_note ?? null,
-      payment_method: data.payment_method ?? null,
-      payment_status: data.payment_status ?? "paid",
-      zakat_year: data.zakat_year,
-      is_verified: data.is_verified ?? true,
-      verified_by: profile.id,
-      notes: data.notes ?? null,
-      transaction_id: data.transaction_id ?? null,
-    })
-    .returning();
-  if (!row) throw new Error("Operation failed");
-
-  await db.insert(audit_logs).values({
-    mosque_id: mid,
-    action: "insert",
-    entity_type: "zakat_payments",
-    entity_id: row.id,
-    actor_id: profile.id,
-    changes: data,
-  });
-
-  // Sync last_zakat_amount & last_zakat_year ke tabel muzzaki
-  if (data.muzzaki_id) {
-    await db
-      .update(muzzaki)
-      .set({
-        last_zakat_amount: data.amount,
-        last_zakat_year: data.zakat_year,
-        updated_at: sql`NOW()`,
+  const [row] = await db.transaction(async (tx) => {
+    const [r] = await tx
+      .insert(zakat_payments)
+      .values({
+        mosque_id: mid,
+        muzzaki_id: data.muzzaki_id ?? null,
+        zakat_type: data.zakat_type,
+        amount: data.amount,
+        asnaf_id: data.asnaf_id ?? null,
+        distribution_note: data.distribution_note ?? null,
+        payment_method: data.payment_method ?? null,
+        payment_status: data.payment_status ?? "paid",
+        zakat_year: data.zakat_year,
+        is_verified: data.is_verified ?? true,
+        verified_by: profile.id,
+        notes: data.notes ?? null,
+        transaction_id: data.transaction_id ?? null,
       })
-      .where(eq(muzzaki.id, data.muzzaki_id));
-  }
+      .returning();
+    if (!r) throw new Error("Operation failed");
+
+    await tx.insert(audit_logs).values({
+      mosque_id: mid,
+      action: "insert",
+      entity_type: "zakat_payments",
+      entity_id: r.id,
+      actor_id: profile.id,
+      changes: data,
+    });
+
+    if (data.muzzaki_id) {
+      await tx
+        .update(muzzaki)
+        .set({
+          last_zakat_amount: data.amount,
+          last_zakat_year: data.zakat_year,
+          updated_at: sql`NOW()`,
+        })
+        .where(eq(muzzaki.id, data.muzzaki_id));
+    }
+
+    return [r];
+  });
 
   revalidatePath(`/admin/muzzaki`);
   return row;

@@ -3,7 +3,7 @@
 import { db } from "@/db/client";
 import { bumm_products, audit_logs } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
-import { resolveMosqueId } from "./_helpers";
+import { resolveMosqueId, validateImageUrl } from "./_helpers";
 import { eq, and, desc, sql, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -32,6 +32,7 @@ export async function createBummProduct(data: InsertBummProduct) {
   const profile = await requireAuth();
   const mid = await resolveMosqueId();
   await requireRole(mid, "superadmin", "admin_dkm", "business_lead");
+  validateImageUrl(data.image_url);
 
   const [row] = await db
     .insert(bumm_products)
@@ -67,6 +68,7 @@ export async function updateBummProduct(id: string, data: Partial<InsertBummProd
   const [old] = await db.select().from(bumm_products).where(eq(bumm_products.id, id)).limit(1);
   if (!old) throw new Error("Produk tidak ditemukan");
   await requireRole(old.mosque_id, "superadmin", "admin_dkm", "business_lead");
+  if (data.image_url !== undefined) validateImageUrl(data.image_url);
 
   const [row] = await db
     .update(bumm_products)

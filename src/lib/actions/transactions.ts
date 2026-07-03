@@ -175,6 +175,10 @@ export async function updateTransaction(
 
   await requireRole(old.mosque_id, "superadmin", "admin_dkm", "finance_director");
 
+  if (data.amount !== undefined && data.amount <= 0) {
+    throw new Error("Jumlah transaksi harus lebih dari 0");
+  }
+
   const updateData: Record<string, unknown> = { ...data, updated_at: sql`NOW()` };
 
   if (data.fund_type || data.category) {

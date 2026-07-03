@@ -3,7 +3,7 @@
 import { db } from "@/db/client";
 import { mushafir_aid, audit_logs } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
-import { resolveMosqueId } from "./_helpers";
+import { resolveMosqueId, validateImageUrl } from "./_helpers";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -58,6 +58,8 @@ export async function createMushafir(data: InsertMushafir) {
     }
   }
 
+  validateImageUrl(data.photo_ktp_url);
+
   const [row] = await db
     .insert(mushafir_aid)
     .values({
@@ -96,6 +98,7 @@ export async function updateMushafir(id: string, data: Partial<InsertMushafir>) 
   const old = await getMushafirById(id);
   if (!old) throw new Error("Data tidak ditemukan");
   await requireRole(old.mosque_id, "superadmin", "admin_dkm", "social_lead");
+  if (data.photo_ktp_url !== undefined) validateImageUrl(data.photo_ktp_url);
 
   const [row] = await db
     .update(mushafir_aid)
