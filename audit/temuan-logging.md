@@ -1,302 +1,182 @@
-# TEMUAN LOGGING & OBSERVABILITY — AUDIT CODEBASE `masjid-ataqwa`
+# AUDIT LOGGING — Masjid At-Taqwa
 
-> **Project:** Masjid Hub — Ekosistem Digital Masjid
-> **Tanggal:** 3 Juli 2026
-> **Auditor:** Hermes AI (Skill: Logging-Management)
-
----
-
-## Posisi Kematangan Logging Saat Ini
-
-**Level:** 1 (Tidak ada logging yang memadai)
-
-- Tidak ada library logging khusus (hanya `console.log`/`console.error`).
-- Tidak ada structured logging.
-- Tidak ada Request ID atau Correlation ID.
-- Tidak ada centralized logging.
-- Tidak ada audit trail untuk perubahan data.
-- Tidak ada monitoring atau alerting.
+**Tanggal:** 2026-07-03
+**Auditor:** OpenCode — Logging & Bug Pattern Engine
+**Scope:** `src/` seluruh codebase
 
 ---
 
-## Temuan & Rekomendasi
+## 1. MATURITY ASSESSMENT
 
-### [LOG-001] Tidak Ada Library Logging Khusus
+| Level | Kriteria | Status | Bukti |
+|-------|----------|--------|-------|
+| **Level 1** | console.log/error saja | ❌ Tidak | Zero penggunaan `console.*` di seluruh codebase ✅ |
+| **Level 2** | Library proper (Pino), redact, level, JSON | ✅ Ya | `src/lib/logger.ts` — Pino, redact config, level (debug/prod), JSON output |
+| **Level 3** | Request ID propagated antar service | ❌ Tidak | `middleware.ts` generate x-request-id tapi TIDAK pernah di-pass ke logger context |
+| **Level 4** | Centralized logging + monitoring pipeline | ❌ Tidak | Tidak ada log shipping, tidak ada external sink |
+
+**Kesimpulan: Logging Maturity = Level 2 (dari 4)**
+
+---
+
+## 2. TEMUAN DETAIL
+
+---
+
+### [LOG-01] Logger tidak memakai request ID — zero tracing capability
+
 - **Severity**: High
-- **Lokasi**: Seluruh codebase
-- **Apa yang terjadi**: Hanya menggunakan `console.log` dan `console.error` native Node.js.
+- **Klasifikasi**: CWE-778 (Insufficient Logging)
+- **Lokasi**: `src/lib/logger.ts` (semua), `src/middleware.ts:9`
+- **Apa yang terjadi**: Middleware menghasilkan `x-request-id` via `globalThis.crypto.randomUUID()` dan set di response header, tapi ID ini tidak pernah diteruskan ke logger. Tidak ada correlation ID antar log entry, sehingga tidak mungkin menelusuri satu request dari middleware → server action → database query.
 - **Bukti**:
-  ```typescript
-  console.error("[MIDTRANS] Token error:", response.status, errBody);
+  ```ts
+  // middleware.ts:9 — request ID dibuat tapi tidak pernah dikirim ke logger
+  const requestId = request.headers.get("x-request-id") || globalThis.crypto.randomUUID();
+  response.headers.set("x-request-id", requestId);
+
+  // logger.ts:49-67 — createLogger hanya menerima context string statis
+  export function createLogger(context: string) {
+    return {
+      debug: (msg: string, data?: Record<string, unknown>) => {
+        logger.debug({ ...data, context }, msg);
+      },
+      // ... tidak ada parameter requestId
+    };
+  }
   ```
-- **Dampak**:
-  - Logging synchronous bisa memperlambat aplikasi.
-  - Tidak ada structured logging untuk analisis.
-  - Tidak ada log level (debug, info, warn, error).
-  - Tidak bisa diarahkan ke centralized logging.
-- **Rekomendasi**:
-  - Gunakan library logging seperti `pino` atau `winston`.
-  - Contoh implementasi:
-    ```typescript
-    import pino from "pino";
-    const logger = pino({ level: "info" });
-    logger.error({ reqId: "abc123", error: errBody }, "Midtrans token error");
-    ```
-- **Effort estimate**: Kecil (<1 hari)
+- **Dampak bisnis**: Jika terjadi error di production, mustahil menelusuri penyebab karena log tidak bisa dikorelasikan. Debugging jadi tebak-tebakan.
+- **Rekomendasi perbaikan**: Ubah `createLogger(context, requestId?)` — set default dari `globalThis.crypto.randomUUID()` jika tidak ada. Di middleware, inject requestId ke `AsyncLocalStorage` atau request header untuk diakses Server Actions/API routes.
+- **Effort estimate**: Sedang
 - **Status**: Belum dikerjakan
 
 ---
 
-### [LOG-002] Tidak Ada Request ID atau Correlation ID
+### [LOG-02] Regular logger methods (debug/info/warn/error) tidak menerapkan `redactSensitiveData`
+
 - **Severity**: High
-- **Lokasi**: Seluruh API routes dan action files
-- **Apa yang terjadi**: Tidak ada Request ID atau Correlation ID untuk melacak alur request.
-- **Bukti**: Tidak ditemukan `x-request-id` atau `traceparent` di header.
-- **Dampak**:
-  - Sulit melacak alur request di production.
-  - Sulit melakukan debugging untuk error yang terjadi.
-  - Tidak bisa mengaitkan log dari berbagai service.
-- **Rekomendasi**:
-  - Tambahkan middleware untuk menambahkan Request ID:
-    ```typescript
-    // src/middleware.ts
-    import { NextResponse } from "next/server";
-    import type { NextRequest } from "next/server";
-    import { v4 as uuidv4 } from "uuid";
-
-    export function middleware(request: NextRequest) {
-      const requestId = request.headers.get("x-request-id") || uuidv4();
-      const response = NextResponse.next();
-      response.headers.set("x-request-id", requestId);
-      return response;
-    }
-    ```
-  - Gunakan Request ID di semua log:
-    ```typescript
-    logger.info({ reqId: requestId, path: "/api/donations" }, "Request started");
-    ```
-- **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
-
----
-
-### [LOG-003] Tidak Ada Structured Logging
-- **Severity**: High
-- **Lokasi**: Seluruh codebase
-- **Apa yang terjadi**: Log hanya berupa teks bebas, tidak terstruktur.
+- **Klasifikasi**: CWE-532 (Insertion of Sensitive Information into Log File)
+- **Lokasi**: `src/lib/logger.ts:51-62`
+- **Apa yang terjadi**: Fungsi `redactSensitiveData()` (baris 8-27) hanya dipanggil oleh method `redacted()` (baris 63-65). Method `debug`, `info`, `warn`, `error` (baris 51-62) langsung melempar data mentah ke Pino. Pino config `redact.paths` hanya mencakup `req.headers.cookie`, `req.headers.authorization`, `errBody.token`, `errBody.password`, `errBody.card_number` — tapi data di level `{ password: "xxx" }` tanpa prefix `errBody.*` TIDAK akan ter-redact.
 - **Bukti**:
-  ```typescript
-  console.log("Donasi berhasil disimpan:", donationId);
+  ```ts
+  // logger.ts:60-62 — error method tidak pakai redactSensitiveData
+  error: (msg: string, data?: Record<string, unknown>) => {
+    logger.error({ ...data, context }, msg);
+  },
+
+  // logger.ts:37-46 — redact paths terbatas pada prefix errBody.*
+  redact: {
+    paths: [
+      "req.headers.cookie",
+      "req.headers.authorization",
+      "errBody.token",
+      "errBody.password",
+      "errBody.card_number",
+    ],
+  },
   ```
-- **Dampak**:
-  - Sulit melakukan query dan analisis log.
-  - Tidak bisa diintegrasikan dengan tools observability (Grafana, Loki).
-  - Sulit mencari log berdasarkan field tertentu (misal: `reqId`).
-- **Rekomendasi**:
-  - Gunakan structured logging dengan `pino`:
-    ```typescript
-    logger.info(
-      {
-        reqId: requestId,
-        donationId,
-        amount: donation.amount,
-        status: "success"
-      },
-      "Donasi berhasil disimpan"
-    );
-    ```
-- **Effort estimate**: Sedang (1-3 hari)
+- **Dampak bisnis**: Developer yang secara tidak sengaja log `{ password: "rahasia123" }` via `log.info()` akan menulis password ke file log production. Pelanggaran data privasi.
+- **Rekomendasi perbaikan**: Terapkan `redactSensitiveData()` di semua method, bukan hanya `redacted()`. Atau pasang Pino `redact.paths` untuk top-level field sensitif (tidak hanya `errBody.*`).
+- **Effort estimate**: Kecil
 - **Status**: Belum dikerjakan
 
 ---
 
-### [LOG-004] Tidak Ada Centralized Logging
-- **Severity**: High
-- **Lokasi**: Seluruh codebase
-- **Apa yang terjadi**: Log hanya dicetak ke STDOUT/STDERR, tidak dikirim ke centralized logging.
-- **Bukti**: Tidak ada konfigurasi untuk mengirim log ke Loki, Elasticsearch, atau Datadog.
-- **Dampak**:
-  - Sulit melakukan troubleshooting di production.
-  - Tidak bisa melakukan analisis log secara terpusat.
-  - Log hilang jika container/pod dihapus.
-- **Rekomendasi**:
-  - Gunakan **Grafana Loki** untuk centralized logging.
-  - Konfigurasi `pino` untuk mengirim log ke Loki:
-    ```typescript
-    const logger = pino({
-      transport: {
-        target: "@logtail/pino",
-        options: { sourceToken: process.env.LOGTAIL_TOKEN },
-      },
-    });
-    ```
-  - Atau gunakan FluentBit sebagai log collector.
-- **Effort estimate**: Sedang (1-3 hari)
+### [LOG-03] Logger Pino level config tidak sinkron dengan runtime
+
+- **Severity**: Low
+- **Klasifikasi**: CWE-779 (Logging of Excessive Data)
+- **Lokasi**: `src/lib/logger.ts:30`
+- **Apa yang terjadi**: Level log ditentukan dari `NODE_ENV` saja. Di environment staging/preview yang juga pakai `NODE_ENV=production`, log debug tidak akan muncul.
+- **Bukti**:
+  ```ts
+  level: process.env.NODE_ENV === "production" ? "info" : "debug",
+  ```
+- **Dampak bisnis**: Debugging di staging sulit jika staging juga menggunakan mode production.
+- **Rekomendasi perbaikan**: Gunakan env var terpisah `LOG_LEVEL` dengan fallback ke `info`.
+- **Effort estimate**: Kecil
 - **Status**: Belum dikerjakan
 
 ---
 
-### [LOG-005] Tidak Ada Audit Logging untuk Perubahan Data
-- **Severity**: Critical
-- **Lokasi**: Action files (mustahik.ts, donations.ts, dll.)
-- **Apa yang terjadi**: Tidak ada audit trail untuk perubahan data (create, update, delete).
-- **Bukti**: Tidak ada tabel `audit_logs` atau logging untuk perubahan data.
-- **Dampak**:
-  - Tidak bisa melacak siapa yang mengubah data.
-  - Sulit melakukan investigasi jika terjadi kesalahan atau fraud.
-  - Pelanggaran **SOC 2 CC7.2** (Audit Logging).
-- **Rekomendasi**:
-  - Buat tabel `audit_logs`:
-    ```sql
-    CREATE TABLE audit_logs (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      mosque_id UUID REFERENCES mosques(id),
-      action TEXT NOT NULL,  -- CREATE, UPDATE, DELETE
-      entity_type TEXT NOT NULL,  -- mustahik, donation, transaction
-      entity_id UUID NOT NULL,
-      actor_id UUID REFERENCES profiles(id),
-      metadata JSONB,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-    ```
-  - Tambahkan audit log di setiap action file:
-    ```typescript
-    await db.insert(audit_logs).values({
-      mosque_id: mosqueId,
-      action: "CREATE",
-      entity_type: "mustahik",
-      entity_id: row.id,
-      actor_id: profile.id,
-      metadata: { name, phone, address },
-    });
-    ```
-- **Effort estimate**: Sedang (1-3 hari)
-- **Status**: Belum dikerjakan
+### [LOG-04] Tidak ada logging untuk server action failures
 
----
-
-### [LOG-006] Tidak Ada Monitoring atau Alerting
-- **Severity**: High
-- **Lokasi**: Seluruh codebase
-- **Apa yang terjadi**: Tidak ada monitoring untuk error atau performa.
-- **Bukti**: Tidak ada integrasi dengan Grafana, Datadog, atau Sentry.
-- **Dampak**:
-  - Error tidak terdeteksi secara real-time.
-  - Sulit melakukan troubleshooting di production.
-  - Downtime tidak terdeteksi.
-- **Rekomendasi**:
-  - Integrasikan dengan **Sentry** untuk error monitoring:
-    ```typescript
-    import * as Sentry from "@sentry/nextjs";
-    Sentry.init({ dsn: process.env.SENTRY_DSN });
-    ```
-  - Tambahkan alerting untuk error kritis (contoh: Midtrans webhook gagal).
-  - Gunakan **Grafana Alerting** untuk log-based alerting.
-- **Effort estimate**: Sedang (1-3 hari)
-- **Status**: Belum dikerjakan
-
----
-
-### [LOG-007] Tidak Ada Retention Policy untuk Log
 - **Severity**: Medium
-- **Lokasi**: Seluruh codebase
-- **Apa yang terjadi**: Tidak ada kebijakan retensi log.
-- **Bukti**: Tidak ada konfigurasi untuk menghapus log lama.
-- **Dampak**:
-  - Log menumpuk dan menghabiskan storage.
-  - Biaya storage meningkat.
-  - Sulit mencari log yang relevan.
-- **Rekomendasi**:
-  - Konfigurasi retention policy di Loki:
-    ```yaml
-    # loki-config.yaml
-    table_manager:
-      retention_deletes_enabled: true
-      retention_period: 720h  # 30 days
-    ```
-  - Untuk Cloudflare Workers, gunakan log retention di Cloudflare Logs.
-- **Effort estimate**: Kecil (<1 hari)
-- **Status**: Belum dikerjakan
-
----
-
-### [LOG-008] Logging Data Sensitif di Error Log
-- **Severity**: High
-- **Lokasi**: `src/app/api/midtrans/webhook/route.ts`
-- **Apa yang terjadi**: Data sensitif (seperti `errBody` dari Midtrans) dicetak di error log.
+- **Klasifikasi**: CWE-778 (Insufficient Logging)
+- **Lokasi**: Semua file di `src/lib/actions/*.ts`
+- **Apa yang terjadi**: Semua server action throws `throw new Error("...")` atau return `{ error: "..." }` tanpa satu pun yang memanggil logger. Error tidak tercatat di mana pun — hanya tampil di response client.
 - **Bukti**:
-  ```typescript
-  console.error("[MIDTRANS] Token error:", response.status, errBody);
+  ```ts
+  // transactions.ts:147 — error dibiarkan tanpa log
+  if (!row) throw new Error("Operation failed");
+
+  // mustahik.ts:90 — return error tanpa log
+  if (!row) return { error: "Gagal menyimpan data." };
   ```
-- **Dampak**:
-  - Data sensitif (seperti token, nomor kartu) bisa tercetak di log.
-  - Pelanggaran **UU PDP** dan **PCI DSS**.
-- **Rekomendasi**:
-  - Jangan log seluruh `errBody`. Gunakan structured logging dengan redaction:
-    ```typescript
-    logger.error(
-      {
-        reqId: requestId,
-        service: "midtrans",
-        status: response.status,
-        error: redactSensitiveData(errBody),  // Fungsi untuk menghapus data sensitif
-      },
-      "Midtrans token error"
-    );
-    ```
-  - Contoh fungsi `redactSensitiveData`:
-    ```typescript
-    function redactSensitiveData(obj: any): any {
-      if (typeof obj !== "object" || obj === null) return obj;
-      const result = { ...obj };
-      for (const key of Object.keys(result)) {
-        if (key.toLowerCase().includes("token") || key.toLowerCase().includes("password")) {
-          result[key] = "[REDACTED]";
-        } else if (typeof result[key] === "object") {
-          result[key] = redactSensitiveData(result[key]);
-        }
-      }
-      return result;
-    }
-    ```
-- **Effort estimate**: Kecil (<1 hari)
+- **Dampak bisnis**: Admin tidak tahu kalau ada error sistem karena tidak ada notifikasi. Error hanya muncul saat user mengeluh.
+- **Rekomendasi perbaikan**: Setiap `throw` sebelum re-throw, panggil `log.error()`. Untuk return `{ error }`, panggil `log.warn()`.
+- **Effort estimate**: Besar (26 action files)
 - **Status**: Belum dikerjakan
 
 ---
 
-### [LOG-009] Tidak Ada Sampling atau Filtering untuk Log Volume Besar
+### [LOG-05] `redacted()` method hanya dipanggil di 2 tempat dari seluruh codebase
+
+- **Severity**: Info
+- **Klasifikasi**: CWE-532
+- **Lokasi**: `src/lib/logger.ts:63-65`
+- **Apa yang terjadi**: Method `redacted()` di logger dirancang khusus untuk log data sensitif dengan redaksi otomatis, tapi hanya dipanggil di 2 lokasi dari total ~26 file action:
+  1. `src/app/api/midtrans/token/route.ts:79` — `log.redacted("Token error from Midtrans API", ...)`
+  2. `src/app/api/midtrans/token/route.ts:93` — `log.redacted("Unexpected error", ...)`
+  3. `src/lib/turnstile.ts:25` — `log.redacted("Verifikasi error", ...)`
+- **Bukti**: Hanya 3 pemanggilan `log.redacted()` vs puluhan pemanggilan `log.*` biasa.
+- **Dampak bisnis**: Developer yang tidak sadar akan terus pakai `log.error()` untuk data sensitif.
+- **Rekomendasi perbaikan**: Tambahkan comment di definisi method yang jelas membedakan kapan pakai `redacted()`. Atau pertimbangkan auto-redact di semua method via Pino `redact.paths`.
+- **Effort estimate**: Kecil
+- **Status**: Belum dikerjakan
+
+---
+
+### [LOG-06] Audit log terbatas — tidak capture IP address atau user-agent
+
 - **Severity**: Medium
-- **Lokasi**: Seluruh codebase
-- **Apa yang terjadi**: Tidak ada mekanisme untuk mengurangi volume log.
-- **Bukti**: Semua log dicetak tanpa filtering.
-- **Dampak**:
-  - Biaya logging meningkat.
-  - Sulit mencari log yang relevan.
-  - Performance aplikasi terpengaruh.
-- **Rekomendasi**:
-  - Gunakan sampling untuk log debug:
-    ```typescript
-    if (Math.random() < 0.1) {  // 10% sampling
-      logger.debug({ ... }, "Debug message");
-    }
-    ```
-  - Gunakan log level yang tepat (debug hanya di development).
-  - Filter log berdasarkan severity atau path.
-- **Effort estimate**: Kecil (<1 hari)
+- **Klasifikasi**: CWE-778 (Insufficient Logging)
+- **Lokasi**: `src/db/schema.ts:531-548` (tabel audit_logs), semua file actions
+- **Apa yang terjadi**: Schema `audit_logs` punya kolom `ip_address` dan `user_agent` (baris 539-540), tapi tidak ada satu pun insert ke `audit_logs` yang mengisi kolom tersebut. Semua audit insert hanya mengisi `actor_id`, `action`, `entity_type`, `entity_id`, `changes`.
+- **Bukti**:
+  ```ts
+  // schema.ts:539-540 — kolom didefinisikan
+  ip_address: text("ip_address"),
+  user_agent: text("user_agent"),
+
+  // Semua insert audit log — contoh di transactions.ts:149-156
+  await db.insert(audit_logs).values({
+    mosque_id: mosqueId,
+    action: "update",
+    entity_type: "transactions",
+    entity_id: id,
+    actor_id: profile.id,
+    changes: { old, new: data },
+    // ip_address dan user_agent tidak pernah diisi
+  });
+  ```
+- **Dampak bisnis**: Jika terjadi penyalahgunaan akun, tidak ada cara untuk melacak dari IP mana akses dilakukan. Audit log tidak bisa digunakan untuk forensik.
+- **Rekomendasi perbaikan**: Di middleware atau helper, capture IP dan User-Agent dari request header, lalu inject ke setiap audit log. Bisa via AsyncLocalStorage atau parameter fungsi.
+- **Effort estimate**: Sedang
 - **Status**: Belum dikerjakan
 
 ---
 
-## Rekomendasi Strategis
+## 3. RINGKASAN
 
-1. **Implementasikan structured logging dengan `pino`** (High priority).
-2. **Tambahkan Request ID dan Correlation ID** (High priority).
-3. **Buat tabel `audit_logs` untuk audit trail** (Critical priority).
-4. **Integrasikan dengan Grafana Loki untuk centralized logging** (High priority).
-5. **Tambahkan monitoring dan alerting dengan Sentry** (High priority).
-6. **Terapkan retention policy untuk log** (Medium priority).
-7. **Redact data sensitif dari log** (High priority).
+| ID | Severity | Judul | Effort |
+|----|----------|-------|--------|
+| LOG-01 | 🔴 High | Logger tidak pakai request ID | Sedang |
+| LOG-02 | 🔴 High | Regular logger tidak redact data sensitif | Kecil |
+| LOG-03 | 🟢 Low | Level log hardcode NODE_ENV | Kecil |
+| LOG-04 | 🟡 Medium | Server action failures tidak di-log | Besar |
+| LOG-05 | 🔵 Info | `redacted()` jarang dipanggil | Kecil |
+| LOG-06 | 🟡 Medium | Audit log tidak capture IP/User-Agent | Sedang |
 
----
-
-*GERAKAN PEMUDA BERDAYA — Masjid Jami' At-Taqwa Ulujami*
+**Skor Kesehatan Logging: 5/10** — Foundation sudah Level 2 (Pino ✅), tapi belum ada tracing, belum ada error logging sistematis, dan rawan bocor data sensitif.

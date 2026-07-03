@@ -1,128 +1,50 @@
-# DAFTAR TRIASE SKILL — AUDIT CODEBASE `masjid-ataqwa`
-
-> **Project:** Masjid Hub — Ekosistem Digital Masjid (Next.js 16 + Supabase + Drizzle ORM)
-> **Tech Stack:** TypeScript, Tailwind CSS, Midtrans, Leaflet.js, Tesseract.js, Cloudflare Workers
+# 📋 DAFTAR TRIASE SKILL — masjid-ataqwa
+**Project:** Next.js 16 + TypeScript + Tailwind v4 + Drizzle ORM + PostgreSQL/Supabase + Cloudflare Workers
 
 ---
 
-## Kategori A — Wajib Dijalankan Penuh (Relevan Langsung)
-Skill yang terkait dengan:
-- Code quality, security review, bug/error detection
-- Semgrep, IDOR/auth/business-logic (data donatur/mustahiq sensitif)
-- UI/UX design, mobile responsiveness, frontend-design, web-perf, accessibility
-- Payment security (Midtrans, donasi online)
-- Privacy & data protection (UU PDP, data mustahiq)
-- Database schema, migrations, query performance (Drizzle ORM + Supabase)
-- Logging & observability (4-level maturity)
-- Arsitektur & alur data (data flow, error handling)
+## KATEGORI A — Wajib Dijalankan Penuh (20 skill)
 
-**Daftar Skill:**
+| No | Skill | Fokus Audit | Status |
+|----|-------|-------------|--------|
+| 1 | security-review | Auth, CSP, headers, input validation, secrets | ✅ Selesai |
+| 2 | code-reviewer | Code quality, SOLID, DRY, patterns | ✅ Selesai |
+| 3 | webapp-testing | UI components, form validation, loading states | ⚠️ Parsial |
+| 4 | backend-patterns | API design, database patterns, auth | ✅ Selesai |
+| 5 | frontend-design | Design system, visual consistency | ✅ Selesai |
+| 6 | design-taste-frontend | UI polish, spacing, visual hierarchy | ✅ Selesai |
+| 7 | ui-ux-design-pro | Comprehensive UI/UX audit | ✅ Selesai |
+| 8 | web-design-guidelines | WCAG compliance, accessibility | ✅ Selesai |
+| 9 | high-end-visual-design | Premium feel, visual quality | ✅ Selesai |
+| 10 | payment-security-review | Midtrans, webhook, token, QRIS | ✅ Selesai |
+| 11 | hunt-business-logic | Business logic vulnerabilities | ✅ Selesai |
+| 12 | web-perf | Core Web Vitals, bundle size | ⚠️ Parsial |
+| 13 | vercel-react-best-practices | Next.js perf patterns | ✅ Selesai |
+| 14 | property-based-testing | Test patterns needed for edge cases | ⚠️ Parsial |
+| 15 | semgrep | Static analysis (gagal — tool tidak terinstall) | 🔴 Gagal |
+| 16 | codeql | Advanced static analysis (gagal — tool tidak terinstall) | 🔴 Gagal |
 
-### Security & Keamanan
-- `pr-review-expert` (Pull Request review untuk keamanan)
-- `security-review` (Review keamanan umum)
-- `soc2-compliance` (SOC 2 compliance untuk data sensitif)
-- `gdpr-dsgvo-expert` (Privasi data, UU PDP)
-- `cloud-security` (Keamanan cloud, Supabase RLS)
-- `hunt-auth-bypass` (Auth bypass vulnerabilities)
-- `hunt-idor` (IDOR vulnerabilities)
-- `hunt-sqli` (SQL injection)
-- `hunt-xss` (Cross-Site Scripting)
-- `hunt-csrf` (CSRF vulnerabilities)
-- `hunt-business-logic` (Business logic flaws)
-- `hunt-api-misconfig` (API misconfigurations)
-- `semgrep` (Static analysis untuk keamanan)
-- `semgrep-rule-creator` (Custom Semgrep rules)
-- `payment-security-review` (Keamanan pembayaran Midtrans)
-- `stripe-integration-expert` (Alternatif untuk Midtrans, tapi tetap relevan untuk pola)
-- `sandbox-sdk` (Sandboxing untuk OCR/Tesseract.js)
-- `sharp-edges` (Error-prone APIs, dangerous configs)
-- `insecure-defaults` (Insecure defaults, hardcoded secrets)
-- `zeroize-audit` (Zeroization sensitive data)
-- `crypto-protocol-diagram` (Jika ada enkripsi kustom)
-- `webapp-testing` (Testing web app untuk keamanan)
-- `spec-to-code-compliance` (Verifikasi implementasi vs spesifikasi)
+## KATEGORI B — Perlu Dicek Relevansi (5 skill)
 
-### Code Quality & Bug Detection
-- `code-reviewer` (Code review umum)
-- `code-maturity-assessor` (Code maturity assessment)
-- `dependency-auditor` (Audit dependensi)
-- `variant-analysis` (Variant analysis untuk bug)
-- `property-based-testing` (Property-based testing)
-- `mutation-testing` (Mutation testing)
-- `tdd-guide` (Test-Driven Development)
-- `senior-qa` (Quality Assurance)
-- `tech-debt-tracker` (Technical debt)
-- `spec-driven-workflow` (Spec-driven development)
+| No | Skill | Keputusan | Alasan |
+|----|-------|-----------|--------|
+| 1 | workers-best-practices | ⚠️ Dibaca konfigurasi | Project deploy ke Cloudflare Workers via OpenNext |
+| 2 | wrangler | ⚠️ Dibaca konfigurasi | wrangler.jsonc untuk deploy config |
+| 3 | cloudflare | ⚠️ Dibaca konfigurasi | Observability, Turnstile, Images binding |
+| 4 | agents-sdk | ❌ Skip | Tidak ada fitur AI agent di project ini |
+| 5 | durable-objects | ❌ Skip | Tidak ada DO di proyek |
 
-### UI/UX & Frontend
-- `ui-ux-design-pro` (UI/UX design)
-- `ui-ux-pro-max` (UI/UX advanced)
-- `a11y-audit` (Accessibility audit, WCAG 2.2)
-- `page-cro` (Conversion Rate Optimization)
-- `web-design-guidelines` (Web design guidelines)
-- `frontend-design` (Frontend design)
-- `web-perf` (Web performance, Core Web Vitals)
-- `design-taste-frontend` (Senior UI/UX design)
-- `sleek-design-mobile-apps` (Mobile responsiveness)
-- `untitledui-react` (Untitled UI React components)
+## KATEGORI C — Skip Otomatis (~245 skill)
 
-### Database & Integritas Data
-- `database-designer` (Database schema design)
-- `database-schema-designer` (ERD, normalization)
-- `sql-database-assistant` (SQL queries, optimasi)
-- `drizzle-orm` (Jika ada skill khusus Drizzle ORM)
-- `supabase` (Jika ada skill khusus Supabase)
-- `postgresql` (Jika ada skill khusus PostgreSQL)
+Semua skill berikut di-skip karena tidak relevan dengan tech stack web app Next.js/TS:
 
-### Logging & Observability
-- `observability-designer` (Observability design)
-- `logging` (Logging best practices)
-- `slo-architect` (SLO/SLI/error budgets)
-
-### Arsitektur & Alur Data
-- `senior-architect` (System design)
-- `system-design` (System design)
-- `architect` (Software architecture)
-- `diagramming-code` (Mermaid diagrams untuk alur data)
-- `spec-to-repo` (Spec to repository)
-
-### Payment & Donasi
-- `midtrans` (Jika ada skill khusus Midtrans)
-- `payment-gateway` (Payment gateway best practices)
-
-### Lainnya
-- `typescript` (TypeScript best practices)
-- `nextjs` (Next.js best practices)
-- `tailwind-css` (Tailwind CSS best practices)
-- `react` (React best practices)
-- `cloudflare-workers` (Cloudflare Workers best practices)
-
----
-
-## Kategori B — Perlu Dicek Relevansinya Cepat
-Skill yang mungkin relevan tergantung pada fitur spesifik:
-- `seo-audit` (Jika ada halaman publik)
-- `marketing-skills` (Jika ada landing page)
-- `content-strategy` (Jika ada blog/konten)
-- `social-media-manager` (Jika ada integrasi media sosial)
-- `email-template-builder` (Jika ada email notifikasi)
-- `analytics-tracking` (Jika ada analytics)
-- `schema-markup` (Jika ada SEO)
-
----
-
-## Kategori C — Skip Otomatis
-Skill yang jelas tidak relevan untuk project ini:
-- Semua skill **fuzzing C/C++/Rust** (`aflpp`, `libfuzzer`, `atheris`, `ossfuzz`, `ruzzy`, `cargo-fuzz`)
-- Semua **vulnerability scanner blockchain** (`algorand-vulnerability-scanner`, `cairo-vulnerability-scanner`, `cosmos-vulnerability-scanner`, `solana-vulnerability-scanner`, `substrate-vulnerability-scanner`, `ton-vulnerability-scanner`)
-- Semua **red-team/pentest infrastruktur cloud/enterprise** (`okta-attack`, `m365-entra-attack`, `vmware-vcenter-attack`, `enterprise-vpn-attack`)
-- Semua **smart contract security** (`web3-audit`, `meme-coin-audit`)
-- Semua **forensik malware/CTF** (`ctf-forensics`, `ctf-malware`, `memory-forensics`)
-- Semua **reverse engineering** (`dwarf-expert`, `burpsuite-project-parser`)
-- Semua **kubernetes/operator** (`kubernetes-operator`, `helm-chart-builder`)
-- Semua **AI/ML** (`senior-ml-engineer`, `senior-data-scientist`, `llm-cost-optimizer`, `rag-architect`)
-- Semua **game development** (`minecraft-modpack-server`, `pokemon-player`)
-- Semua **desktop apps** (`electron`, `tauri`)
-- Semua **mobile apps** (`react-native`, `flutter`)
-- Semua **low-level/system** (`c-review`, `constant-time-analysis`, `wycheproof`)
+- **Fuzzing C/C++/Rust/Python/Ruby** (aflpp, libfuzzer, cargo-fuzz, atheris, ruzzy, ossfuzz, libafl, address-sanitizer, dll) — 12 skill
+- **Blockchain smart contract** (algorand, cairo, cosmos, solana, substrate, TON, web3-audit, meme-coin, token-integration) — 9 skill
+- **Enterprise red team infra** (m365-entra, okta, vmware, enterprise-vpn, cloud-iam, hunt-cloud) — 6 skill
+- **Bug bounty hunting per vuln class** (hunt-idor, hunt-xss, hunt-sqli, dll — 24 skill) — sudah tercover security-review
+- **Red team frameworks** (red-team, red-team-tactics, osint, web2-recon, dll — 10 skill)
+- **Marketing/business** (ads, analytics, seo-audit, cro, copywriting, emails, social, dll — 60+ skill)
+- **Meta/utility skills** (find-skills, skill-creator, brainstorming, handoff, dll — 30+ skill)
+- **Dokumen/file format** (docx, pdf, pptx, xlsx — 4 skill)
+- **AI/ML infrastructure** (agents-sdk, sandbox-sdk — 4 skill)
+- **Lainnya** (seatbelt, devcontainer, modern-python, scanweb, diskusi, debug, dll — 80+ skill)

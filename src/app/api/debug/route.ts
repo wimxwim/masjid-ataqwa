@@ -1,11 +1,48 @@
+import { cookies } from "next/headers";
+import { createServerSupabase } from "@/lib/supabase/server";
 import { db } from "@/db/client";
-import { mosques, donations, transactions, mustahiks, programs, activity_feed } from "@/db/schema";
+import { mosques, donations, transactions, mustahiks, profiles, memberships } from "@/db/schema";
 import { eq, and, isNull, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth/server";
 
-export async function GET() {
+export async function GET(request: Request) {
+  /* proteksi — hanya admin yang bisa akses debug */
+  try {
+    await requireAuth();
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const result: Record<string, unknown> = { phase: "start" };
   const errs: string[] = [];
+
+  /* 1. Cookie check */
+  try {
+    const c = await cookies();
+    const allCookies = c.getAll();
+    result.cookieNames = allCookies.map((ck) => ck.name);
+    result.cookieCount = allCookies.length;
+    result.rawCookieHeader = request.headers.get("cookie") ?? "(none)";
+  } catch (e) { errs.push("cookies:" + String(e)); }
+
+  /* 1b. headers() API check */
+  try {
+    const h = await (await import("next/headers")).headers();
+    result.headersCookie = h.get("cookie") ?? "(none from headers())";
+  } catch (e: unknown) {
+    result.headersCookie = "ERR:" + String(e);
+  }
+
+  /* 2. Auth check */
+  try {
+    const supabase = await createServerSupabase();
+    const { data: { user }, error } = await supabase.auth.getUser();
+    result.authUser = user?.email ?? null;
+    result.authError = error?.message ?? null;
+    const { data: { session } } = await supabase.auth.getSession();
+    result.hasSession = !!session;
+  } catch (e) { errs.push("auth:" + String(e)); }
 
   try {
     const [mosque] = await db
@@ -49,10 +86,14 @@ export async function GET() {
     } catch (e) { errs.push("expense:" + String(e)); }
 
     try {
-      const feed = await db.select().from(activity_feed).where(eq(activity_feed.mosque_id, mosque.id)).limit(3);
-      result.activityFeedCount = feed.length;
-    } catch (e) { errs.push("feed:" + String(e)); }
+      const profileCount = await db.select({ count: sql<number>`COUNT(*)` }).from(profiles);
+      result.profileCount = profileCount[0]?.count ?? 0;
+    } catch (e) { errs.push("profiles:" + String(e)); }
 
+    try {
+      const membershipCount = await db.select({ count: sql<number>`COUNT(*)` }).from(memberships);
+      result.membershipCount = membershipCount[0]?.count ?? 0;
+    } catch (e) { errs.push("memberships:" + String(e)); }
   } catch (e) { errs.push("TOP:" + String(e)); }
 
   result.errors = errs;

@@ -2,18 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "./keys";
-import { getTransactions } from "@/lib/actions/transactions";
-import { getMustahiks } from "@/lib/actions/mustahik";
-import { getJamaah } from "@/lib/actions/jamaah";
-import { getInventaris } from "@/lib/actions/inventaris";
-import { getDonaturTetap } from "@/lib/actions/donatur-tetap";
-import { getPrograms } from "@/lib/actions/programs";
-import { getMushafirAid } from "@/lib/actions/mushafir";
-import { getEmployees } from "@/lib/actions/employees";
-import { getActivityFeed } from "@/lib/actions/activity";
-import { getSantri } from "@/lib/actions/santri";
-import { getDonations } from "@/lib/actions/donations";
 import type { LedgerEntry, MustahikDb, Inventaris } from "@/types";
+import type { donations as DonationsTable } from "@/db/schema";
 
 /* ─── Type Adapters ─── */
 
@@ -73,85 +63,86 @@ export function toMustahikShort(db: MustahikDb): {
   };
 }
 
-/* ─── Hooks ─── */
+/* ─── Combined overview hook (calls API route instead of server actions) ─── */
+
+export function useAdminOverview(mosqueId: string) {
+  return useQuery({
+    queryKey: queryKeys.admin.overview(mosqueId),
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/overview?mosqueId=${mosqueId}`);
+      if (!res.ok) throw new Error(await res.text());
+      return res.json() as Promise<{
+        transactions: Array<Record<string, unknown>>;
+        mustahik: Array<Record<string, unknown>>;
+        jamaah: Array<Record<string, unknown>>;
+        inventaris: Array<Record<string, unknown>>;
+        donations: Array<Record<string, unknown>>;
+      }>;
+    },
+    enabled: !!mosqueId,
+  });
+}
+
+/* ─── Legacy single-entity hooks (now read from overview) ─── */
 
 export function useAdminTransactions(mosqueId: string, type?: string) {
+  const { data } = useAdminOverview(mosqueId);
   return useQuery({
     queryKey: queryKeys.admin.transactions(mosqueId, type),
-    queryFn: () => getTransactions(mosqueId, type),
-    enabled: !!mosqueId,
+    queryFn: () => {
+      const list = (data?.transactions ?? []) as Parameters<typeof toLedgerEntry>[0][];
+      return type ? list.filter((t) => t.type === type) : list;
+    },
+    enabled: !!mosqueId && !!data,
   });
 }
 
 export function useAdminMustahik(mosqueId: string) {
+  const { data } = useAdminOverview(mosqueId);
   return useQuery({
     queryKey: queryKeys.admin.mustahik(mosqueId),
-    queryFn: () => getMustahiks(mosqueId),
-    enabled: !!mosqueId,
+    queryFn: () => data?.mustahik as MustahikDb[] | undefined ?? [],
+    enabled: !!mosqueId && !!data,
   });
 }
 
 export function useAdminJamaah(mosqueId: string) {
+  const { data } = useAdminOverview(mosqueId);
   return useQuery({
     queryKey: queryKeys.admin.jamaah(mosqueId),
-    queryFn: () => getJamaah(mosqueId),
-    enabled: !!mosqueId,
+    queryFn: () => data?.jamaah as Array<Record<string, unknown>> | undefined ?? [],
+    enabled: !!mosqueId && !!data,
   });
 }
 
 export function useAdminInventaris(mosqueId: string) {
+  const { data } = useAdminOverview(mosqueId);
   return useQuery({
     queryKey: queryKeys.admin.inventaris(mosqueId),
-    queryFn: () => getInventaris(mosqueId),
-    enabled: !!mosqueId,
+    queryFn: () => (data?.inventaris ?? []) as Parameters<typeof toInventaris>[0][],
+    enabled: !!mosqueId && !!data,
   });
 }
 
-export function useAdminDonaturTetap(mosqueId: string) {
+export function useAdminDonations(mosqueId: string) {
+  const { data } = useAdminOverview(mosqueId);
   return useQuery({
-    queryKey: queryKeys.admin.donatur(mosqueId),
-    queryFn: () => getDonaturTetap(mosqueId),
-    enabled: !!mosqueId,
-  });
-}
-
-export function useAdminPrograms(mosqueId: string) {
-  return useQuery({
-    queryKey: queryKeys.admin.programs(mosqueId),
-    queryFn: () => getPrograms(mosqueId),
-    enabled: !!mosqueId,
-  });
-}
-
-export function useAdminMushafir(mosqueId: string) {
-  return useQuery({
-    queryKey: queryKeys.admin.mushafir(mosqueId),
-    queryFn: () => getMushafirAid(mosqueId),
-    enabled: !!mosqueId,
-  });
-}
-
-export function useAdminEmployees(mosqueId: string) {
-  return useQuery({
-    queryKey: queryKeys.admin.employees(mosqueId),
-    queryFn: () => getEmployees(mosqueId),
-    enabled: !!mosqueId,
-  });
-}
-
-export function useAdminActivity(mosqueId: string) {
-  return useQuery({
-    queryKey: queryKeys.admin.activity(mosqueId),
-    queryFn: () => getActivityFeed(mosqueId),
-    enabled: !!mosqueId,
-  });
-}
-
-export function useAdminSantri(mosqueId: string) {
-  return useQuery({
-    queryKey: queryKeys.admin.santri(mosqueId),
-    queryFn: () => getSantri(mosqueId),
-    enabled: !!mosqueId,
+    queryKey: [...queryKeys.admin.all, "donations", mosqueId] as const,
+    queryFn: () => {
+      const rows = (data?.donations ?? []) as Array<Record<string, unknown>>;
+      const paid = rows.filter((r) => r.payment_status === "paid");
+      return {
+        total: paid.reduce((s, r) => s + (r.amount as number), 0),
+        items: paid.map((r) => ({
+          akad_type: (r.akad_type as string | null) ?? "",
+          program_name: (r.program_name as string | null) ?? null,
+          amount: r.amount as number,
+          donor_name: (r.donor_name as string | null) ?? null,
+          paid_at: (r.paid_at as string | null) ?? null,
+        })),
+      } satisfies DonationSummary;
+    },
+    enabled: !!mosqueId && !!data,
   });
 }
 
@@ -160,24 +151,3 @@ export type DonationSummary = {
   total: number;
   items: { akad_type: string; program_name: string | null; amount: number; donor_name: string | null; paid_at: string | null }[];
 };
-
-export function useAdminDonations(mosqueId: string) {
-  return useQuery({
-    queryKey: [...queryKeys.admin.all, "donations", mosqueId] as const,
-    queryFn: async () => {
-      const rows = await getDonations(mosqueId);
-      const paid = rows.filter((d) => d.payment_status === "paid");
-      return {
-        total: paid.reduce((s, d) => s + d.amount, 0),
-        items: paid.map((d) => ({
-          akad_type: d.akad_type,
-          program_name: d.program_name,
-          amount: d.amount,
-          donor_name: d.donor_name,
-          paid_at: d.paid_at?.toISOString() ?? null,
-        })),
-      } satisfies DonationSummary;
-    },
-    enabled: !!mosqueId,
-  });
-}

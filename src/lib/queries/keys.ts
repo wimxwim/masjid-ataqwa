@@ -93,6 +93,7 @@ export const queryKeys = {
   // Admin dashboard
   admin: {
     all: ["admin"] as const,
+    overview: (mosqueId: string) => [...queryKeys.admin.all, "overview", mosqueId] as const,
     transactions: (mosqueId: string, type?: string) =>
       [...queryKeys.admin.all, "transactions", mosqueId, type].filter(Boolean) as readonly unknown[],
     mustahik: (mosqueId: string) => [...queryKeys.admin.all, "mustahik", mosqueId] as const,

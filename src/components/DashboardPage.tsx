@@ -81,7 +81,7 @@ export default function DashboardPage() {
   );
 
   const jamaahList = useMemo(
-    () => (dbJamaah ?? []).map((j) => ({ peran: j.peran ?? "Warga" })),
+    () => (dbJamaah ?? []).map((j) => ({ peran: String((j as Record<string, unknown>).peran ?? "Warga") })),
     [dbJamaah],
   );
 
