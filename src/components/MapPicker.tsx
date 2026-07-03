@@ -14,6 +14,22 @@ interface Props {
 // Center to Mosque if no default provided
 const MOSQUE_CENTER: [number, number] = [-6.228, 106.761];
 
+// Kalkulasi Jarak Geospasial Fisika Matematis (Haversine Formula) 
+function getDistanceInMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371e3; // Radius bumi dalam meter
+  const p1 = lat1 * Math.PI/180;
+  const p2 = lat2 * Math.PI/180;
+  const dp = (lat2-lat1) * Math.PI/180;
+  const dl = (lon2-lon1) * Math.PI/180;
+
+  const a = Math.sin(dp/2) * Math.sin(dp/2) +
+            Math.cos(p1) * Math.cos(p2) *
+            Math.sin(dl/2) * Math.sin(dl/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c;
+}
+
 function MapResizer() {
   const map = useMap();
   useEffect(() => {
@@ -51,6 +67,13 @@ export default function MapPicker({ defaultLat, defaultLng, onPositionChange }: 
     iconAnchor: [9, 9],
   });
 
+  const distance = Math.round(getDistanceInMeters(MOSQUE_CENTER[0], MOSQUE_CENTER[1], position[0], position[1]));
+  
+  let ringSuggestion = "";
+  if (distance < 500) ringSuggestion = "Ring 1 (Sangat Dekat)";
+  else if (distance <= 1000) ringSuggestion = "Ring 2 (Menengah)";
+  else ringSuggestion = "Ring 3 (Jauh)";
+
   return (
     <>
       <style>{`
@@ -78,7 +101,18 @@ export default function MapPicker({ defaultLat, defaultLng, onPositionChange }: 
           />
         </MapContainer>
       </div>
-      <div className="text-[10px] text-muted mt-1 flex justify-between">
+      <div className="mt-2 p-2.5 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-between text-xs">
+        <div>
+          <span className="font-semibold text-emerald-800">📏 Kalkulasi Jarak Real-time:</span>
+          <p className="text-emerald-700 mt-0.5">Jarak atap rumah ke pusat Masjid: <strong className="font-mono text-emerald-900">{distance} meter</strong></p>
+        </div>
+        <div className="text-right">
+          <span className="bg-emerald-200 text-emerald-800 font-bold px-2 py-1 rounded-md text-[10px] uppercase">
+            Rekomendasi: {ringSuggestion}
+          </span>
+        </div>
+      </div>
+      <div className="text-[10px] text-muted mt-1.5 flex justify-between px-1">
         <span>📍 Geser pin merah ke lokasi persis rumah mustahik</span>
         <span className="font-mono">{position[0].toFixed(5)}, {position[1].toFixed(5)}</span>
       </div>
