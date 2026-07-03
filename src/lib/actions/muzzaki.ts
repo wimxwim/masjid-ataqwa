@@ -40,6 +40,7 @@ export async function getMuzzakiById(id: string, mosqueId?: string) {
 export async function createMuzzaki(data: InsertMuzzaki) {
   const profile = await requireAuth();
   const mid = await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "finance_director");
   const [row] = await db
     .insert(muzzaki)
     .values({
