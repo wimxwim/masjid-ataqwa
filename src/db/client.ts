@@ -2,21 +2,30 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
 import { cache } from "react";
-
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
-  throw new Error("DATABASE_URL tidak diset — periksa .env atau environment variables");
-}
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 // FIX SERVERLESS 2026: Cloudflare Worker Error 1102 & 1101
-// - JANGAN buat global TCP connection di Edge runtime
-// - Gunakan cache() dari React agar koneksi di-isolate per-request
-// - idle_timeout: 1 (detik) memaksa postgres mematikan TCP setelah request selesai
+// Menggunakan Cloudflare Hyperdrive untuk pooling native C++ (bypass JS CPU limit)
 const getDb = cache(() => {
+  let connectionString = process.env.DATABASE_URL;
+
+  try {
+    const ctx = getCloudflareContext();
+    if (ctx?.env?.HYPERDRIVE?.connectionString) {
+      connectionString = ctx.env.HYPERDRIVE.connectionString;
+    }
+  } catch (e) {
+    // Abaikan jika tidak di runtime Cloudflare
+  }
+
+  if (!connectionString) {
+    throw new Error("DATABASE_URL tidak diset — periksa .env atau environment variables");
+  }
+
   const client = postgres(connectionString, { 
     prepare: false, 
-    max: 1, // Batasi 1 worker = 1 koneksi
-    idle_timeout: 1, // Matikan segera setelah nganggur 1 detik!
+    max: 1, 
+    idle_timeout: 1, 
     connect_timeout: 5
   });
   return drizzle(client, { schema });
