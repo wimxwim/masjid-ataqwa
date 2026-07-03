@@ -74,24 +74,39 @@ export async function payInstallment(id: string, amount_paid: number) {
   const mosque_id = mid;
 
   const isLunas = amount_paid >= old.amount_due;
-  const [row] = await db
-    .update(loan_installments)
-    .set({
-      amount_paid,
-      paid_date: sql`CURRENT_DATE`,
-      status: isLunas ? "paid" : "late",
-    })
-    .where(eq(loan_installments.id, id))
-    .returning();
+  let row: typeof loan_installments.$inferSelect | undefined;
 
-  await db.insert(audit_logs).values({
-    mosque_id,
-    action: "pay",
-    entity_type: "loan_installments",
-    entity_id: id,
-    actor_id: profile.id,
-    changes: { old_amount: old.amount_paid, new_amount: amount_paid },
+  await db.transaction(async (tx) => {
+    [row] = await tx
+      .update(loan_installments)
+      .set({
+        amount_paid,
+        paid_date: sql`CURRENT_DATE`,
+        status: isLunas ? "paid" : "late",
+      })
+      .where(eq(loan_installments.id, id))
+      .returning();
+
+    /* update total_paid di tabel loans */
+    await tx
+      .update(loans)
+      .set({
+        total_paid: sql`COALESCE(${loans.total_paid}, 0) + ${amount_paid}`,
+        updated_at: sql`NOW()`,
+      })
+      .where(eq(loans.id, old.loan_id));
+
+    await tx.insert(audit_logs).values({
+      mosque_id,
+      action: "pay",
+      entity_type: "loan_installments",
+      entity_id: id,
+      actor_id: profile.id,
+      changes: { old_amount: old.amount_paid, new_amount: amount_paid },
+    });
   });
+
+  if (!row) throw new Error("Gagal menyimpan pembayaran");
 
   revalidatePath(`/bank-infaq`);
   return row;

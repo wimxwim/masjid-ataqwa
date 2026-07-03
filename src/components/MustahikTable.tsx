@@ -143,10 +143,10 @@ export default function MustahikTable() {
                   <th className="px-4 py-3 font-semibold">Nama</th>
                   <th className="px-4 py-3 font-semibold">Asnaf</th>
                   <th className="px-4 py-3 font-semibold">Program</th>
-                  <th className="px-4 py-3 font-semibold">NIM</th>
+                  <th className="hidden md:table-cell px-4 py-3 font-semibold">NIM</th>
                   <th className="px-4 py-3 font-semibold">Ring</th>
-                  <th className="px-4 py-3 font-semibold">Desil</th>
-                  <th className="px-4 py-3 font-semibold">Had Kifayah</th>
+                  <th className="hidden md:table-cell px-4 py-3 font-semibold">Desil</th>
+                  <th className="hidden md:table-cell px-4 py-3 font-semibold">Had Kifayah</th>
                   <th className="px-4 py-3 font-semibold text-right">Aksi</th>
                 </tr>
               </thead>
@@ -163,23 +163,23 @@ export default function MustahikTable() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-muted">{programLabel(m.program_type)}</td>
-                    <td className="px-4 py-3 text-muted font-mono text-xs">{m.nomor_induk_mustahik || "-"}</td>
+                    <td className="hidden md:table-cell px-4 py-3 text-muted font-mono text-xs">{m.nomor_induk_mustahik || "-"}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full ${ringColor(m.ring_number)}`}>
                         {ringLabel(m.ring_number)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-muted">{desilLabel(m.desil_level)}</td>
-                    <td className="px-4 py-3 text-muted">
+                    <td className="hidden md:table-cell px-4 py-3 text-muted">{desilLabel(m.desil_level)}</td>
+                    <td className="hidden md:table-cell px-4 py-3 text-muted">
                       {m.had_kifayah_score != null ? m.had_kifayah_score.toLocaleString() : "-"}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-end gap-3">
                         {m.lat && m.lng && (
                           <Link
                             href={`https://www.google.com/maps?q=${m.lat},${m.lng}`}
                             target="_blank"
-                            className="p-1.5 rounded-lg hover:bg-bg text-muted hover:text-primary transition-colors"
+                            className="hidden md:inline-flex p-2.5 rounded-lg hover:bg-bg text-muted hover:text-primary transition-colors"
                             title="Buka di Google Maps"
                           >
                             <MapPin className="w-4 h-4" />
@@ -187,7 +187,7 @@ export default function MustahikTable() {
                         )}
                         <button
                           onClick={() => { setEditing(m); setShowForm(true); setError(""); }}
-                          className="p-1.5 rounded-lg hover:bg-bg text-muted hover:text-amber-600 transition-colors"
+                          className="p-2.5 rounded-lg hover:bg-bg text-muted hover:text-amber-600 transition-colors"
                           title="Edit"
                         >
                           <Pencil className="w-4 h-4" />
@@ -199,7 +199,7 @@ export default function MustahikTable() {
                             if (res.error) { setError(res.error); return; }
                             load();
                           }}
-                          className="p-1.5 rounded-lg hover:bg-bg text-muted hover:text-red-600 transition-colors"
+                          className="p-2.5 rounded-lg hover:bg-bg text-muted hover:text-red-600 transition-colors"
                           title="Hapus"
                         >
                           <Trash2 className="w-4 h-4" />

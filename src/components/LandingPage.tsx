@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useAppContext } from "@/stores/app-context";
 import LiveActivityFeed from "./LiveActivityFeed";
 import { 
@@ -9,7 +10,7 @@ import {
   TrendingUp, Users, CheckCircle, ArrowDownToLine, Handshake, Sprout, Landmark
 } from "lucide-react";
 import type { HeroStats, ProgramProgress } from "@/types";
-import { useDefaultMosque, useDashboardStats, useFeaturedPrograms, usePublicTransactions, usePublicTestimonials, useFundTypeBreakdown } from "@/lib/queries/public";
+import { usePublicData } from "@/lib/queries/public";
 
 const FUND_LABEL: Record<string, string> = {
   zakat_fitrah: "Zakat Fitrah",
@@ -37,14 +38,13 @@ export default function LandingPage() {
   const router = useRouter();
   const { setSelectedZakatTypePreset } = useAppContext();
 
-  const { data: mosque } = useDefaultMosque();
-  const mosqueId = mosque?.id ?? "";
+  const { data: apiData } = usePublicData();
 
-  const { data: stats } = useDashboardStats(mosqueId);
-  const { data: featuredPrograms = [] } = useFeaturedPrograms(mosqueId);
-  const { data: allTransactions = [] } = usePublicTransactions(mosqueId);
-  const { data: fundBreakdown = [] } = useFundTypeBreakdown(mosqueId);
-  usePublicTestimonials(mosqueId);
+  const mosque = apiData?.mosque ?? null;
+  const stats = apiData?.stats ?? null;
+  const featuredPrograms: Record<string, unknown>[] = apiData?.featuredPrograms ?? [];
+  const allTransactions: Record<string, unknown>[] = apiData?.transactions ?? [];
+  const fundBreakdown: { fund_type: string; total: number }[] = apiData?.fundBreakdown ?? [];
 
   const heroStats: HeroStats = {
     totalTerkumpul: stats?.totalDonations ?? 0,
@@ -65,11 +65,12 @@ export default function LandingPage() {
   };
 
   const programProgress: ProgramProgress[] = featuredPrograms.map((p) => {
-    const cfg = p.config as { icon?: string; color?: string; target_beneficiaries?: number; target_budget?: number } | null;
+    const prog = p as { id: string; name: string; slug: string; config: Record<string, unknown> | null };
+    const cfg = prog.config as { icon?: string; color?: string; target_beneficiaries?: number; target_budget?: number } | null;
     return {
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
+      id: prog.id,
+      name: prog.name,
+      slug: prog.slug,
       icon: cfg?.icon ?? "quran",
       current: 0,
       target: cfg?.target_budget ?? 0,
@@ -115,15 +116,15 @@ export default function LandingPage() {
 
   // Recent donations from live transactions (top 5 inflow)
   const recentDonations = allTransactions
-    .filter((e) => e.type === "Pemasukan")
-    .sort((a, b) => b.transaction_date.localeCompare(a.transaction_date))
+    .filter((e: Record<string, unknown>) => e.type === "Pemasukan")
+    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => String(b.transaction_date).localeCompare(String(a.transaction_date)))
     .slice(0, 5)
-    .map((e) => ({
-      id: e.id,
-      tanggal: e.transaction_date,
-      donatur: e.donor_name || "Anonim",
-      program: e.category || "Umum",
-      jumlah: e.amount,
+    .map((e: Record<string, unknown>) => ({
+      id: String(e.id),
+      tanggal: String(e.transaction_date),
+      donatur: String(e.donor_name ?? ""),
+      program: String(e.category ?? ""),
+      jumlah: Number(e.amount),
       status: "Berhasil" as const,
     }));
 
@@ -176,10 +177,12 @@ export default function LandingPage() {
 
           {/* Right Column: Stunning Mosque Dome Sunset Image */}
           <div className="lg:col-span-5 relative w-full h-72 sm:h-96 rounded-2xl overflow-hidden shadow-2xl border-4 border-emerald-500/20 shadow-emerald-950/50">
-            <img 
-              src="https://images.unsplash.com/photo-1542810634-71277d95dcbb?auto=format&fit=crop&w=800&q=80" 
-              alt="At-Taqwa Mosque Dome" 
-              className="w-full h-full object-cover"
+            <Image
+              src="https://images.unsplash.com/photo-1542810634-71277d95dcbb?auto=format&fit=crop&w=800&q=80"
+              alt="At-Taqwa Mosque Dome"
+              fill
+              sizes="(max-width: 1024px) 100vw, 40vw"
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent" />
             <div className="absolute bottom-4 left-4 right-4 bg-slate-900/60 backdrop-blur-xs p-3 rounded-xl border border-slate-700/50">
@@ -321,7 +324,8 @@ export default function LandingPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
-          {featuredPrograms.map((prog, idx) => {
+          {featuredPrograms.map((progRaw, idx) => {
+            const prog = progRaw as { id: string; name: string; description?: string; slug: string; category?: string; config: Record<string, unknown> | null };
             const cfg = prog.config as {
               icon?: string;
               color?: string;
@@ -351,10 +355,12 @@ export default function LandingPage() {
             return (
               <div key={prog.id} className="bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-xl hover:border-emerald-100 transition-all overflow-hidden flex flex-col group">
                 <div className="h-48 bg-gray-100 relative overflow-hidden">
-                  <img 
+                  <Image
                     src={imgSrc}
                     alt={prog.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 33vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-4 left-4 bg-emerald-700 text-white text-xs font-semibold px-3 py-1 rounded-full uppercase">
                     {badgeText}
