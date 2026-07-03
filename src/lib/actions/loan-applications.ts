@@ -48,7 +48,6 @@ export async function createLoanApplication(data: InsertLoanApplication) {
       mosque_id: mid,
       name: data.name,
       phone: data.phone,
-      nik: data.nik,
       nik_encrypted: encryptNik(data.nik),
       nik_hash: hashNikServer(data.nik),
       home_status: data.home_status,

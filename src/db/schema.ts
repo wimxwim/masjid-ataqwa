@@ -378,8 +378,9 @@ export const loan_applications = pgTable("loan_applications", {
 
   name: text("name").notNull(),
   phone: text("phone").notNull(),
-  nik: text("nik").notNull(),
-  nik_encrypted: text("nik_encrypted"),
+  /* ⚠️ NIK hanya disimpan dalam bentuk terenkripsi (AES-256-GCM) + hash (SHA-256)
+     Kolom `nik` plaintext sudah dihapus di migrasi 0015 (P-001). */
+  nik_encrypted: text("nik_encrypted").notNull(),
   nik_hash: text("nik_hash"),
   home_status: text("home_status").notNull(),
 

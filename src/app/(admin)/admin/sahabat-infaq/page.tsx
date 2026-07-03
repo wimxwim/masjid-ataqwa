@@ -82,7 +82,7 @@ export default function AdminSahabatInfaqPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div><span className="font-medium text-muted">Nama</span><p className="text-ink">{detail.name}</p></div>
                 <div><span className="font-medium text-muted">Telepon</span><p className="text-ink">{detail.phone}</p></div>
-                <div><span className="font-medium text-muted">NIK</span><p className="text-ink font-mono">{detail.nik}</p></div>
+                <div><span className="font-medium text-muted">NIK</span><p className="text-ink font-mono">{detail.nik_hash ? detail.nik_hash.slice(-4).padStart(16, "•") : "Tersimpan (terenkripsi)"}</p></div>
                 <div><span className="font-medium text-muted">Status Tempat Tinggal</span><p className="text-ink">{detail.home_status}</p></div>
               </div>
               <hr className="border-outline" />

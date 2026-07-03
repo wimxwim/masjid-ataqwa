@@ -44,3 +44,44 @@
 - **Catatan**: BUTUH KEPUTUSAN MANUSIA — rotasi secret lain (Midtrans, Fonnte, NIK_ENCRYPTION_KEY, DATABASE_URL) perlu dilakukan di dashboard masing-masing. Juga tambah IP firewall di Supabase + buat DB user terbatas.
 
 >> CHECKPOINT P-002 s.d. P-008: 4 temuan selesai. Lanjut P-006 (transaction restructure) + P-007 (RBAC) + P-009 (Turnstile mandatory)
+
+### [P-006] Bungkus createLoanRestructure dalam transaction
+- **Status verifikasi ulang**: Valid
+- **Riset**: Pattern dari Drizzle ORM docs — db.transaction() dengan rollback otomatis jika throw
+- **Sumber riset**: orm.drizzle.team/docs/transactions
+- **Perbaikan**: Bungkus insert loan_restructures + update loan status + audit_log dalam db.transaction()
+- **File**: src/lib/actions/loan-restructures.ts
+- **Commit**: 49de0eb fix(P-006): [database] bungkus createLoanRestructure dalam transaction atomic
+
+### [P-007] RBAC check di createLoanInstallment
+- **Status verifikasi ulang**: Valid
+- **Riset**: Fungsi requireRole() sudah ada dan dipakai di fungsi lain — tinggal tambah di fungsi ini
+- **Perbaikan**: Tambah requireRole(mosque_id, ...) sebelum insert — verifikasi user punya akses ke masjid
+- **File**: src/lib/actions/loan-installments.ts
+- **Commit**: 2eff77f fix(P-007): [security] tambah RBAC check di createLoanInstallment
+
+### [P-005] Fix race condition payInstallment
+- **Status verifikasi ulang**: Valid — dan ditemukan 2 masalah tambahan
+- **Riset**: PostgreSQL UPDATE atomic — `UPDATE SET col = col + val` sudah row-level lock via MVCC.
+  Masalah utama adalah amount_paid OVERWRITE (bukan increment) yang menyebabkan lost update.
+- **Sumber riset**: PostgreSQL docs (postgresql.org/docs/current/tutorial-transactions.html), Drizzle ORM docs transactions, SO #40162952
+- **Perbaikan**:
+  1. amount_paid: overwrite → atomic increment (COALESCE(amount_paid, 0) + amount_paid)
+  2. Tambah validasi amount_paid <= sisa cicilan di awal
+  3. total_paid sudah atomic (tidak diubah)
+- **File**: src/lib/actions/loan-installments.ts
+- **Commit**: fd33ecc fix(P-005): [database] fix race condition payInstallment
+- **Catatan**: Idempotency key belum ditambahkan — butuh kolom baru + migrasi (follow-up)
+
+### [P-009] Turnstile mandatory + IP verification
+- **Status verifikasi ulang**: Valid — dan Zod schema tidak pernah validasi turnstile karena field name mismatch
+- **Riset**: Midtrans IP range dari docs, Turnstile mandatory pattern
+- **Sumber riset**: docs.midtrans.com/en/technical-reference/ip-address-range
+- **Perbaikan**:
+  1. Tambah IP verification webhook (MIDTRANS_IP_RANGES + ipInRanges())
+  2. Jadikan Turnstile mandatory (hapus `if` guard)
+  3. Fix Zod schema field name turnstile_token → turnstileToken, z.string().required
+- **File**: src/app/api/midtrans/webhook/route.ts, src/lib/actions/loan-applications.ts, src/lib/validation.ts
+- **Commit**: d2c67fb + 40f5720
+
+>> CHECKPOINT P-005 s.d. P-009: Batch Keamanan Critical selesai (8 dari 9 Critical). Lanjut batch 2 — Database & Integritas Data (P-001 NIK plaintext)
