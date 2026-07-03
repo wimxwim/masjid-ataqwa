@@ -27,11 +27,17 @@ yarn-error.log*
 
 # opennext / cloudflare
 .open-next/
-.dev.vars
 .wrangler/
+
+# wrangler local env (secrets)
+.dev.vars
 
 # supabase
 /supabase/
+
+# backups (DB dumps, etc)
+/backups/
+/catatanskills.md
 
 # typescript
 *.tsbuildinfo
