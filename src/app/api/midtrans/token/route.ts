@@ -3,6 +3,9 @@ import crypto from "crypto";
 import { db } from "@/db/client";
 import { donations } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("midtrans-token");
 
 /* ─── POST: generate Snap transaction token ─── */
 export async function POST(request: Request) {
@@ -38,7 +41,7 @@ export async function POST(request: Request) {
     }
 
     if (Number(gross_amount) !== donation.amount) {
-      console.error("[MIDTRANS] Amount mismatch: client sent", gross_amount, "but DB has", donation.amount);
+      log.warn("Amount mismatch", { clientAmount: gross_amount, dbAmount: donation.amount });
       return NextResponse.json({ error: "Jumlah donasi tidak valid" }, { status: 400 });
     }
 
@@ -73,7 +76,7 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const errBody = await response.text();
-      console.error("[MIDTRANS] Token error:", response.status, errBody);
+      log.redacted("Token error from Midtrans API", { status: response.status, errBody });
       return NextResponse.json(
         { error: "Gagal mendapatkan token pembayaran" },
         { status: 502 }
@@ -87,7 +90,7 @@ export async function POST(request: Request) {
       redirect_url: data.redirect_url,
     });
   } catch (error) {
-    console.error("[MIDTRANS] Unexpected error:", error);
+    log.redacted("Unexpected error", { error: String(error) });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

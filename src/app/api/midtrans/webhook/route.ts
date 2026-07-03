@@ -4,6 +4,9 @@ import { db } from "@/db/client";
 import { donations, transactions, activity_feed, audit_logs } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { CATEGORY_MAP } from "@/lib/fund-mapping";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("midtrans-webhook");
 
 /* ─── verifikasi signature HMAC Midtrans ─── */
 function verifySignature(
@@ -46,7 +49,7 @@ async function handlePaymentNotification(notification: Record<string, unknown>) 
     .limit(1);
 
   if (!donation) {
-    console.warn(`[MIDTRANS] Donasi tidak ditemukan: ${orderId}`);
+    log.warn("Donasi tidak ditemukan", { orderId });
     return;
   }
 
@@ -128,7 +131,7 @@ export async function POST(request: Request) {
   const serverKey = process.env.MIDTRANS_SERVER_KEY;
 
   if (!serverKey) {
-    console.warn("[MIDTRANS] Webhook diterima tapi MIDTRANS_SERVER_KEY belum diisi");
+    log.warn("Webhook diterima tapi MIDTRANS_SERVER_KEY belum diisi");
     return NextResponse.json({ status: "ok" });
   }
 
@@ -136,18 +139,18 @@ export async function POST(request: Request) {
   const signatureKey = String(body.signature_key ?? "");
 
   if (!signatureKey) {
-    console.error("[MIDTRANS] signature_key tidak ditemukan di body:", body.order_id);
+    log.error("signature_key tidak ditemukan di body", { orderId: body.order_id });
     return NextResponse.json({ error: "Missing signature_key" }, { status: 401 });
   }
 
   if (!verifySignature(body, signatureKey, serverKey)) {
-    console.error("[MIDTRANS] Signature mismatch:", body.order_id);
+    log.error("Signature mismatch", { orderId: body.order_id });
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
   /* proses async — balas 200 dulu */
   handlePaymentNotification(body).catch((err) => {
-    console.error("[MIDTRANS] Webhook handler error:", err);
+    log.error("Webhook handler error", { error: String(err) });
   });
 
   return NextResponse.json({ status: "ok" });

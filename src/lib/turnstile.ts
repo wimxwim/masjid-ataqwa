@@ -1,8 +1,12 @@
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("turnstile");
+
 /** Server-side verification token Turnstile Cloudflare. */
 export async function verifyTurnstile(token: string): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
-    console.warn("[TURNSTILE] TURNSTILE_SECRET_KEY tidak diisi — skip verifikasi");
+    log.warn("TURNSTILE_SECRET_KEY tidak diisi — skip verifikasi");
     return true;
   }
 
@@ -18,7 +22,7 @@ export async function verifyTurnstile(token: string): Promise<boolean> {
     const data = await res.json();
     return data.success === true;
   } catch (err) {
-    console.error("[TURNSTILE] Verifikasi error:", err);
+    log.redacted("Verifikasi error", { error: String(err) });
     return false;
   }
 }

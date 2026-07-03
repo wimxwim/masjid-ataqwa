@@ -1,8 +1,13 @@
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  const response = await updateSession(request);
+
+  const requestId = request.headers.get("x-request-id") || globalThis.crypto.randomUUID();
+  response.headers.set("x-request-id", requestId);
+
+  return response;
 }
 
 export const config = {
