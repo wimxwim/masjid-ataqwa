@@ -8,6 +8,7 @@ import "leaflet/dist/leaflet.css";
 interface Props {
   defaultLat?: number;
   defaultLng?: number;
+  externalOverride?: [number, number] | null;
   onPositionChange: (lat: number, lng: number) => void;
 }
 
@@ -41,10 +42,24 @@ function MapResizer() {
   return null;
 }
 
-export default function MapPicker({ defaultLat, defaultLng, onPositionChange }: Props) {
+function MapUpdater({ position }: { position: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    map.flyTo(position, map.getZoom(), { animate: true, duration: 1 });
+  }, [map, position]);
+  return null;
+}
+
+export default function MapPicker({ defaultLat, defaultLng, externalOverride, onPositionChange }: Props) {
   const initPos: [number, number] = defaultLat && defaultLng ? [defaultLat, defaultLng] : MOSQUE_CENTER;
   const [position, setPosition] = useState<[number, number]>(initPos);
   const markerRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (externalOverride) {
+      setPosition(externalOverride);
+    }
+  }, [externalOverride]);
 
   const eventHandlers = useMemo(
     () => ({
@@ -89,6 +104,7 @@ export default function MapPicker({ defaultLat, defaultLng, onPositionChange }: 
           zoomControl={true}
         >
           <MapResizer />
+          <MapUpdater position={position} />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"

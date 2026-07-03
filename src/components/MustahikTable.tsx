@@ -247,6 +247,7 @@ function MustahikForm({
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsOverride, setGpsOverride] = useState<[number, number] | null>(null);
   const [nikRaw, setNikRaw] = useState("");
 
   const nameRef = useRef<HTMLInputElement>(null);
@@ -263,15 +264,23 @@ function MustahikForm({
     setGpsLoading(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        if (latRef.current) latRef.current.value = pos.coords.latitude.toFixed(6);
-        if (lngRef.current) lngRef.current.value = pos.coords.longitude.toFixed(6);
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        if (latRef.current) latRef.current.value = lat.toFixed(6);
+        if (lngRef.current) lngRef.current.value = lng.toFixed(6);
+        setGpsOverride([lat, lng]);
         setGpsLoading(false);
+        setError(""); // Clear error on success
       },
       (err) => {
-        setError(`Gagal dapat lokasi: ${err.message}`);
+        let errMsg = err.message;
+        if (err.code === err.PERMISSION_DENIED) errMsg = "Izin GPS ditolak oleh browser.";
+        else if (err.code === err.POSITION_UNAVAILABLE) errMsg = "Sinyal GPS tidak tersedia.";
+        else if (err.code === err.TIMEOUT) errMsg = "Waktu tunggu GPS habis.";
+        setError(`Gagal dapat lokasi: ${errMsg}`);
         setGpsLoading(false);
       },
-      { enableHighAccuracy: true, timeout: 10000 },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
   };
 
@@ -535,6 +544,7 @@ function MustahikForm({
                 <MapPicker 
                   defaultLat={initial?.lat || undefined} 
                   defaultLng={initial?.lng || undefined} 
+                  externalOverride={gpsOverride}
                   onPositionChange={(lat, lng) => {
                     if (latRef.current) latRef.current.value = lat.toString();
                     if (lngRef.current) lngRef.current.value = lng.toString();
