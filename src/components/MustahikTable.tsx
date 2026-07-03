@@ -7,6 +7,12 @@ import type { InsertAsnaf } from "@/lib/actions/asnaf";
 import { MustahikDb } from "@/types";
 import { Search, Plus, X, Pencil, Trash2, MapPin, Navigation, ScanLine } from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+const MapPicker = dynamic(() => import("./MapPicker"), { 
+  ssr: false, 
+  loading: () => <div className="h-[200px] flex items-center justify-center bg-bg border border-outline rounded-xl text-xs text-muted">Memuat Peta Interaktif...</div> 
+});
 import KtpScanner from "@/components/KtpScanner";
 import type { KtpData } from "@/components/KtpScanner";
 import { hashNik } from "@/lib/nik-utils";
@@ -509,9 +515,32 @@ function MustahikForm({
               <input type="hidden" name="nik_hash" ref={nikHashRef} />
             </div>
 
-            {/* Koordinat — GPS */}
+            {/* Koordinat — GPS Picker */}
             <div className="col-span-2">
-              <label className="block text-sm font-semibold text-ink mb-1">Lokasi (GPS)</label>
+              <label className="block text-sm font-semibold text-ink mb-2 flex justify-between items-center">
+                <span>Titik Kordinat Lokasi Mustahik</span>
+                <button
+                  type="button"
+                  onClick={getLocation}
+                  disabled={gpsLoading}
+                  className="px-2 py-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 text-[10px] font-medium transition-colors disabled:opacity-50 flex items-center gap-1 shrink-0"
+                >
+                  <Navigation className={`w-3 h-3 ${gpsLoading ? "animate-pulse" : ""}`} />
+                  {gpsLoading ? "Mendeteksi..." : "Gunakan GPS HP"}
+                </button>
+              </label>
+              
+              <div className="h-[250px] mb-2 rounded-xl overflow-hidden relative z-0">
+                <MapPicker 
+                  defaultLat={initial?.lat || undefined} 
+                  defaultLng={initial?.lng || undefined} 
+                  onPositionChange={(lat, lng) => {
+                    if (latRef.current) latRef.current.value = lat.toString();
+                    if (lngRef.current) lngRef.current.value = lng.toString();
+                  }} 
+                />
+              </div>
+
               <div className="flex items-center gap-2">
                 <input
                   ref={latRef}
@@ -520,7 +549,8 @@ function MustahikForm({
                   step="any"
                   placeholder="Latitude"
                   defaultValue={initial?.lat || ""}
-                  className="flex-1 px-3 py-2 rounded-xl border border-outline bg-bg text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  readOnly
+                  className="flex-1 px-3 py-2 rounded-xl border border-outline bg-surface text-sm text-muted focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-not-allowed"
                 />
                 <input
                   ref={lngRef}
@@ -529,19 +559,11 @@ function MustahikForm({
                   step="any"
                   placeholder="Longitude"
                   defaultValue={initial?.lng || ""}
-                  className="flex-1 px-3 py-2 rounded-xl border border-outline bg-bg text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  readOnly
+                  className="flex-1 px-3 py-2 rounded-xl border border-outline bg-surface text-sm text-muted focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-not-allowed"
                 />
-                <button
-                  type="button"
-                  onClick={getLocation}
-                  disabled={gpsLoading}
-                  className="px-3 py-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-1.5 shrink-0"
-                >
-                  <Navigation className={`w-4 h-4 ${gpsLoading ? "animate-pulse" : ""}`} />
-                  {gpsLoading ? "..." : "Lokasi Saya"}
-                </button>
               </div>
-              <p className="text-[10px] text-muted mt-0.5">Klik &quot;Lokasi Saya&quot; untuk isi otomatis dari GPS perangkat</p>
+              <p className="text-[10px] text-muted mt-1">Geser pin di peta untuk mengubah koordinat secara otomatis.</p>
             </div>
 
             <div className="col-span-2">
