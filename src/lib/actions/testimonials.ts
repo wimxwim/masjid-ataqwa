@@ -34,6 +34,7 @@ export async function getTestimonials(mosqueId: string, activeOnly = false) {
 
 export async function getTestimonialById(id: string, mosqueId?: string) {
   const mid = mosqueId ?? await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "finance_director");
   const [row] = await db.select().from(testimonials).where(and(eq(testimonials.id, id), eq(testimonials.mosque_id, mid))).limit(1);
   return row ?? null;
 }

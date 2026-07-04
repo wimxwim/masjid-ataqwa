@@ -756,6 +756,8 @@ export const jamaah = pgTable("jamaah", {
   mosque_id: uuid("mosque_id").notNull().references(() => mosques.id, { onDelete: "cascade" }),
   nama: text("nama").notNull(),
   phone: text("phone"),
+  nik_encrypted: text("nik_encrypted"),     // AES-256-GCM
+  nik_hash: text("nik_hash"),               // SHA-256 untuk dedup
   alamat: text("alamat"),
   rt_rw: text("rt_rw"),
   peran: text("peran").default("Warga"),
@@ -766,6 +768,7 @@ export const jamaah = pgTable("jamaah", {
   deleted_at: timestamp("deleted_at", { withTimezone: true }),
 }, (t) => [
   index("jamaah_mosque_idx").on(t.mosque_id),
+  unique("jamaah_nik_hash").on(t.nik_hash),
 ]);
 
 /* ============================== ACTIVITY FEED ============================== */

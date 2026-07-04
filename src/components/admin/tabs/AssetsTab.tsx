@@ -38,6 +38,7 @@ export default function AssetsTab({ mosqueId, inventarisList, setInventarisList 
     e.preventDefault();
     const qtyNum = parseInt(invJumlah);
     if (!invNama || isNaN(qtyNum) || qtyNum <= 0) return;
+    if (!mosqueId) return;
 
     try {
       await createInventaris({

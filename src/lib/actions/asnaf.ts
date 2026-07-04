@@ -19,6 +19,7 @@ export type InsertAsnaf = {
 
 export async function getAsnafList(mosqueId?: string) {
   const mid = await resolveMosqueId(mosqueId);
+  await requireRole(mid, "superadmin", "admin_dkm", "mustahik", "finance_director");
   return db
     .select()
     .from(asnaf)
@@ -28,6 +29,7 @@ export async function getAsnafList(mosqueId?: string) {
 
 export async function getAsnafById(id: string, mosqueId?: string) {
   const mid = await resolveMosqueId(mosqueId);
+  await requireRole(mid, "superadmin", "admin_dkm", "mustahik");
   const [row] = await db
     .select()
     .from(asnaf)

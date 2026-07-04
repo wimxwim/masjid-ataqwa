@@ -29,6 +29,7 @@ export async function getPrograms(mosqueId?: string) {
 
 export async function getProgram(id: string, mosqueId?: string) {
   const mid = mosqueId ?? await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "dakwah_lead");
   const [row] = await db.select().from(programs).where(and(eq(programs.id, id), eq(programs.mosque_id, mid))).limit(1);
   return row ?? null;
 }

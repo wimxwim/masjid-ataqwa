@@ -9,6 +9,7 @@ import { verifyTurnstile } from "@/lib/turnstile";
 import { eq, and, desc, sql, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { createLoanApplicationSchema } from "@/lib/validation";
+import { rateLimit } from "@/lib/rate-limit";
 
 export type InsertLoanApplication = {
   name: string;
@@ -37,6 +38,10 @@ export async function getLoanApplications(mosqueId?: string) {
 
 export async function createLoanApplication(data: InsertLoanApplication) {
   createLoanApplicationSchema.parse(data);
+
+  const rl = await rateLimit(data.phone);
+  if (!rl.success) throw new Error("Terlalu banyak percobaan, coba lagi nanti.");
+
   const mid = await resolveMosqueId();
 
   const valid = await verifyTurnstile(data.turnstileToken);

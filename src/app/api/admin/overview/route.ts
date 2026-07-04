@@ -22,20 +22,24 @@ export async function GET(request: Request) {
         .select()
         .from(mustahiks)
         .where(and(eq(mustahiks.mosque_id, mosqueId), isNull(mustahiks.deleted_at)))
-        .orderBy(mustahiks.name),
+        .orderBy(mustahiks.name)
+        .limit(200),
       db
         .select()
         .from(jamaah)
-        .where(eq(jamaah.mosque_id, mosqueId)),
+        .where(eq(jamaah.mosque_id, mosqueId))
+        .limit(200),
       db
         .select()
         .from(inventaris)
-        .where(and(eq(inventaris.mosque_id, mosqueId), isNull(inventaris.deleted_at))),
+        .where(and(eq(inventaris.mosque_id, mosqueId), isNull(inventaris.deleted_at)))
+        .limit(100),
       db
         .select()
         .from(donations)
         .where(eq(donations.mosque_id, mosqueId))
-        .orderBy(desc(donations.created_at)),
+        .orderBy(desc(donations.created_at))
+        .limit(100),
     ]);
 
     return NextResponse.json({

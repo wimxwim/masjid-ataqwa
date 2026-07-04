@@ -12,6 +12,7 @@ import { CATEGORY_MAP } from "@/lib/fund-mapping";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { createDonationSchema } from "@/lib/validation";
+import { rateLimit } from "@/lib/rate-limit";
 
 export type InsertDonation = {
   mosque_id: string;
@@ -50,6 +51,9 @@ export async function getDonations(mosqueId: string) {
 
 export async function createDonation(data: InsertDonation) {
   createDonationSchema.parse(data);
+
+  const rl = await rateLimit(data.donor_phone ?? "donasi-anonim");
+  if (!rl.success) throw new Error("Terlalu banyak percobaan, coba lagi nanti.");
 
   /* Only admin can set payment_status directly — public donations always start as pending */
   let userIsAdmin = false;

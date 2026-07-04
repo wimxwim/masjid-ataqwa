@@ -96,6 +96,14 @@ export default function InflowTab({ mosqueId, onAddLedgerEntry }: InflowTabProps
           <p className="text-xs text-muted mt-1">Gunakan formulir ini untuk mencatat uang masuk dari kotak amal, donasi, zakat, atau wakaf.</p>
         </div>
 
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-start gap-2.5 text-xs">
+          <svg className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <div>
+            <span className="font-bold text-amber-800">Catat bukti transaksi:</span>{" "}
+            <span className="text-amber-700">Simpan foto kwitansi/bukti transfer di arsip masjid dan catat nomor referensi pada kolom keterangan.</span>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {submitError && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-xs font-semibold px-4 py-3 rounded-xl">

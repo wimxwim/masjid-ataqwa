@@ -28,6 +28,7 @@ export async function getInventaris(mosqueId: string) {
 
 export async function getInventarisById(id: string, mosqueId?: string) {
   const mid = mosqueId ?? await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm");
   const [row] = await db
     .select()
     .from(inventaris)

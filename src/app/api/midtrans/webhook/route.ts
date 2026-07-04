@@ -26,7 +26,7 @@ function ipInRanges(ip: string, ranges: string[]): boolean {
 }
 
 /* ─── verifikasi signature HMAC Midtrans ─── */
-function verifySignature(
+export function verifySignature(
   body: Record<string, unknown>,
   signatureHeader: string,
   serverKey: string,
