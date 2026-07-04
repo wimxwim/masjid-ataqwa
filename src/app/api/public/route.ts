@@ -1,5 +1,5 @@
 import { db } from "@/db/client";
-import { mosques, donations, transactions, mustahiks, programs, activity_feed, testimonials } from "@/db/schema";
+import { mosques, donations, transactions, mustahiks, programs, activity_feed, testimonials, bumm_products, affiliate_sales } from "@/db/schema";
 import { eq, and, desc, asc, isNull, sql, gte } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { AKAD_TO_FUND } from "@/lib/fund-mapping";
@@ -125,18 +125,49 @@ async function getPublicTestimonials(mosqueId: string) {
     .orderBy(desc(testimonials.created_at));
 }
 
+async function getBummStats(mosqueId: string) {
+  const [productCount] = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(bumm_products)
+    .where(and(eq(bumm_products.mosque_id, mosqueId), eq(bumm_products.is_active, true), isNull(bumm_products.deleted_at)));
+
+  const [salesStats] = await db
+    .select({
+      totalProducts: sql<number>`COALESCE(SUM(${affiliate_sales.quantity}), 0)`,
+      totalGmv: sql<number>`COALESCE(SUM(${affiliate_sales.total_gmv}), 0)`,
+      totalCommission: sql<number>`COALESCE(SUM(${affiliate_sales.earned_commission}), 0)`,
+    })
+    .from(affiliate_sales)
+    .innerJoin(bumm_products, eq(affiliate_sales.product_id, bumm_products.id))
+    .where(eq(bumm_products.mosque_id, mosqueId));
+
+  const [resellerCount] = await db
+    .select({ count: sql<number>`COUNT(DISTINCT ${affiliate_sales.referrer_id})` })
+    .from(affiliate_sales)
+    .innerJoin(bumm_products, eq(affiliate_sales.product_id, bumm_products.id))
+    .where(eq(bumm_products.mosque_id, mosqueId));
+
+  return {
+    resellerAktif: Number(resellerCount?.count ?? 0),
+    produkTerjual: Number(salesStats?.totalProducts ?? 0),
+    unitUsaha: Number(productCount?.count ?? 0),
+    profitKembali: 100,
+  };
+}
+
 export async function GET() {
   try {
     const mosque = await getDefaultMosque();
     if (!mosque) return NextResponse.json({ error: "No active mosque" }, { status: 404 });
 
-    const [stats, fundBreakdown, featuredPrograms, transactions, activityFeed, testimonials] = await Promise.all([
+    const [stats, fundBreakdown, featuredPrograms, transactions, activityFeed, testimonials, bummStats] = await Promise.all([
       getDashboardStats(mosque.id),
       getFundTypeBreakdown(mosque.id),
       getFeaturedPrograms(mosque.id),
       getPublicTransactions(mosque.id),
       getPublicActivityFeed(mosque.id),
       getPublicTestimonials(mosque.id),
+      getBummStats(mosque.id),
     ]);
 
     return NextResponse.json({
@@ -147,6 +178,7 @@ export async function GET() {
       transactions,
       activityFeed,
       testimonials,
+      bummStats,
     });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
