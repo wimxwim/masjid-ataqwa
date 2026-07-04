@@ -1,6 +1,7 @@
 import { db } from "@/db/client";
-import { mosques } from "@/db/schema";
+import { mosques, memberships } from "@/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
+import { requireAuth } from "@/lib/auth/server";
 
 /** Validasi URL gambar — hanya HTTPS yang diizinkan. */
 export function validateImageUrl(url: string | null | undefined): void {
@@ -13,14 +14,20 @@ export function validateImageUrl(url: string | null | undefined): void {
   }
 }
 
-/** Ambil mosque_id default (masjid pertama yang aktif) kalau tidak ada yang dipilih. */
+/** Ambil mosque_id dari membership aktif user yang login. */
 export async function resolveMosqueId(mosqueId?: string | null): Promise<string> {
   if (mosqueId) return mosqueId;
-  const [row] = await db
-    .select({ id: mosques.id })
-    .from(mosques)
-    .where(and(eq(mosques.is_active, true), isNull(mosques.deleted_at)))
-    .limit(1);
-  if (!row) throw new Error("Tidak ada masjid aktif. Hubungi admin.");
-  return row.id;
+
+  const profile = await requireAuth();
+
+  const userMemberships = await db
+    .select({ mosque_id: memberships.mosque_id })
+    .from(memberships)
+    .where(and(eq(memberships.profile_id, profile.id), eq(memberships.is_active, true)))
+    .limit(2);
+
+  if (userMemberships.length === 0) throw new Error("Tidak ada masjid aktif. Hubungi admin.");
+  if (userMemberships.length > 1) throw new Error("mosqueId wajib disebutkan eksplisit untuk user dengan multiple membership.");
+
+  return userMemberships[0].mosque_id;
 }
