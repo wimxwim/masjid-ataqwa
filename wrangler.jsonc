@@ -27,7 +27,7 @@
 		{
 			"binding": "HYPERDRIVE",
 			"id": "ea46631407ff436a867962ce63017703",
-			"localConnectionString": "postgresql://postgres:REDACTED_PASSWORD@db.vqpyxpdweditudfqajge.supabase.co:5432/postgres"
+			"localConnectionString": "postgresql://postgres:[REDACTED]@db.vqpyxpdweditudfqajge.supabase.co:5432/postgres"
 		}
 	]
 }

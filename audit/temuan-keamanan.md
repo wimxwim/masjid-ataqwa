@@ -47,11 +47,11 @@
 - **Severity**: Critical
 - **Klasifikasi**: CWE-312 / OWASP A05:2021
 - **Lokasi**: `.env` (baris 10), `.dev.vars` (baris 5)
-- **Apa yang terjadi**: Koneksi PostgreSQL langsung menggunakan kredensial dalam bentuk `postgresql://postgres:REDACTED_PASSWORD@db.vqpyxpdweditudfqajge.supabase.co:5432/postgres`. Password database (REDACTED_PASSWORD) terpapar dalam plaintext. Connection string ini memberikan akses penuh ke database — read/write semua tabel tanpa melewati RLS.
+- **Apa yang terjadi**: Koneksi PostgreSQL langsung menggunakan kredensial dalam bentuk `postgresql://postgres:[REDACTED]@db.vqpyxpdweditudfqajge.supabase.co:5432/postgres`. Password database (REDACTED_PASSWORD) terpapar dalam plaintext. Connection string ini memberikan akses penuh ke database — read/write semua tabel tanpa melewati RLS.
 - **Bukti**:
   ```
   # Dari .env baris 10:
-  DATABASE_URL=postgresql://postgres:REDACTED_PASSWORD@db.vqpyxpdweditudfqajge.supabase.co:5432/postgres
+  DATABASE_URL=postgresql://postgres:[REDACTED]@db.vqpyxpdweditudfqajge.supabase.co:5432/postgres
   ```
 - **Dampak bisnis**: Siapa pun yang mendapatkan file ini bisa terkoneksi langsung ke database PostgreSQL tanpa firewall atau autentikasi tambahan. Data mustahik, donatur, transaksi keuangan masjid bisa dicuri/dimodifikasi.
 - **Rekomendasi perbaikan**:
