@@ -301,25 +301,30 @@ function MustahikForm({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (submitting) return;
     setSubmitting(true);
     setError("");
 
-    if (nikRaw.length > 0 && nikRaw.length !== 16) {
-      setError("NIK harus 16 digit.");
-      setSubmitting(false);
-      return;
-    }
+    try {
+      if (nikRaw.length > 0 && nikRaw.length !== 16) {
+        setError("NIK harus 16 digit.");
+        return;
+      }
 
-    const fd = new FormData(e.currentTarget);
-    const res = initial
-      ? await updateMustahik(initial.id, fd)
-      : await createMustahik(fd);
-    if (res?.error) {
-      setError(res.error);
+      const fd = new FormData(e.currentTarget);
+      const res = initial
+        ? await updateMustahik(initial.id, fd)
+        : await createMustahik(fd);
+      if (res?.error) {
+        setError(res.error);
+        return;
+      }
+      onSaved();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Gagal menyimpan mustahik.");
+    } finally {
       setSubmitting(false);
-      return;
     }
-    onSaved();
   }
 
   return (

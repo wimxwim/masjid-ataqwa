@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db/client";
-import { mustahiks } from "@/db/schema";
+import { mustahiks, mosques } from "@/db/schema";
 import type { MustahikDb } from "@/types";
 import { requireAuth, requireRole } from "@/lib/auth/server";
 import { resolveMosqueId } from "./_helpers";
@@ -89,7 +89,35 @@ export async function createMustahik(formData: FormData) {
     else if (autoScore < 85) computed_desil_level = "3"; // Rentan Miskin (Desil 3)
     else computed_desil_level = "4"; // Hampir Miskin (Desil 4)
   }
-  const nomor_induk_mustahik = formData.get("nomor_induk_mustahik") as string;
+
+  const rawNim = formData.get("nomor_induk_mustahik") as string;
+  let nomor_induk_mustahik = rawNim;
+
+  if (!nomor_induk_mustahik) {
+    const [mosque] = await db
+      .select({ slug: mosques.slug })
+      .from(mosques)
+      .where(eq(mosques.id, mosqueId))
+      .limit(1);
+
+    const slug = mosque?.slug;
+    const prefix = slug?.split("-")[0]?.toUpperCase();
+    if (prefix) {
+      const year = String(new Date().getFullYear());
+      const [count] = await db
+        .select({ n: sql<number>`count(*)::int` })
+        .from(mustahiks)
+        .where(
+          and(
+            eq(mustahiks.mosque_id, mosqueId),
+            sql`${mustahiks.nomor_induk_mustahik} LIKE ${prefix + "/" + year + "/%"}`
+          )
+        );
+      const nextSeq = (count?.n ?? 0) + 1;
+      nomor_induk_mustahik = `${prefix}/${year}/${String(nextSeq).padStart(4, "0")}`;
+    }
+  }
+
   const program_type = formData.get("program_type") as string;
 
   if (!name || !address) return { error: "Nama dan alamat wajib diisi." };

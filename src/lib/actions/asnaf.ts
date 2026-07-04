@@ -20,11 +20,27 @@ export type InsertAsnaf = {
 export async function getAsnafList(mosqueId?: string) {
   const mid = await resolveMosqueId(mosqueId);
   await requireRole(mid, "superadmin", "admin_dkm", "mustahik", "finance_director");
-  return db
+
+  let rows = await db
     .select()
     .from(asnaf)
     .where(and(eq(asnaf.mosque_id, mid), eq(asnaf.is_active, true)))
     .orderBy(asc(asnaf.priority));
+
+  if (rows.length === 0) {
+    try {
+      await seedDefaultAsnaf(mid);
+      rows = await db
+        .select()
+        .from(asnaf)
+        .where(and(eq(asnaf.mosque_id, mid), eq(asnaf.is_active, true)))
+        .orderBy(asc(asnaf.priority));
+    } catch {
+      // user role may not have seed permission — return empty gracefully
+    }
+  }
+
+  return rows;
 }
 
 export async function getAsnafById(id: string, mosqueId?: string) {
