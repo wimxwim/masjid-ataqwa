@@ -42,6 +42,20 @@ export async function createDonaturTetap(data: InsertDonatur) {
   const profile = await requireAuth();
   const mid = await resolveMosqueId(data.mosque_id);
   await requireRole(mid, "superadmin", "admin_dkm", "finance_director");
+
+  const phoneVal = data.phone ?? null;
+  const existing = await db
+    .select({ id: donatur_tetap.id })
+    .from(donatur_tetap)
+    .where(and(
+      eq(donatur_tetap.mosque_id, mid),
+      eq(donatur_tetap.nama, data.nama),
+      phoneVal ? eq(donatur_tetap.phone, phoneVal) : isNull(donatur_tetap.phone),
+      isNull(donatur_tetap.deleted_at),
+    ))
+    .limit(1);
+  if (existing.length > 0) throw new Error(`Donatur "${data.nama}" dengan nomor ini sudah terdaftar.`);
+
   const [row] = await db
     .insert(donatur_tetap)
     .values({

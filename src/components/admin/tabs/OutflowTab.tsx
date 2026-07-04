@@ -46,7 +46,8 @@ export default function OutflowTab({ mosqueId, onAddLedgerEntry }: OutflowTabPro
     e.preventDefault();
     setSubmitError("");
 
-    const amountNum = Number(outflowAmount);
+    const cleaned = outflowAmount.replace(/[^0-9]/g, "");
+    const amountNum = cleaned ? parseInt(cleaned, 10) : 0;
     if (!outflowAmount || amountNum <= 0) return;
 
     if (!mosqueId) {
@@ -139,10 +140,11 @@ export default function OutflowTab({ mosqueId, onAddLedgerEntry }: OutflowTabPro
                 Jumlah (Rp)
               </label>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="0"
                 value={outflowAmount}
-                onChange={(e) => setOutflowAmount(e.target.value)}
+                onChange={(e) => setOutflowAmount(e.target.value.replace(/[^0-9]/g, ""))}
                 disabled={isSubmitting}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
               />

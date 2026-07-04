@@ -37,8 +37,9 @@ export default function InflowTab({ mosqueId, onAddLedgerEntry }: InflowTabProps
     e.preventDefault();
     setSubmitError("");
 
-    const amountNum = parseFloat(inflowAmount);
-    if (isNaN(amountNum) || amountNum <= 0) return;
+    const cleaned = inflowAmount.replace(/[^0-9]/g, "");
+    const amountNum = cleaned ? parseInt(cleaned, 10) : 0;
+    if (amountNum <= 0) return;
 
     if (!mosqueId) {
       setSubmitError("Data masjid belum tersedia. Coba refresh halaman.");
@@ -131,12 +132,12 @@ export default function InflowTab({ mosqueId, onAddLedgerEntry }: InflowTabProps
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-muted">Rp</span>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   required
-                  min="1"
                   value={inflowAmount}
-                  onChange={(e) => setInflowAmount(e.target.value)}
-                  placeholder="Masukkan nominal saja..."
+                  onChange={(e) => setInflowAmount(e.target.value.replace(/[^0-9]/g, ""))}
+                  placeholder="Masukkan nominal saja (angka)..."
                   disabled={isSubmitting}
                   className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2.5 pl-9 pr-4 rounded-xl text-xs sm:text-sm font-mono font-semibold transition-colors"
                 />
@@ -161,8 +162,9 @@ export default function InflowTab({ mosqueId, onAddLedgerEntry }: InflowTabProps
               <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">No. WhatsApp (Simulasi Kwitansi WA)</label>
               <input
                 type="tel"
+                inputMode="numeric"
                 value={inflowPhone}
-                onChange={(e) => setInflowPhone(e.target.value)}
+                onChange={(e) => setInflowPhone(e.target.value.replace(/[^0-9+]/g, ""))}
                 placeholder="Masukkan no WA untuk kirim kwitansi..."
                 disabled={isSubmitting}
                 className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-mono font-semibold transition-colors"

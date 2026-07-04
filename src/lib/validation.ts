@@ -3,7 +3,7 @@ import { z } from "zod";
 /* ─── Shared primitives ─── */
 export const uuid = z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
 export const phone = z.string().min(8).max(20).regex(/^[+\d][\d\s-]*$/);
-export const nominal = z.number().int().min(1);
+export const nominal = z.number().positive();
 
 /* ─── Donations ─── */
 export const akadTypeEnum = z.enum(["zakat_fitrah", "zakat_mal", "infaq", "sedekah", "wakaf", "fidyah"]);

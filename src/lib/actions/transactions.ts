@@ -137,7 +137,7 @@ export async function createTransaction(data: InsertTransaction) {
       mosque_id: mosqueId,
       type: data.type,
       category: data.category,
-      amount: data.amount,
+      amount: Math.round(data.amount),
       description: data.description ?? null,
       donor_name: data.donor_name ?? null,
       recipient_name: data.recipient_name ?? null,
