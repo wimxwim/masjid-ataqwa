@@ -13,6 +13,7 @@ import {
   getFundTypeBreakdown,
   getFeaturedPrograms,
   getBummProductsPublic,
+  getBummStats,
 } from "@/lib/actions/public";
 export function useDefaultMosque() {
   return useQuery({
@@ -83,6 +84,14 @@ export function useBummProducts(mosqueId: string) {
   return useQuery({
     queryKey: queryKeys.bumm.products(mosqueId),
     queryFn: () => getBummProductsPublic(mosqueId),
+    enabled: !!mosqueId,
+  });
+}
+
+export function useBummStats(mosqueId: string) {
+  return useQuery({
+    queryKey: [...queryKeys.bumm.products(mosqueId), "stats"],
+    queryFn: () => getBummStats(mosqueId),
     enabled: !!mosqueId,
   });
 }

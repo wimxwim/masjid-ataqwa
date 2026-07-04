@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db/client";
-import { mosques, transactions, activity_feed, testimonials, programs, bumm_products, donations, mustahiks, asnaf } from "@/db/schema";
+import { mosques, transactions, activity_feed, testimonials, programs, bumm_products, donations, mustahiks, asnaf, affiliate_sales } from "@/db/schema";
 import { eq, and, desc, asc, isNull, sql, gte, lte } from "drizzle-orm";
 import { cache } from "react";
 import { AKAD_TO_FUND } from "@/lib/fund-mapping";
@@ -173,7 +173,38 @@ export async function getPublicAsnafList(mosqueId: string) {
     .orderBy(asc(asnaf.priority));
 }
 
-// 11. Get dashboard stats for landing page
+// 11. Get BUMM stats for BUMM page
+export async function getBummStats(mosqueId: string) {
+  const [productCount] = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(bumm_products)
+    .where(and(eq(bumm_products.mosque_id, mosqueId), eq(bumm_products.is_active, true), isNull(bumm_products.deleted_at)));
+
+  const [salesStats] = await db
+    .select({
+      totalProducts: sql<number>`COALESCE(SUM(${affiliate_sales.quantity}), 0)`,
+      totalGmv: sql<number>`COALESCE(SUM(${affiliate_sales.total_gmv}), 0)`,
+      totalCommission: sql<number>`COALESCE(SUM(${affiliate_sales.earned_commission}), 0)`,
+    })
+    .from(affiliate_sales)
+    .innerJoin(bumm_products, eq(affiliate_sales.product_id, bumm_products.id))
+    .where(eq(bumm_products.mosque_id, mosqueId));
+
+  const [resellerCount] = await db
+    .select({ count: sql<number>`COUNT(DISTINCT ${affiliate_sales.referrer_id})` })
+    .from(affiliate_sales)
+    .innerJoin(bumm_products, eq(affiliate_sales.product_id, bumm_products.id))
+    .where(eq(bumm_products.mosque_id, mosqueId));
+
+  return {
+    resellerAktif: Number(resellerCount?.count ?? 0),
+    produkTerjual: Number(salesStats?.totalProducts ?? 0),
+    unitUsaha: Number(productCount?.count ?? 0),
+    profitKembali: 100, // persen — prinsip BUMM: seluruh profit untuk umat
+  };
+}
+
+// 12. Get dashboard stats for landing page
 export async function getDashboardStats(mosqueId: string) {
   // Total donations (paid)
   const [donationStats] = await db

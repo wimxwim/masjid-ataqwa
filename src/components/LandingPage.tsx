@@ -49,7 +49,7 @@ export default function LandingPage() {
   const heroStats: HeroStats = {
     totalTerkumpul: stats?.totalDonations ?? 0,
     totalMustahikKK: stats?.mustahikCount ?? 0,
-    terbantuBulanIni: 0,
+    terbantuBulanIni: stats?.terbantuBulanIni ?? 0,
     danaTersalurkan: stats?.totalExpense ?? 0,
     affilasiAktif: 0,
     produkTerjual: 0,

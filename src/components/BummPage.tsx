@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Product } from "@/types";
 import { useAppContext } from "@/stores/app-context";
-import { useDefaultMosque, useBummProducts } from "@/lib/queries/public";
+import { useDefaultMosque, useBummProducts, useBummStats } from "@/lib/queries/public";
 import { 
   Plus, Minus, Coffee, Cookie, Store, CheckCircle, 
   ArrowRight, ShieldCheck, Sparkles, ShoppingBag
@@ -13,6 +13,7 @@ export default function BummPage() {
   const { cartItems, handleAddToCart, handleRemoveFromCart, handleUpdateCartQuantity, handleCartCheckout, appToast } = useAppContext();
   const { data: mosque } = useDefaultMosque();
   const { data: dbProducts = [] } = useBummProducts(mosque?.id ?? "");
+  const { data: bummStats } = useBummStats(mosque?.id ?? "");
   const bummProducts: Product[] = dbProducts.map((p) => ({
     id: p.id,
     name: p.product_name,
@@ -104,23 +105,29 @@ export default function BummPage() {
         </div>
       </section>
 
-      {/* 2. Impact Stats */}
+      {/* 2. Impact Stats — data from database */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 bg-bg p-8 rounded-2xl border border-outline text-center">
           <div>
-            <p className="text-3xl sm:text-4xl font-mono font-bold text-primary">120+</p>
+            <p className="text-3xl sm:text-4xl font-mono font-bold text-primary">
+              {bummStats && bummStats.resellerAktif > 0 ? `${bummStats.resellerAktif}+` : "—"}
+            </p>
             <p className="text-xs text-muted font-semibold mt-1">Afiliasi & Reseller Aktif</p>
           </div>
           <div>
-            <p className="text-3xl sm:text-4xl font-mono font-bold text-primary">15.000+</p>
+            <p className="text-3xl sm:text-4xl font-mono font-bold text-primary">
+              {bummStats && bummStats.produkTerjual > 0 ? `${bummStats.produkTerjual.toLocaleString("id-ID")}+` : "—"}
+            </p>
             <p className="text-xs text-muted font-semibold mt-1">Produk Terjual Tahun Ini</p>
           </div>
           <div>
-            <p className="text-3xl sm:text-4xl font-mono font-bold text-primary">5+</p>
+            <p className="text-3xl sm:text-4xl font-mono font-bold text-primary">
+              {bummStats && bummStats.unitUsaha > 0 ? `${bummStats.unitUsaha}+` : "—"}
+            </p>
             <p className="text-xs text-muted font-semibold mt-1">Unit Usaha Produktif</p>
           </div>
           <div>
-            <p className="text-3xl sm:text-4xl font-mono font-bold text-accent">100%</p>
+            <p className="text-3xl sm:text-4xl font-mono font-bold text-accent">{bummStats?.profitKembali ?? 100}%</p>
             <p className="text-xs text-muted font-semibold mt-1">Profit Kembali ke Umat</p>
           </div>
         </div>

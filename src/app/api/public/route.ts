@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { mosques, donations, transactions, mustahiks, programs, activity_feed, testimonials } from "@/db/schema";
-import { eq, and, desc, asc, isNull, sql } from "drizzle-orm";
+import { eq, and, desc, asc, isNull, sql, gte } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { AKAD_TO_FUND } from "@/lib/fund-mapping";
 
@@ -39,10 +39,21 @@ async function getDashboardStats(mosqueId: string) {
     .from(transactions)
     .where(and(eq(transactions.mosque_id, mosqueId), eq(transactions.type, "Pengeluaran"), isNull(transactions.deleted_at)));
 
+  const [terbantuBulanIni] = await db
+    .select({ count: sql<number>`COUNT(DISTINCT ${transactions.recipient_name})` })
+    .from(transactions)
+    .where(and(
+      eq(transactions.mosque_id, mosqueId),
+      eq(transactions.type, "Pengeluaran"),
+      isNull(transactions.deleted_at),
+      gte(transactions.transaction_date, sql`DATE_TRUNC('month', CURRENT_DATE)`),
+    ));
+
   return {
     totalDonations: Number(donationStats?.total ?? 0),
     donationCount: Number(donationStats?.count ?? 0),
     mustahikCount: Number(mustahikCount?.count ?? 0),
+    terbantuBulanIni: Number(terbantuBulanIni?.count ?? 0),
     totalIncome: Number(incomeTotal?.total ?? 0),
     totalExpense: Number(expenseTotal?.total ?? 0),
     balance: Number(incomeTotal?.total ?? 0) - Number(expenseTotal?.total ?? 0),
