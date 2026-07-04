@@ -7,13 +7,10 @@ import { resolveMosqueId } from "./_helpers";
 import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { createJamaahSchema } from "@/lib/validation";
-import { encryptNik, hashNikServer } from "@/lib/nik-crypto";
-
 export type InsertJamaah = {
   mosque_id: string;
   nama: string;
   phone?: string | null;
-  nik?: string | null;
   alamat?: string | null;
   rt_rw?: string | null;
   peran?: string;
@@ -44,21 +41,12 @@ export async function createJamaah(data: InsertJamaah) {
   createJamaahSchema.parse(data);
   const profile = await requireAuth();
   await requireRole(data.mosque_id, "superadmin", "admin_dkm");
-  let nikEncrypted: string | null = null;
-  let nikHash: string | null = null;
-  if (data.nik) {
-    nikEncrypted = encryptNik(data.nik);
-    nikHash = hashNikServer(data.nik);
-  }
-
   const [row] = await db
     .insert(jamaah)
     .values({
       mosque_id: data.mosque_id,
       nama: data.nama,
       phone: data.phone ?? null,
-      nik_encrypted: nikEncrypted,
-      nik_hash: nikHash,
       alamat: data.alamat ?? null,
       rt_rw: data.rt_rw ?? null,
       peran: data.peran ?? "Warga",
@@ -86,16 +74,9 @@ export async function updateJamaah(id: string, data: Partial<InsertJamaah>) {
   if (!old) throw new Error("Jamaah tidak ditemukan");
   await requireRole(old.mosque_id, "superadmin", "admin_dkm");
 
-  const vals: Record<string, unknown> = { ...data, updated_at: sql`NOW()` };
-  if (data.nik) {
-    vals.nik_encrypted = encryptNik(data.nik);
-    vals.nik_hash = hashNikServer(data.nik);
-  }
-  delete vals.nik;
-
   const [row] = await db
     .update(jamaah)
-    .set(vals)
+    .set({ ...data, updated_at: sql`NOW()` })
     .where(eq(jamaah.id, id))
     .returning();
   if (!row) throw new Error("Operation failed");

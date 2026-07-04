@@ -27,7 +27,6 @@ interface JamaahTabProps {
 export default function JamaahTab({ mosqueId }: JamaahTabProps) {
   const [jamNama, setJamNama] = useState("");
   const [jamTelp, setJamTelp] = useState("");
-  const [jamNik, setJamNik] = useState("");
   const [jamAlamat, setJamAlamat] = useState("");
   const [jamRtRw, setJamRtRw] = useState("01/05");
   const [jamPeran, setJamPeran] = useState("Warga");
@@ -62,7 +61,6 @@ export default function JamaahTab({ mosqueId }: JamaahTabProps) {
         mosque_id: mosqueId,
         nama: jamNama.trim(),
         phone: jamTelp.trim(),
-        nik: jamNik.trim() || null,
         alamat: jamAlamat.trim(),
         rt_rw: jamRtRw,
         peran: jamPeran,
@@ -70,7 +68,6 @@ export default function JamaahTab({ mosqueId }: JamaahTabProps) {
       await loadJamaah();
       setJamNama("");
       setJamTelp("");
-      setJamNik("");
       setJamAlamat("");
       setJamRtRw("01/05");
       setJamPeran("Warga");
@@ -102,13 +99,6 @@ export default function JamaahTab({ mosqueId }: JamaahTabProps) {
               <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">No. Telepon / WhatsApp</label>
               <input type="tel" required value={jamTelp} onChange={(e) => setJamTelp(e.target.value)}
                 placeholder="Contoh: 0812-3456-7890"
-                className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-mono font-semibold transition-colors" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">NIK (16 digit)</label>
-              <input type="text" value={jamNik} onChange={(e) => setJamNik(e.target.value)}
-                placeholder="Contoh: 3174010101900001"
-                maxLength={20}
                 className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-mono font-semibold transition-colors" />
             </div>
             <div>

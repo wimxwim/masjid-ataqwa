@@ -81,7 +81,6 @@ export const createJamaahSchema = z.object({
   mosque_id: uuid,
   name: z.string().min(1).max(200),
   phone: phone.nullable().optional(),
-  nik: z.string().min(16).max(20).nullable().optional(),
   address: z.string().max(500).nullable().optional(),
 });
 

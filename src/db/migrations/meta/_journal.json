@@ -134,6 +134,13 @@
       "when": 1783224800000,
       "tag": "0019_jamaah_nik",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1783300000000,
+      "tag": "0020_jamaah_drop_nik",
+      "breakpoints": true
     }
   ]
 }
