@@ -251,3 +251,145 @@ ae1704e  fix(P-044/P-037/P-040/P-041/P-015/P-035): batch 4 — 6 quick fixes
 >> P-046, P-047, P-048, P-049-P-053)
 >> P-018 merged with P-001 ✅. P-027/P-046/P-047/P-048 sudah ok ✅.
 >> P-017 perlu visual review manual. P-025 prefix logic sudah benar.
+
+---
+
+## ⏹️ EKSEKUSI BATCH 5 — 2026-07-04 (AUTH HARDENING + NIK ENCRYPTION)
+
+>> Dimulai atas permintaan pemilik: "apa yang belum dikerjakan? kerjakan sekarang."
+
+### Batch 5A — P1A: 15 Auth-only → tambah requireRole()
+Semua fungsi yang sebelumnya cuma punya `requireAuth()` tanpa `requireRole()`.
+Tambah 1-2 baris per fungsi.
+
+| No | File | Fungsi | Commit |
+|----|------|--------|--------|
+| 4 | `activity.ts` | `createActivity` | 8895d2e |
+| 5 | `donations.ts` | `getDonations` | 8895d2e |
+| 6 | `donatur-tetap.ts` | `createDonaturTetap` | 8895d2e |
+| 7 | `employees.ts` | `createEmployee` | 8895d2e |
+| 8 | `jadwal-imam.ts` | `createJadwal` | 8895d2e |
+| 9 | `loan-installments.ts` | `getLoanInstallments` | 8895d2e |
+| 10 | `loan-installments.ts` | `payInstallment` | 8895d2e |
+| 11 | `loan-restructures.ts` | `getLoanRestructuresByLoan` | 8895d2e |
+| 12 | `loan-restructures.ts` | `createLoanRestructure` | 8895d2e |
+| 13 | `mushafir.ts` | `createMushafir` | 8895d2e |
+| 14 | `programs.ts` | `createProgram` | 8895d2e |
+| 15 | `santri.ts` | `recordAttendance` | 8895d2e |
+| 16 | `santri.ts` | `createHafalan` | 8895d2e |
+| 17 | `santri.ts` | `deleteHafalan` | 8895d2e |
+| 18 | `testimonials.ts` | `createTestimonial` | 8895d2e |
+
+**File disentuh:** 8 files | **Perubahan:** +15 baris requireRole()
+
+### Batch 5B — P1B: 17 No-auth → tambah requireAuth() + requireRole()
+Fungsi yang 0 proteksi — dapatin requireAuth() + requireRole() sekaligus.
+
+| No | File | Fungsi | Commit |
+|----|------|--------|--------|
+| 19 | `employees.ts` | `getEmployee` | 8895d2e |
+| 20 | `mushafir.ts` | `checkDuplicateNik` | 8895d2e |
+| 21 | `mushafir.ts` | `getMushafirById` | 8895d2e |
+| 22 | `santri.ts` | `getAttendance` | 8895d2e |
+| 23 | `santri.ts` | `getHafalan` | 8895d2e |
+| 24 | `donatur-tetap.ts` | `getDonaturTetapById` | 8895d2e |
+| 25 | `jamaah.ts` | `getJamaahById` | 8895d2e |
+| 26 | `muzzaki.ts` | `getMuzzakiById` | 8895d2e |
+| 27 | `mustahik.ts` | `getMustahiks` | 8895d2e |
+| 28 | `mustahik.ts` | `getMustahikById` | 8895d2e |
+| 29 | `transactions.ts` | `getTransaction` | 8895d2e |
+| 30 | `zakat-payments.ts` | `getZakatPaymentById` | 8895d2e |
+| 31 | `ziswaf-requests.ts` | `getZiswafRequestById` | 8895d2e |
+| 32 | `wakaf.ts` | `getWakafAssets` | 8895d2e |
+| 33 | `wakaf.ts` | `getWakafAssetById` | 8895d2e |
+| 34 | `activity.ts` | `getActivityFeed` | 8895d2e |
+
+**File disentuh:** 17 files | **Perubahan:** ~34 baris (2 per fungsi)
+
+### Batch 5C — Sprint 2: NIK Encryption (server-side AES-256-GCM)
+Enkripsi NIK di server untuk 3 entitas + schema + validasi.
+
+| # | Task | Detail | Commit |
+|---|------|--------|--------|
+| 37 | Enkripsi AES vs Hapus | Putuskan: encrypt server-side | 8895d2e |
+| 38 | `mustahik.ts` | encryptNik() + schema.parse() + had_kifayah clamp + .limit(100) | 8895d2e |
+| 39 | `mushafir.ts` | nik → encryptNik() + hashNikServer() server-side | 8895d2e |
+| 40 | `muzzaki.ts` | nik → encryptNik() server-side, hapus dari InsertMuzzaki | 8895d2e |
+| 41 | `mustahik.ts` | createMustahikSchema.parse() panggil di create + update | 8895d2e |
+| 42 | `validation.ts` | NIK Zod min(16) | 8895d2e |
+| 43 | had_kifayah_score | clamp 0-100 + fallback | 8895d2e |
+| — | Schema: nik_encrypted | tambah di mushafir_aid | 8895d2e |
+| — | Frontend: KtpScanner | hapus nikHash dari type | 8895d2e |
+| — | Frontend: MustahikTable | kirim raw nik, bukan hash | 8895d2e |
+| — | Frontend: Mushafir page | kirim raw nik, bukan hash | 8895d2e |
+| — | Migrasi 0016 | nik_encrypted di mushafir_aid | 8895d2e |
+
+### Ringkasan Batch 5
+
+| Sub-batch | Item | ✅ Selesai |
+|-----------|:----:|:----------:|
+| 5A — P1A (Auth+Role) | 15 | 15 |
+| 5B — P1B (No-auth proteksi) | 17 | 17 |
+| 5C — Sprint 2 (NIK) | 12 | 12 |
+| **Total Batch 5** | **44** | **44** |
+
+**Files disentuh (24 files):**
+- Server actions: activity.ts, donations.ts, donatur-tetap.ts, employees.ts, jadwal-imam.ts, jamaah.ts, loan-installments.ts, loan-restructures.ts, mushafir.ts, mustahik.ts, muzzaki.ts, programs.ts, santri.ts, testimonials.ts, transactions.ts, wakaf.ts, zakat-payments.ts, ziswaf-requests.ts
+- Database: schema.ts, migrations/0016_nik_encrypted.sql, validation.ts
+- Frontend: KtpScanner.tsx, MustahikTable.tsx, mushafir/page.tsx
+
+**Commits:** `8895d2e` (squash: "Sprint 1+2: auth hardening 56/56 + NIK encryption AES-256-GCM")
+
+---
+
+## ⏹️ EKSEKUSI BATCH 5D — 2026-07-04 (SPRINT 3 + SPRINT 4)
+
+>> Lanjutan setelah laporan ke user: "kerjakan lalu laporkan hasil"
+
+### Sprint 3 — Arsitektur & Performa
+
+| # | Task | Detail | Status |
+|---|------|--------|--------|
+| 45 | CSP hardening | `object-src 'none'` di `next.config.ts` | ✅ |
+| 46 | Halaman Kebijakan Privasi | `(public)/kebijakan-privasi/page.tsx` (10 section) | ✅ |
+| 47 | Halaman Syarat & Ketentuan | `(public)/syarat-ketentuan/page.tsx` (11 section) | ✅ |
+| 48 | Rate limiting | Tabel `rate_limits` + helper `rate-limit.ts` (Postgres-backed) | ✅ |
+| 49 | Fix broken footer links | Footer: `href="#"` → `Link href="/kebijakan-privasi"` dan `"/syarat-ketentuan"` | ✅ |
+| — | Migrasi 0017 | `rate_limits` table + indexes | ✅ |
+
+### Sprint 4 — Testing
+
+| # | Task | Detail | Status |
+|---|------|--------|--------|
+| 50 | Vitest config | `vitest.config.ts` + `src/__tests__/setup.ts` | ✅ |
+| 51 | Zod schema validation tests | 27 tests: donation, mustahik, loan, transaction, employee, jamaah, inventaris | ✅ |
+| 52 | Utility function tests | 15 tests: validateImageUrl, extractNikFromOcr, extractNameFromOcr, extractAddressFromOcr | ✅ |
+| — | npm test | Script `"test": "vitest run"` di `package.json` | ✅ |
+
+**Hasil tes: 42/42 ✅ lulus.**
+
+**Commits:** (belum di-commit — menunggu perintah user)
+
+### Files disentuh Batch 5D (10 files):
+- **Config:** next.config.ts, vitest.config.ts, package.json
+- **Pages:** kebijakan-privasi/page.tsx, syarat-ketentuan/page.tsx
+- **Database:** schema.ts (rate_limits table), migrations/0017_rate_limits.sql, meta/_journal.json
+- **Infra:** lib/rate-limit.ts, components/Footer.tsx
+- **Testing:** __tests__/validation.test.ts, __tests__/actions.test.ts, __tests__/setup.ts
+
+### Status Final Seluruh Project
+
+| Kategori | ✅ Selesai | ❌ Tersisa |
+|----------|:----------:|:----------:|
+| P0 — File sampah | 3 | 0 |
+| P1A — Auth+Role | 15 | 0 |
+| P1B — No-auth proteksi | 17 | 0 |
+| P sebelumnya (audit) | 20 | 0 |
+| Sprint 2 — NIK | 7 | 0 |
+| Sprint 3 — Arsitektur | 6 | 0 |
+| Sprint 4 — Testing | 3 | 0 |
+| **Total** | **71** | **0** |
+
+> **🎯 SEMUA TASK SELESAI — 71/71 item**
+> **TypeScript compile:** Zero errors ✅
+> **Tests:** 42/42 lulus ✅

@@ -5,6 +5,8 @@ import { mustahiks } from "@/db/schema";
 import type { MustahikDb } from "@/types";
 import { requireAuth, requireRole } from "@/lib/auth/server";
 import { resolveMosqueId } from "./_helpers";
+import { encryptNik, hashNikServer } from "@/lib/nik-crypto";
+import { createMustahikSchema } from "@/lib/validation";
 import { eq, and, isNull, desc, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -22,17 +24,22 @@ function serializeRows(rows: Record<string, unknown>[]): Record<string, unknown>
 }
 
 export async function getMustahiks(mosqueId?: string): Promise<MustahikDb[]> {
+  await requireAuth();
   const mid = await resolveMosqueId(mosqueId);
+  await requireRole(mid, "superadmin", "admin_dkm");
   const rows = await db
     .select()
     .from(mustahiks)
     .where(and(eq(mustahiks.mosque_id, mid), isNull(mustahiks.deleted_at)))
-    .orderBy(desc(mustahiks.created_at));
+    .orderBy(desc(mustahiks.created_at))
+    .limit(100);
   return serializeRows(rows as unknown as Record<string, unknown>[]) as unknown as MustahikDb[];
 }
 
 export async function getMustahikById(id: string, mosqueId?: string): Promise<MustahikDb | null> {
+  await requireAuth();
   const mid = await resolveMosqueId(mosqueId);
+  await requireRole(mid, "superadmin", "admin_dkm");
   const [row] = await db
     .select()
     .from(mustahiks)
@@ -56,7 +63,7 @@ export async function createMustahik(formData: FormData) {
   const usaha_type = formData.get("usaha_type") as string;
   const lat = formData.get("lat") as string;
   const lng = formData.get("lng") as string;
-  const nik_hash = formData.get("nik_hash") as string;
+  const nik = formData.get("nik") as string;
   const notes = formData.get("notes") as string;
 
   const asnaf_id = formData.get("asnaf_id") as string;
@@ -87,6 +94,26 @@ export async function createMustahik(formData: FormData) {
 
   if (!name || !address) return { error: "Nama dan alamat wajib diisi." };
 
+  createMustahikSchema.parse({
+    mosque_id: mosqueId,
+    name,
+    phone: phone || null,
+    address,
+    nik: nik || null,
+    asnaf_id: asnaf_id || null,
+    sub_asnaf: sub_asnaf || null,
+    had_kifayah_score: had_kifayah_score ? Math.min(100, Math.max(0, parseInt(had_kifayah_score, 10))) : undefined,
+    nomor_induk_mustahik: nomor_induk_mustahik || null,
+    program_type: program_type || null,
+  });
+
+  let nikEncrypted: string | null = null;
+  let nikHash: string | null = null;
+  if (nik) {
+    nikEncrypted = encryptNik(nik);
+    nikHash = hashNikServer(nik);
+  }
+
   const [row] = await db
     .insert(mustahiks)
     .values({
@@ -101,12 +128,13 @@ export async function createMustahik(formData: FormData) {
       usaha_type: usaha_type || null,
       lat: lat ? parseFloat(lat) : null,
       lng: lng ? parseFloat(lng) : null,
-      nik_hash: nik_hash || null,
+      nik_encrypted: nikEncrypted,
+      nik_hash: nikHash,
       notes: notes || null,
       created_by: profile.id,
       asnaf_id: asnaf_id || null,
       sub_asnaf: sub_asnaf || null,
-      had_kifayah_score: had_kifayah_score ? parseInt(had_kifayah_score, 10) : null,
+      had_kifayah_score: had_kifayah_score ? Math.min(100, Math.max(0, parseInt(had_kifayah_score, 10))) : null,
       nomor_induk_mustahik: nomor_induk_mustahik || null,
       program_type: (program_type as "zakat" | "infaq" | "qardhul_hasan" | "beasiswa" | "pemberdayaan") || null,
     })
@@ -165,6 +193,20 @@ export async function updateMustahik(id: string, formData: FormData) {
 
   if (!name || !address) return { error: "Nama dan alamat wajib diisi." };
 
+  const parsedScore = had_kifayah_score ? Math.min(100, Math.max(0, parseInt(had_kifayah_score, 10))) : null;
+
+  createMustahikSchema.parse({
+    mosque_id: old.mosque_id,
+    name,
+    phone: phone || undefined,
+    address,
+    asnaf_id: asnaf_id || undefined,
+    sub_asnaf: sub_asnaf || undefined,
+    had_kifayah_score: parsedScore ?? undefined,
+    nomor_induk_mustahik: nomor_induk_mustahik || undefined,
+    program_type: program_type || undefined,
+  });
+
   const [row] = await db
     .update(mustahiks)
     .set({
@@ -182,7 +224,7 @@ export async function updateMustahik(id: string, formData: FormData) {
       is_active: is_active === "true",
       asnaf_id: asnaf_id || null,
       sub_asnaf: sub_asnaf || null,
-      had_kifayah_score: had_kifayah_score ? parseInt(had_kifayah_score, 10) : null,
+      had_kifayah_score: parsedScore,
       nomor_induk_mustahik: nomor_induk_mustahik || null,
       program_type: (program_type as "zakat" | "infaq" | "qardhul_hasan" | "beasiswa" | "pemberdayaan") || null,
       updated_at: sql`NOW()`,

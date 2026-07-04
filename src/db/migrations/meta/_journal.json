@@ -106,6 +106,20 @@
       "when": 1783123200000,
       "tag": "0015_drop_nik_plaintext",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1783111490859,
+      "tag": "0016_groovy_timeslip",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1761926400000,
+      "tag": "0017_rate_limits",
+      "breakpoints": true
     }
   ]
 }

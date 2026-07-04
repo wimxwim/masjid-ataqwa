@@ -21,6 +21,7 @@ export type InsertLoanInstallment = {
 export async function getLoanInstallments(loanId: string) {
   const profile = await requireAuth();
   const mid = await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "finance_director");
   const [loan] = await db.select({ id: loans.id }).from(loans)
     .where(and(eq(loans.id, loanId), eq(loans.mosque_id, mid))).limit(1);
   if (!loan) throw new Error("Loan tidak ditemukan");
@@ -72,6 +73,7 @@ export async function createLoanInstallment(data: InsertLoanInstallment) {
 export async function payInstallment(id: string, amount_paid: number) {
   const profile = await requireAuth();
   const mid = await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "finance_director");
   const old = await getLoanInstallmentById(id, mid);
   if (!old) throw new Error("Cicilan tidak ditemukan");
 

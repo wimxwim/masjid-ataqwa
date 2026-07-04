@@ -40,6 +40,7 @@ async function verifyTurnstile(token: string) {
 
 export async function getDonations(mosqueId: string) {
   await requireAuth();
+  await requireRole(mosqueId, "superadmin", "admin_dkm", "finance_director");
   return db
     .select()
     .from(donations)

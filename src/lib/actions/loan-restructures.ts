@@ -32,6 +32,7 @@ export async function getLoanRestructures(mosqueId?: string) {
 export async function getLoanRestructuresByLoan(loanId: string) {
   const profile = await requireAuth();
   const mid = await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "finance_director");
   const [loan] = await db.select({ id: loans.id }).from(loans)
     .where(and(eq(loans.id, loanId), eq(loans.mosque_id, mid))).limit(1);
   if (!loan) throw new Error("Loan tidak ditemukan");
@@ -45,6 +46,10 @@ export async function getLoanRestructuresByLoan(loanId: string) {
 
 export async function createLoanRestructure(data: InsertLoanRestructure) {
   const profile = await requireAuth();
+  const [targetLoan] = await db.select({ mosque_id: loans.mosque_id }).from(loans)
+    .where(eq(loans.id, data.loan_id)).limit(1);
+  if (!targetLoan) throw new Error("Loan tidak ditemukan");
+  await requireRole(targetLoan.mosque_id, "superadmin", "admin_dkm", "finance_director");
 
   /* bungkus dalam transaction atomic — insert restructure log + update loan status
      harus sukses semua atau gagal semua, hindari data inkonsisten */

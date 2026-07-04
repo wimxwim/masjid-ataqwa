@@ -98,9 +98,9 @@ export default function Footer() {
             <p className="mt-1 text-[10px] text-slate-600">Sistem Informasi Pengelolaan Masjid Modern Terintegrasi v2.1.0-prod</p>
           </div>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-slate-400 transition-colors">Syarat Ketentuan</a>
+            <Link href="/syarat-ketentuan" className="hover:text-slate-400 transition-colors">Syarat Ketentuan</Link>
             <span>•</span>
-            <a href="#" className="hover:text-slate-400 transition-colors">Kebijakan Privasi</a>
+            <Link href="/kebijakan-privasi" className="hover:text-slate-400 transition-colors">Kebijakan Privasi</Link>
           </div>
         </div>
       </div>

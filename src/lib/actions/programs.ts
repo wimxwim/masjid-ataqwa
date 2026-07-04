@@ -36,6 +36,7 @@ export async function getProgram(id: string, mosqueId?: string) {
 export async function createProgram(data: InsertProgram) {
   const profile = await requireAuth();
   const mid = await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "dakwah_lead");
   const [row] = await db
     .insert(programs)
     .values({

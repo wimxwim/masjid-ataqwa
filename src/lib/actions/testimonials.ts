@@ -41,6 +41,7 @@ export async function getTestimonialById(id: string, mosqueId?: string) {
 export async function createTestimonial(data: InsertTestimonial) {
   const profile = await requireAuth();
   const mid = await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "finance_director");
   validateImageUrl(data.image_url);
   const [row] = await db
     .insert(testimonials)

@@ -32,7 +32,9 @@ export async function getEmployees(mosqueId?: string) {
 }
 
 export async function getEmployee(id: string, mosqueId?: string) {
+  await requireAuth();
   const mid = mosqueId ?? await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "people_culture");
   const [row] = await db.select().from(employees).where(and(eq(employees.id, id), eq(employees.mosque_id, mid))).limit(1);
   return row ?? null;
 }
@@ -41,6 +43,7 @@ export async function createEmployee(data: InsertEmployee) {
   createEmployeeSchema.parse(data);
   const profile = await requireAuth();
   const mid = await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "people_culture");
   const [row] = await db
     .insert(employees)
     .values({

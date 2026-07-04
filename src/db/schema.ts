@@ -550,29 +550,43 @@ export const audit_logs = pgTable("audit_logs", {
 
 /* ============================== KEUANGAN ============================== */
 
-/** Transaksi harian masjid — pemasukan & pengeluaran. */
+/** Transaksi harian masjid — pemasukan & pengeluaran. (Enterprise 2026 Traceability Standard) */
 export const transactions = pgTable("transactions", {
   id: uuid("id").defaultRandom().primaryKey(),
   mosque_id: uuid("mosque_id").notNull().references(() => mosques.id, { onDelete: "cascade" }),
+  
+  // 1. Identifikasi & Klasifikasi Utama
+  reference_number: text("reference_number").unique(), // ID Pelacakan Unik (Misal: TRX-OUT-202607-001)
   type: text("type").notNull(),                     // "Pemasukan" | "Pengeluaran"
   category: text("category").notNull(),             // "Kotak Amal Jumat", "Honor Ustadz", dll
   amount: bigint("amount", { mode: "number" }).notNull(),
   description: text("description"),
-  donor_name: text("donor_name"),                   // khusus pemasukan
-  recipient_name: text("recipient_name"),            // khusus pengeluaran
-  phone: text("phone"),
-  notes: text("notes"),
   transaction_date: date("transaction_date").notNull(),
 
+  // 2. Keterlacakan Pihak Terlibat (Traceability)
+  donor_name: text("donor_name"),                   // Nama eksternal pemasukan
+  recipient_name: text("recipient_name"),           // Nama eksternal pengeluaran
+  phone: text("phone"),
+  entity_type: text("entity_type"),                 // 'mustahik', 'employee', 'vendor', 'donor', 'bumm'
+  entity_id: uuid("entity_id"),                     // ID Referensi ke tabel spesifik
+  
+  // 3. Fiqih Muamalah & Kepatuhan Syariah
   fund_type: fundTypeEnum("fund_type").notNull().default("infaq_tidak_terikat"),
   akad_type: akadTypeEnum("akad_type"),
-
   asnaf_type: text("asnaf_type"),
-  is_restricted: boolean("is_restricted").default(false),
+  is_restricted: boolean("is_restricted").default(false), // Dana terikat (Restricted Fund)
   wakif_name: text("wakif_name"),
   ikrar_wakaf_ref: text("ikrar_wakaf_ref"),
 
+  // 4. Mekanisme & Bukti Pembayaran
+  disbursement_method: text("disbursement_method").default("cash"), // cash, transfer, qris, in_kind
+  notes: text("notes"),
+
+  // 5. Audit Trail & Persetujuan (4-Eyes Principle)
+  approval_status: text("approval_status").default("approved"), // pending, approved, rejected
+  approved_by: uuid("approved_by").references(() => profiles.id),
   created_by: uuid("created_by").references(() => profiles.id),
+  
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   deleted_at: timestamp("deleted_at", { withTimezone: true }),
@@ -581,7 +595,9 @@ export const transactions = pgTable("transactions", {
   index("transactions_type_idx").on(t.mosque_id, t.type),
   index("transactions_date_idx").on(t.transaction_date),
   index("transactions_fund_type_idx").on(t.mosque_id, t.fund_type),
+  index("transactions_entity_idx").on(t.entity_type, t.entity_id), // Penting untuk Drill-down
   index("transactions_created_by_idx").on(t.created_by),
+  index("transactions_approved_by_idx").on(t.approved_by),
 ]);
 
 /** Donatur tetap — komitmen rutin. */
@@ -665,6 +681,7 @@ export const mushafir_aid = pgTable("mushafir_aid", {
 
   name: text("name").notNull(),
   phone: text("phone"),
+  nik_encrypted: text("nik_encrypted"),        // AES-256-GCM
   nik_hash: text("nik_hash"),                  // SHA-256 NIK untuk dedup — anti double-claim
   address: text("address"),
   photo_ktp_url: text("photo_ktp_url"),        // foto KTP
@@ -945,4 +962,15 @@ export const loan_restructures = pgTable("loan_restructures", {
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   index("loan_restructures_loan_idx").on(t.loan_id),
+]);
+
+/* ============================== RATE LIMITS ============================== */
+
+export const rate_limits = pgTable("rate_limits", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  identifier: text("identifier").notNull(),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index("rate_limits_identifier_idx").on(t.identifier),
+  index("rate_limits_created_at_idx").on(t.created_at),
 ]);

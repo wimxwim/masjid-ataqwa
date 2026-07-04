@@ -32,7 +32,9 @@ export async function getZakatPayments(mosqueId?: string) {
 }
 
 export async function getZakatPaymentById(id: string, mosqueId?: string) {
+  await requireAuth();
   const mid = mosqueId ?? await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "finance_director");
   const [row] = await db.select().from(zakat_payments).where(and(eq(zakat_payments.id, id), eq(zakat_payments.mosque_id, mid))).limit(1);
   return row ?? null;
 }

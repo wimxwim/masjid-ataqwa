@@ -15,7 +15,7 @@ const MapPicker = dynamic(() => import("./MapPicker"), {
 });
 import KtpScanner from "@/components/KtpScanner";
 import type { KtpData } from "@/components/KtpScanner";
-import { hashNik } from "@/lib/nik-utils";
+
 
 const PROGRAM_TYPES = [
   { value: "", label: "Pilih Program" },
@@ -254,7 +254,6 @@ function MustahikForm({
   const addressRef = useRef<HTMLTextAreaElement>(null);
   const latRef = useRef<HTMLInputElement>(null);
   const lngRef = useRef<HTMLInputElement>(null);
-  const nikHashRef = useRef<HTMLInputElement>(null);
 
   const getLocation = () => {
     if (!navigator.geolocation) {
@@ -288,21 +287,16 @@ function MustahikForm({
     if (nameRef.current && ktp.name) nameRef.current.value = ktp.name;
     if (addressRef.current && ktp.address) addressRef.current.value = ktp.address;
     setNikRaw(ktp.nik);
-    if (nikHashRef.current) nikHashRef.current.value = ktp.nikHash;
   };
 
   const handleClearScan = () => {
     if (nameRef.current) nameRef.current.value = "";
     setNikRaw("");
-    if (nikHashRef.current) nikHashRef.current.value = "";
     if (addressRef.current) addressRef.current.value = "";
   };
 
-  const handleNikManual = async (nik: string) => {
+  const handleNikManual = (nik: string) => {
     setNikRaw(nik);
-    if (nik.length === 16 && nikHashRef.current) {
-      nikHashRef.current.value = await hashNik(nik);
-    }
   };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -521,8 +515,8 @@ function MustahikForm({
                 maxLength={16}
                 className="w-full px-3 py-2 rounded-xl border border-outline bg-bg text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
-              <p className="text-[10px] text-muted mt-0.5">NIK otomatis di-hash SHA-256 — aman</p>
-              <input type="hidden" name="nik_hash" ref={nikHashRef} />
+              <p className="text-[10px] text-muted mt-0.5">NIK dienkripsi AES-256-GCM di server</p>
+              <input type="hidden" name="nik" value={nikRaw} />
             </div>
 
             {/* Koordinat — GPS Picker */}

@@ -2,11 +2,10 @@
 
 import { useState, useRef } from "react";
 import { Camera, Upload, X, Loader2, ScanLine, CheckCircle2, AlertCircle } from "lucide-react";
-import { extractNikFromOcr, extractNameFromOcr, extractAddressFromOcr, hashNik } from "@/lib/nik-utils";
+import { extractNikFromOcr, extractNameFromOcr, extractAddressFromOcr } from "@/lib/nik-utils";
 
 export type KtpData = {
   nik: string;
-  nikHash: string;
   name: string | null;
   address: string | null;
 };
@@ -47,11 +46,10 @@ export default function KtpScanner({ onScan, onClear }: Props) {
         return;
       }
 
-      const nikHash = await hashNik(nik);
       const name = extractNameFromOcr(text);
       const address = extractAddressFromOcr(text);
 
-      const parsed: KtpData = { nik, nikHash, name, address };
+      const parsed: KtpData = { nik, name, address };
       setResult(parsed);
       onScan(parsed);
     } catch {

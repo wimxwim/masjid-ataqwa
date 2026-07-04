@@ -6,7 +6,6 @@ import type { InsertMushafir } from "@/lib/actions/mushafir";
 import KtpScanner from "@/components/KtpScanner";
 import type { KtpData } from "@/components/KtpScanner";
 import { Search, Plus, X, Pencil, Trash2, ScanLine, Navigation } from "lucide-react";
-import { hashNik } from "@/lib/nik-utils";
 
 export default function AdminMushafirPage() {
   const [data, setData] = useState<Awaited<ReturnType<typeof getMushafirAid>>>([]);
@@ -66,11 +65,10 @@ export default function AdminMushafirPage() {
     setError("");
     const form = new FormData(e.currentTarget);
     const rawNik = (form.get("nik_raw") as string) || "";
-    const nikHash = rawNik ? await hashNik(rawNik) : null;
     const payload: InsertMushafir = {
       name: form.get("name") as string,
       phone: (form.get("phone") as string) || null,
-      nik_hash: nikHash,
+      nik: rawNik || null,
       address: (form.get("address") as string) || null,
       photo_ktp_url: null,
       aid_type: form.get("aid_type") as string,

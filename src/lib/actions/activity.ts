@@ -17,6 +17,7 @@ export type InsertActivity = {
 
 export async function getActivityFeed(mosqueId?: string) {
   const mid = mosqueId ?? await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm");
   return db
     .select()
     .from(activity_feed)
@@ -27,6 +28,7 @@ export async function getActivityFeed(mosqueId?: string) {
 export async function createActivity(data: InsertActivity) {
   const profile = await requireAuth();
   const mid = await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm");
   const [row] = await db
     .insert(activity_feed)
     .values({

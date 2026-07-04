@@ -107,7 +107,9 @@ export async function getTransactions(mosqueId: string, type?: string) {
 }
 
 export async function getTransaction(id: string, mosqueId?: string) {
+  await requireAuth();
   const mid = mosqueId ?? await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "finance_director");
   const [row] = await db
     .select()
     .from(transactions)
@@ -120,6 +122,7 @@ export async function createTransaction(data: InsertTransaction) {
   createTransactionSchema.parse(data);
   const profile = await requireAuth();
   const mosqueId = data.mosque_id;
+  await requireRole(mosqueId, "superadmin", "admin_dkm", "finance_director");
 
   if (data.amount <= 0) throw new Error("Jumlah transaksi harus lebih dari 0");
 

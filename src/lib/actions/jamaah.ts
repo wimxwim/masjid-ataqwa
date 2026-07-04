@@ -27,7 +27,9 @@ export async function getJamaah(mosqueId: string) {
 }
 
 export async function getJamaahById(id: string, mosqueId?: string) {
+  await requireAuth();
   const mid = mosqueId ?? await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm");
   const [row] = await db
     .select()
     .from(jamaah)

@@ -31,7 +31,9 @@ export async function getDonaturTetap(mosqueId?: string) {
 }
 
 export async function getDonaturTetapById(id: string, mosqueId?: string) {
+  await requireAuth();
   const mid = mosqueId ?? await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "finance_director");
   const [row] = await db.select().from(donatur_tetap).where(and(eq(donatur_tetap.id, id), eq(donatur_tetap.mosque_id, mid))).limit(1);
   return row ?? null;
 }
@@ -39,6 +41,7 @@ export async function getDonaturTetapById(id: string, mosqueId?: string) {
 export async function createDonaturTetap(data: InsertDonatur) {
   const profile = await requireAuth();
   const mid = await resolveMosqueId(data.mosque_id);
+  await requireRole(mid, "superadmin", "admin_dkm", "finance_director");
   const [row] = await db
     .insert(donatur_tetap)
     .values({

@@ -37,6 +37,7 @@ export type InsertWakafAsset = {
 
 export async function getWakafAssets(mosqueId?: string) {
   const mid = await resolveMosqueId(mosqueId);
+  await requireRole(mid, "superadmin", "admin_dkm", "finance_director", "business_lead");
   return db
     .select()
     .from(wakaf_assets)
@@ -45,7 +46,9 @@ export async function getWakafAssets(mosqueId?: string) {
 }
 
 export async function getWakafAssetById(id: string, mosqueId?: string) {
+  await requireAuth();
   const mid = mosqueId ?? await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "finance_director", "business_lead");
   const [row] = await db.select().from(wakaf_assets).where(and(eq(wakaf_assets.id, id), eq(wakaf_assets.mosque_id, mid))).limit(1);
   return row ?? null;
 }

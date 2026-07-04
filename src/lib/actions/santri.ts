@@ -52,7 +52,9 @@ export async function getSantri(mosqueId?: string) {
 }
 
 export async function getSantriById(id: string, mosqueId?: string) {
+  await requireAuth();
   const mid = mosqueId ?? await resolveMosqueId();
+  await requireRole(mid, "superadmin", "admin_dkm", "dakwah_lead");
   const [row] = await db.select().from(santri).where(and(eq(santri.id, id), eq(santri.mosque_id, mid))).limit(1);
   return row ?? null;
 }
@@ -165,6 +167,10 @@ export async function deleteSantri(id: string) {
 /* ─── Attendance ─── */
 
 export async function getAttendance(santriId: string) {
+  await requireAuth();
+  const [s] = await db.select({ mosque_id: santri.mosque_id }).from(santri).where(eq(santri.id, santriId)).limit(1);
+  if (!s) throw new Error("Santri tidak ditemukan");
+  await requireRole(s.mosque_id, "superadmin", "admin_dkm", "dakwah_lead");
   return db
     .select()
     .from(santri_attendance)
@@ -176,6 +182,7 @@ export async function recordAttendance(data: InsertAttendance) {
   const profile = await requireAuth();
   const old = await getSantriById(data.santri_id);
   if (!old) throw new Error("Santri tidak ditemukan");
+  await requireRole(old.mosque_id, "superadmin", "admin_dkm", "dakwah_lead");
 
   const rows = await db
     .insert(santri_attendance)
@@ -213,6 +220,10 @@ export async function recordAttendance(data: InsertAttendance) {
 /* ─── Hafalan ─── */
 
 export async function getHafalan(santriId: string) {
+  await requireAuth();
+  const [s] = await db.select({ mosque_id: santri.mosque_id }).from(santri).where(eq(santri.id, santriId)).limit(1);
+  if (!s) throw new Error("Santri tidak ditemukan");
+  await requireRole(s.mosque_id, "superadmin", "admin_dkm", "dakwah_lead");
   return db
     .select()
     .from(santri_hafalan)
@@ -224,6 +235,7 @@ export async function createHafalan(data: InsertHafalan) {
   const profile = await requireAuth();
   const old = await getSantriById(data.santri_id);
   if (!old) throw new Error("Santri tidak ditemukan");
+  await requireRole(old.mosque_id, "superadmin", "admin_dkm", "dakwah_lead");
 
   const [row] = await db
     .insert(santri_hafalan)
@@ -264,6 +276,8 @@ export async function deleteHafalan(id: string) {
   if (!hafalan) throw new Error("Hafalan tidak ditemukan");
 
   const [s] = await db.select({ mosque_id: santri.mosque_id }).from(santri).where(eq(santri.id, hafalan.santri_id)).limit(1);
+  if (!s) throw new Error("Santri tidak ditemukan");
+  await requireRole(s.mosque_id, "superadmin", "admin_dkm", "dakwah_lead");
 
   await db.delete(santri_hafalan).where(eq(santri_hafalan.id, id));
 

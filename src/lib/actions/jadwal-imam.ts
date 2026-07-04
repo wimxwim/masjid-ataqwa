@@ -39,6 +39,7 @@ export async function getJadwalById(id: string, mosqueId?: string) {
 
 export async function createJadwal(data: InsertJadwal) {
   const profile = await requireAuth();
+  await requireRole(data.mosque_id, "superadmin", "admin_dkm");
   const [row] = await db
     .insert(jadwal_imam)
     .values({
