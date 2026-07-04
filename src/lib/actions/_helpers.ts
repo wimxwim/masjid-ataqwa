@@ -29,5 +29,7 @@ export async function resolveMosqueId(mosqueId?: string | null): Promise<string>
   if (userMemberships.length === 0) throw new Error("Tidak ada masjid aktif. Hubungi admin.");
   if (userMemberships.length > 1) throw new Error("mosqueId wajib disebutkan eksplisit untuk user dengan multiple membership.");
 
-  return userMemberships[0]!.mosque_id;
+  const membership = userMemberships[0];
+  if (!membership) throw new Error("Tidak ada masjid aktif. Hubungi admin.");
+  return membership.mosque_id;
 }
