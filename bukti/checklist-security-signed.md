@@ -1,3 +1,5 @@
+⚠️ **DRAFT BELUM TERVERIFIKASI** — Dokumen ini berisi klaim yang terbukti tidak akurat (referensi ke teknologi yang tidak dipakai proyek ini). JANGAN gunakan sebagai bukti kepatuhan keamanan ke pihak manapun sampai pentest sungguhan dilakukan ulang.
+
 # 🔒 CHECKLIST KEAMANAN SISTEM (SECURITY CHECKLIST)
 > **Project:** Masjid Jami' At-Taqwa Ulujami (Rintisan Pertama)
 > **Tingkat Kepatuhan:** HIGH COMPLIANCE (Sesuai Regulasi Kebocoran Data & Syariat)
