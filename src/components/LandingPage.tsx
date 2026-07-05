@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { HeroStats, ProgramProgress } from "@/types";
 import { usePublicData } from "@/lib/queries/public";
+import { formatNominal } from "@/lib/format";
 
 const FUND_LABEL: Record<string, string> = {
   zakat_fitrah: "Zakat Fitrah",
@@ -496,10 +497,11 @@ export default function LandingPage() {
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-500 font-mono">Rp</span>
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
                       min="0"
-                      value={assetValue}
-                      onChange={(e) => setAssetValue(e.target.value)}
+                      value={formatNominal(assetValue)}
+                      onChange={(e) => setAssetValue(e.target.value.replace(/\D/g, ""))}
                       placeholder="Masukkan nominal angka saja..."
                       className="w-full bg-gray-50 border border-gray-200 focus:bg-white focus:border-emerald-600 focus:outline-hidden py-3 pl-12 pr-4 rounded-xl text-sm font-mono font-semibold transition-colors"
                       required

@@ -11,6 +11,7 @@ import { useDefaultMosque } from "@/lib/queries/public";
 import { createDonation } from "@/lib/actions/donations";
 import type { LedgerEntry } from "@/types";
 import { Turnstile } from "@marsidev/react-turnstile";
+import { formatNominal } from "@/lib/format";
 
 interface ZakatPageProps {
   initialSelectedType?: string;
@@ -242,9 +243,10 @@ export default function ZakatPage({ initialSelectedType }: ZakatPageProps) {
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted font-mono">Rp</span>
                     <input
-                      type="number"
-                      value={malGold}
-                      onChange={(e) => setMalGold(e.target.value)}
+                      type="text"
+                      inputMode="numeric"
+                      value={formatNominal(malGold)}
+                      onChange={(e) => setMalGold(e.target.value.replace(/\D/g, ""))}
                       placeholder="Masukkan nominal angka..."
                       className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-3 pl-12 pr-4 rounded-xl text-sm font-mono transition-colors"
                     />
@@ -256,9 +258,10 @@ export default function ZakatPage({ initialSelectedType }: ZakatPageProps) {
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted font-mono">Rp</span>
                     <input
-                      type="number"
-                      value={malCash}
-                      onChange={(e) => setMalCash(e.target.value)}
+                      type="text"
+                      inputMode="numeric"
+                      value={formatNominal(malCash)}
+                      onChange={(e) => setMalCash(e.target.value.replace(/\D/g, ""))}
                       placeholder="Masukkan nominal angka..."
                       className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-3 pl-12 pr-4 rounded-xl text-sm font-mono transition-colors"
                     />
@@ -270,9 +273,10 @@ export default function ZakatPage({ initialSelectedType }: ZakatPageProps) {
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted font-mono">Rp</span>
                     <input
-                      type="number"
-                      value={malStocks}
-                      onChange={(e) => setMalStocks(e.target.value)}
+                      type="text"
+                      inputMode="numeric"
+                      value={formatNominal(malStocks)}
+                      onChange={(e) => setMalStocks(e.target.value.replace(/\D/g, ""))}
                       placeholder="Masukkan nominal angka..."
                       className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-3 pl-12 pr-4 rounded-xl text-sm font-mono transition-colors"
                     />
@@ -284,9 +288,10 @@ export default function ZakatPage({ initialSelectedType }: ZakatPageProps) {
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted font-mono">Rp</span>
                     <input
-                      type="number"
-                      value={malDebts}
-                      onChange={(e) => setMalDebts(e.target.value)}
+                      type="text"
+                      inputMode="numeric"
+                      value={formatNominal(malDebts)}
+                      onChange={(e) => setMalDebts(e.target.value.replace(/\D/g, ""))}
                       placeholder="Masukkan nominal angka..."
                       className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-3 pl-12 pr-4 rounded-xl text-sm font-mono transition-colors"
                     />
@@ -312,9 +317,10 @@ export default function ZakatPage({ initialSelectedType }: ZakatPageProps) {
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted font-mono">Rp</span>
                     <input
-                      type="number"
-                      value={profMonthlySalary}
-                      onChange={(e) => setProfMonthlySalary(e.target.value)}
+                      type="text"
+                      inputMode="numeric"
+                      value={formatNominal(profMonthlySalary)}
+                      onChange={(e) => setProfMonthlySalary(e.target.value.replace(/\D/g, ""))}
                       placeholder="Contoh: 10000000"
                       className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-3 pl-12 pr-4 rounded-xl text-sm font-mono transition-colors"
                     />
@@ -326,9 +332,10 @@ export default function ZakatPage({ initialSelectedType }: ZakatPageProps) {
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted font-mono">Rp</span>
                     <input
-                      type="number"
-                      value={profOtherIncome}
-                      onChange={(e) => setProfOtherIncome(e.target.value)}
+                      type="text"
+                      inputMode="numeric"
+                      value={formatNominal(profOtherIncome)}
+                      onChange={(e) => setProfOtherIncome(e.target.value.replace(/\D/g, ""))}
                       placeholder="Contoh: 1500000"
                       className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-3 pl-12 pr-4 rounded-xl text-sm font-mono transition-colors"
                     />
@@ -392,10 +399,11 @@ export default function ZakatPage({ initialSelectedType }: ZakatPageProps) {
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted font-mono">Rp</span>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
                         min="5000"
-                        value={infaqCustomAmount}
-                        onChange={(e) => setInfaqCustomAmount(e.target.value)}
+                        value={formatNominal(infaqCustomAmount)}
+                        onChange={(e) => setInfaqCustomAmount(e.target.value.replace(/\D/g, ""))}
                         placeholder="Contoh: 1000000"
                         className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-3 pl-12 pr-4 rounded-xl text-sm font-mono transition-colors"
                       />

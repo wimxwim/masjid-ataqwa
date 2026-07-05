@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Heart, Plus, CheckCircle2, Send, Loader2 } from "lucide-react";
 import type { LedgerEntry } from "@/types";
 import { createDonaturTetap, getDonaturTetap } from "@/lib/actions/donatur-tetap";
+import { formatNominal } from "@/lib/format";
 
 const FREKUENSI_OPTIONS = ["Bulanan", "Pekan harian", "Setiap Jumat"] as const;
 
@@ -147,7 +148,7 @@ export default function DonaturTab({ mosqueId, onAddLedgerEntry }: DonaturTabPro
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">Komitmen Bulanan (Rp)</label>
-            <input type="number" placeholder="0" value={donKomitmen} onChange={(e) => setDonKomitmen(e.target.value)}
+            <input type="text" inputMode="numeric" placeholder="0" value={formatNominal(donKomitmen)} onChange={(e) => setDonKomitmen(e.target.value.replace(/\D/g, ""))}
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500" />
           </div>
           <div>

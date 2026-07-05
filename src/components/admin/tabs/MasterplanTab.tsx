@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Sparkles, ShoppingBag, TrendingUp, Coins } from "lucide-react";
+import { formatNominal } from "@/lib/format";
 
 interface YearData {
   tahun: number;
@@ -144,10 +145,11 @@ export default function MasterplanTab() {
                     Estimasi Penjualan / Bulan
                   </label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     min={0}
-                    value={val}
-                    onChange={(e) => setter(Math.max(0, Number(e.target.value)))}
+                    value={formatNominal(val ?? 0)}
+                    onChange={(e) => setter(Number(e.target.value.replace(/\D/g, "")) || 0)}
                     className="w-full bg-surface border border-outline rounded-lg px-3 py-2 text-sm font-mono text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                     placeholder="0"
                   />
