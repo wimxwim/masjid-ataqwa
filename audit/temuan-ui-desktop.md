@@ -1,4 +1,7 @@
 # 🖥️ TEMUAN AUDIT UI — Desktop
+
+> **⚠️ DEPLOY TARGET: VERCEL** — Commit & deploy via Vercel (`wimxgooo-3751`). Git push → Vercel auto-deploy production. Cloudflare Workers sebagai fallback saja.
+
 **Proyek:** Masjid Hub — Masjid At-Taqwa Ulujami
 **Tanggal:** 3 Juli 2026
 **Total temuan:** 12

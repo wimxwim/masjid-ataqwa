@@ -1,5 +1,7 @@
 # AUDIT BUG PATTERN — Masjid At-Taqwa
 
+> **⚠️ DEPLOY TARGET: VERCEL** — Commit & deploy via Vercel (`wimxgooo-3751`). Git push → Vercel auto-deploy production. Cloudflare Workers sebagai fallback saja.
+
 **Tanggal:** 2026-07-03
 **Auditor:** OpenCode — Logging & Bug Pattern Engine
 **Scope:** Seluruh `src/` (server actions, API routes, components, middleware, lib)

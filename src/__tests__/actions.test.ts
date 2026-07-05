@@ -9,7 +9,7 @@ describe("validateImageUrl", () => {
 
   it("throws on HTTP URL", () => {
     expect(() => validateImageUrl("http://supabase.co/storage/image.jpg")).toThrow(
-      "URL gambar tidak valid",
+      "URL gambar harus HTTPS",
     );
   });
 
@@ -27,7 +27,7 @@ describe("validateImageUrl", () => {
   });
 
   it("throws on javascript: URL", () => {
-    expect(() => validateImageUrl("javascript:alert('xss')")).toThrow("URL gambar tidak valid");
+    expect(() => validateImageUrl("javascript:alert('xss')")).toThrow("URL gambar harus HTTPS");
   });
 });
 

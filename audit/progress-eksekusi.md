@@ -1,5 +1,7 @@
 # PROGRESS EKSEKUSI PERBAIKAN — masjid-ataqwa
 
+> **⚠️ DEPLOY TARGET: VERCEL** — Commit & deploy via Vercel (`wimxgooo-3751`). Git push → Vercel auto-deploy production. Cloudflare Workers sebagai fallback saja.
+
 **Dimulai:** 2026-07-03
 **Acuan:** `rencana-upgrade.md` (53 item prioritas P-001 s.d. P-053)
 **Metode:** Satu commit = satu ID. Riset tiap temuan sebelum fix (Keamanan/Database/Arsitektur/Logging).

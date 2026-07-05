@@ -1,4 +1,7 @@
 # 📋 DAFTAR TRIASE SKILL — masjid-ataqwa
+
+> **⚠️ DEPLOY TARGET: VERCEL** — Commit & deploy via Vercel (`wimxgooo-3751`). Git push → Vercel auto-deploy production. Cloudflare Workers sebagai fallback saja.
+
 **Project:** Next.js 16 + TypeScript + Tailwind v4 + Drizzle ORM + PostgreSQL/Supabase + Cloudflare Workers
 
 ---

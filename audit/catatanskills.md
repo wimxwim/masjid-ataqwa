@@ -1,4 +1,7 @@
 # 📋 CATATAN PROSES SKILL AUDIT — masjid-ataqwa
+
+> **⚠️ DEPLOY TARGET: VERCEL** — Commit & deploy via Vercel (`wimxgooo-3751`). Git push → Vercel auto-deploy production. Cloudflare Workers sebagai fallback saja.
+
 **Project:** Masjid Hub — Masjid Jami' At-Taqwa Ulujami
 **Tanggal:** 2026-07-03
 **Tech stack:** Next.js 16 + TypeScript + Tailwind v4 + Drizzle ORM + PostgreSQL/Supabase + Cloudflare Workers (OpenNext)

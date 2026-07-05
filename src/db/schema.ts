@@ -70,6 +70,10 @@ export const donationPaymentEnum = pgEnum("donation_payment", [
   "qris", "transfer", "tunai", "kitabisa",
 ]);
 
+export const transactionTypeEnum = pgEnum("transaction_type", [
+  "Pemasukan", "Pengeluaran",
+]);
+
 export const donationStatusEnum = pgEnum("donation_status", [
   "pending", "paid", "failed", "refunded",
 ]);
@@ -557,7 +561,7 @@ export const transactions = pgTable("transactions", {
   
   // 1. Identifikasi & Klasifikasi Utama
   reference_number: text("reference_number").unique(), // ID Pelacakan Unik (Misal: TRX-OUT-202607-001)
-  type: text("type").notNull(),                     // "Pemasukan" | "Pengeluaran"
+  type: transactionTypeEnum("type").notNull(),                     // "Pemasukan" | "Pengeluaran"
   category: text("category").notNull(),             // "Kotak Amal Jumat", "Honor Ustadz", dll
   amount: bigint("amount", { mode: "number" }).notNull(),
   description: text("description"),

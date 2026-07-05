@@ -1,5 +1,7 @@
 # Arsitektur & Alur Data — masjid-ataqwa
 
+> **⚠️ DEPLOY TARGET: VERCEL** — Commit & deploy via Vercel (`wimxgooo-3751`). Git push → Vercel auto-deploy production. Cloudflare Workers sebagai fallback saja.
+
 ## Peta Alur (Mermaid)
 
 ```mermaid

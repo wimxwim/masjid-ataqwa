@@ -93,7 +93,7 @@ function validateSyariah(data: {
   }
 }
 
-export async function getTransactions(mosqueId: string, type?: string) {
+export async function getTransactions(mosqueId: string, type?: "Pemasukan" | "Pengeluaran") {
   await requireRole(mosqueId, "superadmin", "admin_dkm", "finance_director");
 
   const conditions = [eq(transactions.mosque_id, mosqueId), isNull(transactions.deleted_at)];

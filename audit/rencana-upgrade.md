@@ -1,4 +1,7 @@
 # EXECUTIVE SUMMARY — AUDIT CODEBASE masjid-ataqwa
+
+> **⚠️ DEPLOY TARGET: VERCEL** — Commit & deploy via Vercel (`wimxgooo-3751`). Git push → Vercel auto-deploy production. Cloudflare Workers sebagai fallback saja.
+
 **Tanggal audit:** 2026-07-03
 **Total skill dijalankan:** 25 dari 276 (20 Kategori A + 5 Kategori B)
 **Total temuan unik:** 68 (Critical: 13 | High: 22 | Medium: 16 | Low: 10 | Info: 5)

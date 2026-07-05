@@ -1,5 +1,7 @@
 # RENCANA_DATA — Jembatan Tampilan ↔ Database (Alignment)
 
+> **⚠️ DEPLOY TARGET: VERCEL** — Commit & deploy via Vercel (`wimxgooo-3751`). Git push → Vercel auto-deploy production. Cloudflare Workers sebagai fallback saja.
+
 > Status: **DRAFT v1** · 29 Jun 2026 · Menunggu mockup Gemini untuk finalisasi.
 > Ini "kontrak" antara mockup (apa yang dilihat pengguna) dan database (apa yang disimpan).
 > **Aturan:** tiap elemen UI dinamis WAJIB punya barisnya di sini SEBELUM dikoding.

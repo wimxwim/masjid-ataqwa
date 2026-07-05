@@ -1,4 +1,7 @@
 # 📱 TEMUAN AUDIT MOBILE RESPONSIVENESS — Masjid At-Taqwa Ulujami
+
+> **⚠️ DEPLOY TARGET: VERCEL** — Commit & deploy via Vercel (`wimxgooo-3751`). Git push → Vercel auto-deploy production. Cloudflare Workers sebagai fallback saja.
+
 **Tanggal:** 3 Juli 2026
 **Total temuan:** 11
 

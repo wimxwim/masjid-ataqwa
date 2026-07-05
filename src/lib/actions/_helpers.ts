@@ -4,13 +4,17 @@ import { eq, and, isNull } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth/server";
 import { cache } from "react";
 
-/** Validasi URL gambar — hanya HTTPS yang diizinkan. */
+/** Validasi URL gambar — hanya HTTPS yang diizinkan. data:/blob:/javascript: diblokir. */
 export function validateImageUrl(url: string | null | undefined): void {
   if (!url) return;
   try {
     const parsed = new URL(url);
-    if (parsed.protocol !== "https:") throw new Error();
-  } catch {
+    if (parsed.protocol !== "https:") {
+      throw new Error(`URL gambar harus HTTPS (diterima: ${parsed.protocol})`);
+    }
+    if (parsed.hostname.length < 1) throw new Error("Hostname kosong.");
+  } catch (e) {
+    if (e instanceof Error && e.message.startsWith("URL gambar")) throw e;
     throw new Error("URL gambar tidak valid. Hanya URL HTTPS yang diizinkan.");
   }
 }

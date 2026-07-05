@@ -1,5 +1,7 @@
 # 🔐 AUDIT KEAMANAN — Masjid At-Taqwa (masjid-ataqwa)
 
+> **⚠️ DEPLOY TARGET: VERCEL** — Commit & deploy via Vercel (`wimxgooo-3751`). Git push → Vercel auto-deploy production. Cloudflare Workers sebagai fallback saja.
+
 **Tanggal:** 2026-07-03
 **Auditor:** OpenCode Security Review
 **Scope:** Full codebase audit (server actions, API routes, auth, Supabase config, secrets)
