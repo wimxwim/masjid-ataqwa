@@ -1,9 +1,8 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, CircleMarker, useMap } from "react-leaflet";
 import { useEffect } from "react";
 import L from "leaflet";
-import MarkerClusterGroup from "react-leaflet-cluster";
 import type { MustahikDb } from "@/types";
 import { Phone } from "lucide-react";
 import "leaflet/dist/leaflet.css";
@@ -28,21 +27,11 @@ function MapResizer() {
 }
 
 export default function MustahikMap({ filtered, MOSQUE_CENTER, desilColor, desilLabel, ringLabel }: Props) {
-  const getMarkerIcon = (desil: string | null) => {
-    const color = desilColor[desil || ""] || "#6b7280";
-    return L.divIcon({
-      className: "",
-      html: `<div style="width:22px;height:22px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.5)"></div>`,
-      iconSize: [22, 22],
-      iconAnchor: [11, 11],
-    });
-  };
-
   const mosqueIcon = L.divIcon({
     className: "",
-    html: `<div style="width:36px;height:36px;border-radius:50%;background:#10b981;border:4px solid white;box-shadow:0 3px 10px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:18px">🕌</div>`,
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
+    html: `<div style="width:40px;height:40px;border-radius:50%;background:#10b981;border:4px solid white;box-shadow:0 3px 12px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:20px">🕌</div>`,
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
   });
 
   return (
@@ -64,41 +53,44 @@ export default function MustahikMap({ filtered, MOSQUE_CENTER, desilColor, desil
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
       
-        <MarkerClusterGroup
-          chunkedLoading
-          maxClusterRadius={40}
-          spiderfyOnMaxZoom
-          showCoverageOnHover={false}
-          disableClusteringAtZoom={16}
-        >
-          {/* Mosque center marker */}
-          <Marker position={MOSQUE_CENTER} icon={mosqueIcon} zIndexOffset={1000}>
-            <Popup>
-              <div className="text-xs font-bold">Masjid At-Taqwa Ulujami</div>
-            </Popup>
-          </Marker>
+        {/* Mosque center marker */}
+        <Marker position={MOSQUE_CENTER} icon={mosqueIcon} zIndexOffset={1000}>
+          <Popup>
+            <div className="text-xs font-bold">Masjid At-Taqwa Ulujami</div>
+          </Popup>
+        </Marker>
 
-          {/* Mustahik markers */}
-          {filtered.map((m) => {
-            if (!m.lat || !m.lng) return null;
-            return (
-              <Marker key={m.id} position={[m.lat, m.lng]} icon={getMarkerIcon(m.desil_level)} zIndexOffset={500}>
-                <Popup>
-                  <div className="text-xs space-y-1 min-w-[180px]">
-                    <div className="font-bold text-sm">{m.name}</div>
-                    <div className="text-muted">{m.address}</div>
-                    {m.phone && <div className="flex items-center gap-1"><Phone className="w-3 h-3" /> {m.phone}</div>}
-                    <div className="flex items-center gap-2 pt-1 border-t border-outline mt-1">
-                      <span>{desilLabel[m.desil_level || ""] || "-"}</span>
-                      <span className="text-muted">•</span>
-                      <span>{ringLabel(m.ring_number)}</span>
-                    </div>
+        {/* Mustahik markers — CircleMarker (SVG) always visible at any zoom */}
+        {filtered.map((m) => {
+          if (!m.lat || !m.lng) return null;
+          const color = desilColor[m.desil_level || ""] || "#6b7280";
+          return (
+            <CircleMarker
+              key={m.id}
+              center={[m.lat, m.lng]}
+              radius={8}
+              pathOptions={{
+                color: "white",
+                weight: 3,
+                fillColor: color,
+                fillOpacity: 0.9,
+              }}
+            >
+              <Popup>
+                <div className="text-xs space-y-1 min-w-[180px]">
+                  <div className="font-bold text-sm">{m.name}</div>
+                  <div className="text-muted">{m.address}</div>
+                  {m.phone && <div className="flex items-center gap-1"><Phone className="w-3 h-3" /> {m.phone}</div>}
+                  <div className="flex items-center gap-2 pt-1 border-t border-outline mt-1">
+                    <span>{desilLabel[m.desil_level || ""] || "-"}</span>
+                    <span className="text-muted">•</span>
+                    <span>{ringLabel(m.ring_number)}</span>
                   </div>
-                </Popup>
-              </Marker>
-            );
-          })}
-        </MarkerClusterGroup>
+                </div>
+              </Popup>
+            </CircleMarker>
+          );
+        })}
       </MapContainer>
     </>
   );
