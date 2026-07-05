@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Check, Info, Loader2 } from "lucide-react";
 import { getMosqueSettings, updateMosqueSettings } from "@/lib/actions/settings";
 import type { MosqueSettings } from "@/lib/actions/settings";
+import { formatNominal } from "@/lib/format";
 
 type TextField = { label: string; key: keyof MosqueSettings; placeholder: string; type?: "text" | "email" | "number" };
 type SelectField = { label: string; key: keyof MosqueSettings; type: "select"; options: string[]; placeholder?: string };
@@ -128,9 +129,10 @@ export default function AdminSettingsPage() {
                   </select>
                 ) : (
                   <input
-                    type={(field as TextField).type ?? "text"}
-                    value={values[field.key] ?? ""}
-                    onChange={(e) => handleChange(field.key, e.target.value)}
+                    type={(field as TextField).type === "number" ? "text" : (field as TextField).type ?? "text"}
+                    inputMode={(field as TextField).type === "number" ? "numeric" : undefined}
+                    value={(field as TextField).type === "number" ? formatNominal(values[field.key] ?? "") : (values[field.key] ?? "")}
+                    onChange={(e) => handleChange(field.key, (field as TextField).type === "number" ? e.target.value.replace(/\D/g, "") : e.target.value)}
                     placeholder={(field as TextField).placeholder}
                     className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm text-ink placeholder:text-muted outline-none focus:ring-2 focus:ring-primary/30"
                   />

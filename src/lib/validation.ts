@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /* ─── Shared primitives ─── */
-export const uuid = z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
+export const uuid = z.string().uuid();
 export const phone = z.string().min(8).max(20).regex(/^[+\d][\d\s-]*$/);
 export const nominal = z.number().positive();
 

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { getWakafAssets, createWakafAsset, updateWakafAsset, deleteWakafAsset, type InsertWakafAsset } from "@/lib/actions/wakaf";
 import { Search, Plus, X, Pencil, Trash2, Landmark, MapPin, TrendingUp } from "lucide-react";
+import { formatNominal } from "@/lib/format";
 
 type Wakaf = Awaited<ReturnType<typeof getWakafAssets>>[number];
 
@@ -188,12 +189,12 @@ export default function AdminWakafPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-ink block mb-1">Nilai Perolehan (Rp)</label>
-                  <input type="number" value={formAcqValue} onChange={(e) => setFormAcqValue(e.target.value)}
+                  <input type="text" inputMode="numeric" value={formatNominal(formAcqValue)} onChange={(e) => setFormAcqValue(e.target.value.replace(/\D/g, ""))}
                     className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-ink block mb-1">Nilai Kini (Rp)</label>
-                  <input type="number" value={formCurValue} onChange={(e) => setFormCurValue(e.target.value)}
+                  <input type="text" inputMode="numeric" value={formatNominal(formCurValue)} onChange={(e) => setFormCurValue(e.target.value.replace(/\D/g, ""))}
                     className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm" />
                 </div>
               </div>

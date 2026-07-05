@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { getEmployees, createEmployee, updateEmployee, deleteEmployee } from "@/lib/actions/employees";
 import type { InsertEmployee } from "@/lib/actions/employees";
 import { Search, Plus, X, Pencil, Trash2 } from "lucide-react";
+import { formatNominal } from "@/lib/format";
 
 const POSITIONS = ["Marbot", "Muazin", "Imam Tetap", "Guru Kajian", "Security", "Kebersihan"];
 const SALARY_PERIODS = ["Bulanan", "Mingguan", "Per-Kajian", "Per-Jadwal"];
@@ -20,6 +21,11 @@ export default function AdminEmployeesPage() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<(typeof data)[number] | null>(null);
   const [error, setError] = useState("");
+  const [formSalary, setFormSalary] = useState("");
+
+  useEffect(() => {
+    setFormSalary(editing?.salary?.toString() ?? "");
+  }, [editing]);
 
   const load = useCallback(async () => {
     try { setLoading(true); setData(await getEmployees()); }
@@ -44,7 +50,7 @@ export default function AdminEmployeesPage() {
       name: form.get("name") as string,
       phone: (form.get("phone") as string) || null,
       position: form.get("position") as string,
-      salary: parseInt(form.get("salary") as string) || 0,
+      salary: parseInt(formSalary) || 0,
       salary_period: form.get("salary_period") as string || "Bulanan",
       subject: (form.get("subject") as string) || null,
       schedule: (form.get("schedule") as string) || null,
@@ -108,7 +114,7 @@ export default function AdminEmployeesPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="text-xs font-medium text-ink block mb-1">Gaji (Rp)</label>
-                  <input name="salary" type="number" defaultValue={editing?.salary ?? 0} className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm" /></div>
+                  <input name="salary" type="text" inputMode="numeric" value={formatNominal(formSalary)} onChange={(e) => setFormSalary(e.target.value.replace(/\D/g, ""))} className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm" /></div>
                 <div><label className="text-xs font-medium text-ink block mb-1">Periode Gaji</label>
                   <select name="salary_period" defaultValue={editing?.salary_period ?? "Bulanan"} className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm">
                     {SALARY_PERIODS.map((p) => <option key={p} value={p}>{p}</option>)}

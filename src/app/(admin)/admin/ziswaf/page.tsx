@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { getZiswafRequests, createZiswafRequest, reviewZiswafRequest, type InsertZiswafRequest } from "@/lib/actions/ziswaf-requests";
 import { Search, Plus, X, HandHelping, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { formatNominal } from "@/lib/format";
 
 type ZiswafRequest = Awaited<ReturnType<typeof getZiswafRequests>>[number];
 
@@ -128,7 +129,7 @@ export default function AdminZiswafPage() {
               </div>
               <div>
                 <label className="text-xs font-medium text-ink block mb-1">Jumlah (Rp) — opsional</label>
-                <input type="number" value={formAmount} onChange={(e) => setFormAmount(e.target.value)}
+                <input type="text" inputMode="numeric" value={formatNominal(formAmount)} onChange={(e) => setFormAmount(e.target.value.replace(/\D/g, ""))}
                   className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm" />
               </div>
               <div>

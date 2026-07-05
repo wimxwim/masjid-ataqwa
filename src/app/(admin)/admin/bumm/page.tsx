@@ -6,6 +6,7 @@ import {
   type InsertBummProduct,
 } from "@/lib/actions/bumm";
 import { Search, Plus, X, Pencil, Trash2, Package } from "lucide-react";
+import { formatNominal } from "@/lib/format";
 
 type Product = Awaited<ReturnType<typeof getBummProducts>>[number];
 
@@ -128,7 +129,7 @@ export default function AdminBummPage() {
                   <input value={formCategory} onChange={(e) => setFormCategory(e.target.value)}
                     className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm" /></div>
                 <div><label className="text-xs font-medium text-ink block mb-1">Harga (Rp) *</label>
-                  <input type="number" value={formPrice} onChange={(e) => setFormPrice(e.target.value)} required
+                  <input type="text" inputMode="numeric" value={formatNominal(formPrice)} onChange={(e) => setFormPrice(e.target.value.replace(/\D/g, ""))} required
                     className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm" /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">

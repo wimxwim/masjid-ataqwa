@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getDonaturTetap, createDonaturTetap, updateDonaturTetap, deleteDonaturTetap } from "@/lib/actions/donatur-tetap";
 import { Search, Plus, X, Pencil, Trash2, HandCoins, Navigation, Loader2 } from "lucide-react";
+import { formatNominal } from "@/lib/format";
 
 type Donatur = Awaited<ReturnType<typeof getDonaturTetap>>[number];
 
@@ -28,6 +29,11 @@ export default function AdminDonaturPage() {
   const [error, setError] = useState("");
   const [gpsLoading, setGpsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formKomitmen, setFormKomitmen] = useState("");
+
+  useEffect(() => {
+    setFormKomitmen(editing?.komitmen_bulanan?.toString() ?? "");
+  }, [editing]);
 
   const load = useCallback(async () => {
     try { setLoading(true); setData(await getDonaturTetap()); }
@@ -53,7 +59,7 @@ export default function AdminDonaturPage() {
       nama: form.get("nama") as string,
       phone: (form.get("phone") as string) || null,
       alamat: (form.get("alamat") as string) || null,
-      komitmen_bulanan: parseInt(form.get("komitmen_bulanan") as string) || 0,
+      komitmen_bulanan: parseInt(formKomitmen) || 0,
       aliran_dana: (form.get("aliran_dana") as string) || "Dana Operasional Masjid",
       program_spesifik: (form.get("program_spesifik") as string) || null,
       frekuensi: (form.get("frekuensi") as string) || "Bulanan",
@@ -136,7 +142,7 @@ export default function AdminDonaturPage() {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-ink block mb-1">Komitmen (Rp/bulan)</label>
-                  <input name="komitmen_bulanan" type="number" defaultValue={editing?.komitmen_bulanan ?? 0}
+                  <input name="komitmen_bulanan" type="text" inputMode="numeric" value={formatNominal(formKomitmen)} onChange={(e) => setFormKomitmen(e.target.value.replace(/\D/g, ""))}
                     className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm" />
                 </div>
               </div>

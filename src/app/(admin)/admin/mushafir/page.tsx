@@ -6,6 +6,7 @@ import type { InsertMushafir } from "@/lib/actions/mushafir";
 import KtpScanner from "@/components/KtpScanner";
 import type { KtpData } from "@/components/KtpScanner";
 import { Search, Plus, X, Pencil, Trash2, ScanLine, Navigation } from "lucide-react";
+import { formatNominal } from "@/lib/format";
 
 export default function AdminMushafirPage() {
   const [data, setData] = useState<Awaited<ReturnType<typeof getMushafirAid>>>([]);
@@ -21,6 +22,11 @@ export default function AdminMushafirPage() {
   const latRef = useRef<HTMLInputElement>(null);
   const lngRef = useRef<HTMLInputElement>(null);
   const [gpsLoading, setGpsLoading] = useState(false);
+  const [formAmount, setFormAmount] = useState("");
+
+  useEffect(() => {
+    setFormAmount(editing?.amount?.toString() ?? "");
+  }, [editing]);
 
   const getLocation = () => {
     if (!navigator.geolocation) { setError("Geolokasi tidak didukung."); return; }
@@ -72,7 +78,7 @@ export default function AdminMushafirPage() {
       address: (form.get("address") as string) || null,
       photo_ktp_url: null,
       aid_type: form.get("aid_type") as string,
-      amount: parseInt(form.get("amount") as string) || 0,
+      amount: parseInt(formAmount) || 0,
       lat: form.get("lat") ? parseFloat(form.get("lat") as string) : null,
       lng: form.get("lng") ? parseFloat(form.get("lng") as string) : null,
       notes: (form.get("notes") as string) || null,
@@ -155,7 +161,7 @@ export default function AdminMushafirPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="text-xs font-medium text-ink block mb-1">Nominal (Rp)</label>
-                  <input name="amount" type="number" defaultValue={editing?.amount ?? 0} className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm" /></div>
+                  <input name="amount" type="text" inputMode="numeric" value={formatNominal(formAmount)} onChange={(e) => setFormAmount(e.target.value.replace(/\D/g, ""))} className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm" /></div>
                 <div><label className="text-xs font-medium text-ink block mb-1">Tanggal *</label>
                   <input name="given_date" type="date" defaultValue={editing?.given_date ?? new Date().toISOString().split("T")[0]} required
                     className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm" /></div>

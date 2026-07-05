@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getMustahiks, createMustahik, updateMustahik, deleteMustahik } from "@/lib/actions/mustahik";
+import { formatNominal } from "@/lib/format";
 import { getAsnafList } from "@/lib/actions/asnaf";
 import type { InsertAsnaf } from "@/lib/actions/asnaf";
 import { MustahikDb } from "@/types";
@@ -248,6 +249,11 @@ function MustahikForm({
   const [submitting, setSubmitting] = useState(false);
   const [gpsLoading, setGpsLoading] = useState(false);
   const [gpsOverride, setGpsOverride] = useState<[number, number] | null>(null);
+  const [formIncome, setFormIncome] = useState("");
+
+  useEffect(() => {
+    setFormIncome(initial?.monthly_income?.toString() ?? "");
+  }, [initial]);
   const [nikRaw, setNikRaw] = useState("");
 
   const nameRef = useRef<HTMLInputElement>(null);
@@ -312,6 +318,7 @@ function MustahikForm({
       }
 
       const fd = new FormData(e.currentTarget);
+      fd.set("monthly_income", formIncome);
       const res = initial
         ? await updateMustahik(initial.id, fd)
         : await createMustahik(fd);
@@ -487,8 +494,9 @@ function MustahikForm({
               <label className="block text-sm font-semibold text-ink mb-1">Pendapatan/Bulan</label>
               <input
                 name="monthly_income"
-                type="number"
-                defaultValue={initial?.monthly_income || ""}
+                type="text" inputMode="numeric"
+                value={formatNominal(formIncome)}
+                onChange={(e) => setFormIncome(e.target.value.replace(/\D/g, ""))}
                 className="w-full px-3 py-2 rounded-xl border border-outline bg-bg text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
             </div>

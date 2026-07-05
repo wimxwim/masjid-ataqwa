@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { getMuzzakiList, createMuzzaki, updateMuzzaki, deleteMuzzaki, type InsertMuzzaki } from "@/lib/actions/muzzaki";
 import { createZakatPayment } from "@/lib/actions/zakat-payments";
 import { Search, Plus, X, Pencil, Trash2, HandCoins, CheckCircle2 } from "lucide-react";
+import { formatNominal } from "@/lib/format";
 
 type Muzzaki = Awaited<ReturnType<typeof getMuzzakiList>>[number];
 
@@ -158,12 +159,12 @@ export default function AdminMuzzakiPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-ink block mb-1">Nilai Aset (Rp)</label>
-                  <input type="number" value={formAssetValue} onChange={(e) => setFormAssetValue(e.target.value)}
+                  <input type="text" inputMode="numeric" value={formatNominal(formAssetValue)} onChange={(e) => setFormAssetValue(e.target.value.replace(/\D/g, ""))}
                     className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-ink block mb-1">Zakat Terakhir (Rp)</label>
-                  <input type="number" value={formZakatAmount} onChange={(e) => setFormZakatAmount(e.target.value)}
+                  <input type="text" inputMode="numeric" value={formatNominal(formZakatAmount)} onChange={(e) => setFormZakatAmount(e.target.value.replace(/\D/g, ""))}
                     className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm" />
                 </div>
               </div>
@@ -206,7 +207,7 @@ export default function AdminMuzzakiPage() {
               </div>
               <div>
                 <label className="text-xs font-medium text-ink block mb-1">Jumlah (Rp)</label>
-                <input type="number" value={zakatAmount} onChange={(e) => setZakatAmount(e.target.value)}
+                <input type="text" inputMode="numeric" value={formatNominal(zakatAmount)} onChange={(e) => setZakatAmount(e.target.value.replace(/\D/g, ""))}
                   className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm" />
               </div>
               <div>
