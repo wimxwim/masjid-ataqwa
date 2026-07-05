@@ -5,6 +5,7 @@ import { LedgerEntry } from "@/types";
 import { Coins, CheckCircle2, Sparkles, Send, Loader2 } from "lucide-react";
 import { createTransaction } from "@/lib/actions/transactions";
 import { toLedgerEntry } from "@/lib/queries/admin";
+import { formatNominal } from "@/lib/format";
 
 const INFLOW_CATEGORIES = [
   "Kotak Amal Harian",
@@ -135,9 +136,9 @@ export default function InflowTab({ mosqueId, onAddLedgerEntry }: InflowTabProps
                   type="text"
                   inputMode="numeric"
                   required
-                  value={inflowAmount}
-                  onChange={(e) => setInflowAmount(e.target.value.replace(/[^0-9]/g, ""))}
-                  placeholder="Masukkan nominal saja (angka)..."
+                  value={formatNominal(inflowAmount)}
+                  onChange={(e) => setInflowAmount(e.target.value.replace(/\D/g, ""))}
+                  placeholder="Contoh: 2.000.000"
                   disabled={isSubmitting}
                   className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2.5 pl-9 pr-4 rounded-xl text-xs sm:text-sm font-mono font-semibold transition-colors"
                 />

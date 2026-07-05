@@ -2,6 +2,7 @@ import { db } from "@/db/client";
 import { mosques, memberships } from "@/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth/server";
+import { cache } from "react";
 
 /** Validasi URL gambar — hanya HTTPS yang diizinkan. */
 export function validateImageUrl(url: string | null | undefined): void {
@@ -14,16 +15,11 @@ export function validateImageUrl(url: string | null | undefined): void {
   }
 }
 
-/** Ambil mosque_id dari membership aktif user yang login. */
-export async function resolveMosqueId(mosqueId?: string | null): Promise<string> {
-  if (mosqueId) return mosqueId;
-
-  const profile = await requireAuth();
-
+const getMosqueId = cache(async (profileId: string) => {
   const userMemberships = await db
     .select({ mosque_id: memberships.mosque_id })
     .from(memberships)
-    .where(and(eq(memberships.profile_id, profile.id), eq(memberships.is_active, true)))
+    .where(and(eq(memberships.profile_id, profileId), eq(memberships.is_active, true)))
     .limit(2);
 
   if (userMemberships.length === 0) throw new Error("Tidak ada masjid aktif. Hubungi admin.");
@@ -32,4 +28,11 @@ export async function resolveMosqueId(mosqueId?: string | null): Promise<string>
   const membership = userMemberships[0];
   if (!membership) throw new Error("Tidak ada masjid aktif. Hubungi admin.");
   return membership.mosque_id;
+});
+
+/** Ambil mosque_id dari membership aktif user yang login. */
+export async function resolveMosqueId(mosqueId?: string | null): Promise<string> {
+  if (mosqueId) return mosqueId;
+  const profile = await requireAuth();
+  return getMosqueId(profile.id);
 }

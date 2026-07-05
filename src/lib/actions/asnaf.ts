@@ -70,14 +70,13 @@ export async function seedDefaultAsnaf(mosqueId: string) {
   ];
 
   for (const a of defaultAsnaf) {
-    await db
-      .insert(asnaf)
-      .values({
-        mosque_id: mosqueId,
-        ...a,
-        is_active: true,
-      })
-      .onConflictDoNothing({ target: [asnaf.mosque_id, asnaf.code] });
+    const [existing] = await db
+      .select({ id: asnaf.id })
+      .from(asnaf)
+      .where(and(eq(asnaf.mosque_id, mosqueId), eq(asnaf.code, a.code)))
+      .limit(1);
+    if (existing) continue;
+    await db.insert(asnaf).values({ mosque_id: mosqueId, ...a, is_active: true });
   }
 
   await db.insert(audit_logs).values({

@@ -5,6 +5,7 @@ import { ArrowDownToLine, Loader2 } from "lucide-react";
 import type { LedgerEntry } from "@/types";
 import { createTransaction, type FundType } from "@/lib/actions/transactions";
 import { toLedgerEntry } from "@/lib/queries/admin";
+import { formatNominal } from "@/lib/format";
 
 const FUND_SOURCES: { value: FundType; label: string }[] = [
   { value: "infaq_tidak_terikat", label: "Infaq Tidak Terikat (Operasional)" },
@@ -143,8 +144,8 @@ export default function OutflowTab({ mosqueId, onAddLedgerEntry }: OutflowTabPro
                 type="text"
                 inputMode="numeric"
                 placeholder="0"
-                value={outflowAmount}
-                onChange={(e) => setOutflowAmount(e.target.value.replace(/[^0-9]/g, ""))}
+                value={formatNominal(outflowAmount)}
+                onChange={(e) => setOutflowAmount(e.target.value.replace(/\D/g, ""))}
                 disabled={isSubmitting}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
               />
