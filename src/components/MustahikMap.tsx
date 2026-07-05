@@ -1,7 +1,8 @@
 "use client";
 
-import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, CircleMarker, useMap } from "react-leaflet";
 import { useEffect } from "react";
+import L from "leaflet";
 import type { MustahikDb } from "@/types";
 import { Phone } from "lucide-react";
 import "leaflet/dist/leaflet.css";
@@ -25,12 +26,31 @@ function MapResizer() {
   return null;
 }
 
+const MOSQUE_SVG = `
+<svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="22" cy="22" r="20" fill="#10b981" stroke="#ffffff" stroke-width="3"/>
+  <g fill="#ffffff">
+    <rect x="13" y="11" width="4" height="18" rx="1"/>
+    <circle cx="15" cy="10" r="2.5"/>
+    <rect x="19" y="23" width="14" height="7" rx="1"/>
+    <path d="M19 23 Q26 15 33 23 Z"/>
+  </g>
+</svg>`;
+
+const mosqueIcon = L.divIcon({
+  className: "mosque-marker-icon",
+  html: MOSQUE_SVG,
+  iconSize: [44, 44],
+  iconAnchor: [22, 22],
+  popupAnchor: [0, -22],
+});
+
 export default function MustahikMap({ filtered, MOSQUE_CENTER, desilColor, desilLabel, ringLabel }: Props) {
   return (
-    <MapContainer 
-      center={MOSQUE_CENTER} 
-      zoom={15} 
-      className="w-full h-full" 
+    <MapContainer
+      center={MOSQUE_CENTER}
+      zoom={15}
+      className="w-full h-full"
       style={{ height: "100%", width: "100%", minHeight: "400px" }}
       zoomControl={false}
     >
@@ -39,24 +59,6 @@ export default function MustahikMap({ filtered, MOSQUE_CENTER, desilColor, desil
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-
-      <CircleMarker
-        center={MOSQUE_CENTER}
-        radius={14}
-        pathOptions={{
-          color: "#065f46",
-          weight: 4,
-          fillColor: "#10b981",
-          fillOpacity: 1,
-        }}
-      >
-        <Tooltip direction="top" offset={[0, -14]} permanent>
-          <span className="font-bold text-xs">🕌 Masjid At-Taqwa</span>
-        </Tooltip>
-        <Popup>
-          <div className="text-xs font-bold">Masjid At-Taqwa Ulujami</div>
-        </Popup>
-      </CircleMarker>
 
       {filtered.map((m) => {
         if (!m.lat || !m.lng) return null;
@@ -88,6 +90,17 @@ export default function MustahikMap({ filtered, MOSQUE_CENTER, desilColor, desil
           </CircleMarker>
         );
       })}
+
+      {/* Mosque marker — rendered last so it sits on top of mustahik (zIndexOffset + DOM order) */}
+      <Marker
+        position={MOSQUE_CENTER}
+        icon={mosqueIcon}
+        zIndexOffset={1000}
+      >
+        <Popup>
+          <div className="text-xs font-bold">🕌 Masjid At-Taqwa Ulujami</div>
+        </Popup>
+      </Marker>
     </MapContainer>
   );
 }
