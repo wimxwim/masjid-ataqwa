@@ -29,7 +29,7 @@ const desilLabel: Record<string, string> = {
 
 const ringLabel = (r: number | null) => {
   if (!r) return "-";
-  return [``, `Ring 1 (<=70m)`, `Ring 2 (<=140m)`, `Ring 3 (<=300m)`, `Ring 4 (>300m)`][r] || `Ring ${r}`;
+  return [``, `Ring 1 (≤70m)`, `Ring 2 (≤140m)`, `Ring 3 (≤300m)`, `Ring 4 (≤700m)`][r] || `Ring ${r}`;
 };
 
 export default function GisPage() {
@@ -73,6 +73,20 @@ export default function GisPage() {
           </div>
           <p className="text-muted text-xs sm:text-sm mt-1">
             {mustahikList.length} mustahik terdata — klik marker untuk detail
+          </p>
+        </div>
+      </div>
+
+      {/* Teknologi Peta — Haversine Formula */}
+      <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-start gap-3 text-sm">
+        <span className="text-lg shrink-0 mt-0.5">🌐</span>
+        <div>
+          <p className="font-semibold text-emerald-900">
+            Teknologi Pemetaan Mustahik — <span className="bg-emerald-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-md ml-1">Rumus Haversine</span>
+          </p>
+          <p className="text-emerald-700 text-xs mt-1 leading-relaxed">
+            Peta ini menggunakan <strong>Rumus Haversine</strong> — rumus geometri bola yang menghitung jarak akurat dari Masjid ke rumah mustahik (Ring 1-4). 
+            Dikembangkan oleh para ilmuwan dan banyak digunakan dalam penelitian pemetaan sosial serta distribusi bantuan di Indonesia.
           </p>
         </div>
       </div>
@@ -146,7 +160,7 @@ export default function GisPage() {
               <option value="1">Ring 1 (&lt;= 70m)</option>
               <option value="2">Ring 2 (&lt;= 140m)</option>
               <option value="3">Ring 3 (&lt;= 300m)</option>
-              <option value="4">Ring 4 (&gt; 300m)</option>
+              <option value="4">Ring 4 (≤ 700m)</option>
             </select>
           </div>
 

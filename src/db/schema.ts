@@ -974,3 +974,17 @@ export const rate_limits = pgTable("rate_limits", {
   index("rate_limits_identifier_idx").on(t.identifier),
   index("rate_limits_created_at_idx").on(t.created_at),
 ]);
+
+/* ============================== DKM MEMBERS ============================== */
+
+export const dkm_members = pgTable("dkm_members", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  user_id: uuid("user_id").notNull(),
+  mosque_id: uuid("mosque_id").notNull(),
+  role: text("role").notNull(),
+  full_name: text("full_name").notNull(),
+  phone: text("phone"),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index("dkm_members_user_mosque_idx").on(t.user_id, t.mosque_id),
+]);

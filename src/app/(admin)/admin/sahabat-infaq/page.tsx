@@ -5,6 +5,7 @@ import { getLoanApplications, reviewLoanApplication, deleteLoanApplication } fro
 import { evaluateNPF } from "@/lib/actions/npf-engine";
 import { Search, X, CheckCircle2, XCircle, Clock, Trash2, Eye, ShieldAlert } from "lucide-react";
 import { useAppContext } from "@/stores/app-context";
+import { STATUS_LABEL } from "@/lib/labels";
 
 type App = Awaited<ReturnType<typeof getLoanApplications>>[number];
 
@@ -128,7 +129,7 @@ export default function AdminSahabatInfaqPage() {
               <hr className="border-outline" />
               <div><span className="font-medium text-muted">Status</span>
                 <span className={`inline-flex items-center gap-1 ml-2 px-2 py-0.5 text-xs rounded-full border ${statusIcon[detail.status ?? ""]?.color ?? ""}`}>
-                  {statusIcon[detail.status ?? ""]?.icon} {detail.status}
+                  {statusIcon[detail.status ?? ""]?.icon} {STATUS_LABEL[detail.status ?? ""] ?? detail.status}
                 </span>
               </div>
               {detail.notes && <div><span className="font-medium text-muted">Catatan</span><p className="text-ink">{detail.notes}</p></div>}
@@ -163,7 +164,7 @@ export default function AdminSahabatInfaqPage() {
                   <td className="p-3 text-right font-mono">Rp {a.amount.toLocaleString("id-ID")}</td>
                   <td className="p-3 text-center">
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full border ${statusIcon[a.status ?? ""]?.color ?? ""}`}>
-                      {statusIcon[a.status ?? ""]?.icon} {a.status}
+                      {statusIcon[a.status ?? ""]?.icon} {STATUS_LABEL[a.status ?? ""] ?? a.status}
                     </span>
                   </td>
                   <td className="p-3 text-muted">{a.created_at ? new Date(a.created_at).toLocaleDateString("id-ID") : "—"}</td>

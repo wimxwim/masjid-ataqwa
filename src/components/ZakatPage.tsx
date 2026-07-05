@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Donation } from "@/types";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle, AlertCircle, ShieldCheck, Heart,
   Coins, Wallet, Landmark, ArrowRight, CreditCard, Info
@@ -9,29 +9,17 @@ import {
 import { useAppContext } from "@/stores/app-context";
 import { useDefaultMosque } from "@/lib/queries/public";
 import { createDonation } from "@/lib/actions/donations";
-import type { LedgerEntry } from "@/types";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { formatNominal } from "@/lib/format";
+import { loadSnapScript, snapPay } from "@/lib/midtrans";
 
 interface ZakatPageProps {
   initialSelectedType?: string;
 }
 
 export default function ZakatPage({ initialSelectedType }: ZakatPageProps) {
-  const { appToast, triggerToast } = useAppContext();
-  const [ledgerEntries, setLedgerEntries] = useState<LedgerEntry[]>([]);
-
-  const handlePaymentSuccess = (transaction: Donation) => {
-    setLedgerEntries((prev) => [{
-      id: "don-ledger-" + transaction.id,
-      tanggal: transaction.tanggal.split(" ")[0] || "",
-      keterangan: `Penerimaan ${transaction.program} - An. ${transaction.donatur}`,
-      tipe: "Pemasukan",
-      kategori: transaction.program.includes("Zakat") ? "Zakat Maal" : "Infaq Umum",
-      jumlah: transaction.jumlah,
-    }, ...prev]);
-    triggerToast("Donasi Diterima!", `Terima kasih atas infaq/zakat sebesar Rp ${transaction.jumlah.toLocaleString("id-ID")}.`);
-  };
+  const router = useRouter();
+  const { triggerToast } = useAppContext();
   const [activeTab, setActiveTab] = useState<"mal" | "profesi" | "infaq">("mal");
 
   useEffect(() => {
@@ -141,43 +129,56 @@ export default function ZakatPage({ initialSelectedType }: ZakatPageProps) {
 
     if (mosqueId && paymentAmount > 0) {
       try {
-        await createDonation({
+        const row = await createDonation({
           mosque_id: mosqueId,
           donor_name: contributorName === "Hamba Allah" ? null : contributorName,
           amount: paymentAmount,
           akad_type: akadMap[paymentProgramName] ?? "infaq",
           program_name: paymentProgramName,
           payment_method: paymentMethod === "bsi" ? "transfer" : "qris",
-          payment_status: "paid", // Wait, in the code it was set to paid. I'll leave it as paid but the backend overrides it to pending for public.
+          payment_status: "pending",
           cf_turnstile_response: turnstileToken,
         });
+
+        const tokenRes = await fetch("/api/midtrans/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            order_id: `donation-${row.id}`,
+            gross_amount: paymentAmount,
+            donor_name: contributorName === "Hamba Allah" ? null : contributorName,
+            akad_type: akadMap[paymentProgramName] ?? "infaq",
+          }),
+        });
+
+        if (!tokenRes.ok) {
+          throw new Error("Gagal mendapatkan token pembayaran");
+        }
+
+        const { token } = await tokenRes.json();
+
+        await loadSnapScript();
+
+        snapPay(token, {
+          onSuccess: () => {
+            router.push(`/payment/success?order_id=${row.id}`);
+          },
+          onPending: () => {
+            router.push(`/payment/pending?order_id=${row.id}`);
+          },
+          onError: () => {
+            triggerToast("Pembayaran Gagal", "Transaksi dibatalkan. Silakan coba lagi.");
+            setPaymentStep("summary");
+          },
+          onClose: () => {
+            setPaymentStep("summary");
+          },
+        });
       } catch (e: any) {
-        triggerToast("Gagal", e.message || "Gagal mencatat donasi");
+        triggerToast("Gagal", e.message || "Gagal memproses donasi");
         setPaymentStep("summary");
-        return;
       }
     }
-
-    setTimeout(() => {
-      const now = new Date();
-      const dateStr = now.getFullYear() + "-" +
-        String(now.getMonth() + 1).padStart(2, '0') + "-" +
-        String(now.getDate()).padStart(2, '0') + " " +
-        String(now.getHours()).padStart(2, '0') + ":" +
-        String(now.getMinutes()).padStart(2, '0');
-
-      const transaction: Donation = {
-        id: "don-" + Math.floor(Math.random() * 100000),
-        tanggal: dateStr,
-        donatur: contributorName,
-        program: paymentProgramName,
-        jumlah: paymentAmount,
-        status: "Berhasil"
-      };
-
-      handlePaymentSuccess(transaction);
-      setPaymentStep("success");
-    }, 2000);
   };
 
   return (

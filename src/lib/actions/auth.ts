@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { rateLimit } from "@/lib/rate-limit";
+
+const LOGIN_RATE_LIMIT = { windowMs: 15 * 60_000, max: 5 }; // 5 attempts per 15 min
 
 export async function login(formData: FormData) {
   const supabase = await createServerSupabase();
@@ -12,6 +15,12 @@ export async function login(formData: FormData) {
 
   if (!email || !password) {
     return { error: "Email dan password wajib diisi." };
+  }
+
+  /* Rate limit per email (blok brute force) */
+  const { success } = await rateLimit(`login:${email.toLowerCase()}`, LOGIN_RATE_LIMIT);
+  if (!success) {
+    return { error: "Terlalu banyak percobaan login. Coba lagi dalam 15 menit." };
   }
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });

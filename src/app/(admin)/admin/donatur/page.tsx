@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getDonaturTetap, createDonaturTetap, updateDonaturTetap, deleteDonaturTetap } from "@/lib/actions/donatur-tetap";
-import { Search, Plus, X, Pencil, Trash2, HandCoins, Navigation, Loader2 } from "lucide-react";
+import { Search, Plus, X, Pencil, Trash2, HandCoins, Navigation, Loader2, HeartHandshake, UserCheck, Wallet } from "lucide-react";
 import { formatNominal } from "@/lib/format";
+import { StatCard } from "@/components/LargeUI";
+import SmartEmptyState from "@/components/SmartEmptyState";
 
 type Donatur = Awaited<ReturnType<typeof getDonaturTetap>>[number];
 
@@ -81,6 +83,13 @@ export default function AdminDonaturPage() {
 
   return (
     <div className="space-y-6">
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <StatCard icon={HeartHandshake} label="Total Donatur" value={data.length.toString()} />
+        <StatCard icon={UserCheck} label="Donatur Aktif" value={data.filter(d => d.status === "Aktif").length.toString()} sublabel="Berdonasi rutin" />
+        <StatCard icon={Wallet} label="Total Komitmen" value={`Rp ${data.reduce((sum, d) => sum + (d.komitmen_bulanan ?? 0), 0).toLocaleString("id-ID")}/bulan`} />
+      </div>
+
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-display font-bold text-xl text-ink">Muzaki & Donatur Tetap</h2>
@@ -175,10 +184,16 @@ export default function AdminDonaturPage() {
       <div className="bg-surface rounded-2xl border border-outline overflow-hidden">
         {loading ? (
           <p className="p-6 text-sm text-muted">Memuat...</p>
+        ) : filtered.length === 0 && data.length === 0 ? (
+          <SmartEmptyState
+            icon={HeartHandshake}
+            title="Belum Ada Donatur"
+            description="Donatur tetap adalah penyumbang rutin yang berkomitmen mendukung operasional dan program masjid. Tambahkan data donatur pertama untuk mulai pencatatan."
+            actionLabel="Tambah Donatur"
+            onAction={() => { setEditing(null); setShowForm(true); setError(""); }}
+          />
         ) : filtered.length === 0 ? (
-          <p className="p-6 text-sm text-muted">
-            {data.length === 0 ? "Belum ada donatur terdaftar. Klik 'Tambah Donatur' untuk memulai." : "Tidak ada hasil pencarian."}
-          </p>
+          <p className="p-6 text-sm text-muted">Tidak ada hasil pencarian.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

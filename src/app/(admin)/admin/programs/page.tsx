@@ -3,7 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { getPrograms, createProgram, updateProgram, deleteProgram } from "@/lib/actions/programs";
 import type { InsertProgram } from "@/lib/actions/programs";
-import { Search, Plus, X, Pencil, Trash2 } from "lucide-react";
+import { Search, Plus, X, Pencil, Trash2, Megaphone, FolderOpen, CheckCircle2, Star } from "lucide-react";
+import SmartEmptyState from "@/components/SmartEmptyState";
+import { StatCard } from "@/components/LargeUI";
 
 export default function AdminProgramsPage() {
   const [data, setData] = useState<Awaited<ReturnType<typeof getPrograms>>>([]);
@@ -74,7 +76,14 @@ export default function AdminProgramsPage() {
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setShowForm(false)}>
           <div className="bg-surface rounded-2xl border border-outline shadow-xl max-w-lg w-full p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between">
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <StatCard icon={FolderOpen} label="Total Program" value={data.length.toString()} />
+        <StatCard icon={CheckCircle2} label="Aktif" value={data.filter(p => p.is_active).length.toString()} sublabel="Sedang berjalan" />
+        <StatCard icon={Star} label="Unggulan" value={data.filter(p => p.is_featured).length.toString()} />
+      </div>
+
+      <div className="flex items-center justify-between">
               <h3 className="font-display font-bold text-lg text-ink">{editing ? "Edit Program" : "Tambah Program Baru"}</h3>
               <button onClick={() => setShowForm(false)} className="p-1 hover:bg-bg rounded-lg"><X className="w-5 h-5 text-muted" /></button>
             </div>
@@ -116,8 +125,16 @@ export default function AdminProgramsPage() {
       <div className="bg-surface rounded-2xl border border-outline overflow-hidden">
         {loading ? (
           <p className="p-6 text-sm text-muted">Memuat...</p>
+        ) : filtered.length === 0 && data.length === 0 ? (
+          <SmartEmptyState
+            icon={Megaphone}
+            title="Belum Ada Program"
+            description="Program kegiatan masjid mencakup dakwah, sosial, pendidikan, ekonomi, dan kepemudaan. Tambahkan program pertama untuk mulai pencatatan."
+            actionLabel="Tambah Program"
+            onAction={() => { setEditing(null); setShowForm(true); setError(""); }}
+          />
         ) : filtered.length === 0 ? (
-          <p className="p-6 text-sm text-muted">Belum ada program.</p>
+          <p className="p-6 text-sm text-muted">Tidak ada hasil pencarian.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

@@ -42,7 +42,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li><Link href="/bank-infaq" className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline">Bank Infaq Qardhul Hasan</Link></li>
               <li><Link href="/bumm" className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline">BUMM (Kopi & Bakery)</Link></li>
-              <li><Link href="/donasi" className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline">Zakat Maal & Profesi</Link></li>
+              <li><Link href="/donasi" className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline">Donasi</Link></li>
               <li><Link href="/" className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline">Wakaf Domba Produktif</Link></li>
               <li><Link href="/" className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline">Beasiswa Pendidikan Anak Asuh</Link></li>
             </ul>

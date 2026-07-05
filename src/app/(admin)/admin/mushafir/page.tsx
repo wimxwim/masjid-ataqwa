@@ -7,6 +7,7 @@ import KtpScanner from "@/components/KtpScanner";
 import type { KtpData } from "@/components/KtpScanner";
 import { Search, Plus, X, Pencil, Trash2, ScanLine, Navigation } from "lucide-react";
 import { formatNominal } from "@/lib/format";
+import DeleteConfirmDialog from "@/components/DeleteConfirmDialog";
 
 export default function AdminMushafirPage() {
   const [data, setData] = useState<Awaited<ReturnType<typeof getMushafirAid>>>([]);
@@ -15,6 +16,7 @@ export default function AdminMushafirPage() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<(typeof data)[number] | null>(null);
   const [error, setError] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   const nameRef = useRef<HTMLInputElement>(null);
   const nikRef = useRef<HTMLInputElement>(null);
@@ -221,7 +223,7 @@ export default function AdminMushafirPage() {
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => { setEditing(m); setShowForm(true); setError(""); }}
                         className="p-2 hover:bg-bg rounded-lg text-muted hover:text-primary transition-colors"><Pencil className="w-4 h-4" /></button>
-                      <button onClick={async () => { if (confirm("Hapus data bantuan ini?")) { await deleteMushafir(m.id); load(); } }}
+                      <button onClick={() => setDeleteTarget({ id: m.id, name: m.name })}
                         className="p-2 hover:bg-bg rounded-lg text-muted hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </td>
@@ -231,6 +233,18 @@ export default function AdminMushafirPage() {
           </div>
         )}
       </div>
+
+      <DeleteConfirmDialog
+        open={deleteTarget !== null}
+        onOpenChange={() => setDeleteTarget(null)}
+        onConfirm={async () => {
+          if (!deleteTarget) return;
+          await deleteMushafir(deleteTarget.id);
+          setDeleteTarget(null);
+          load();
+        }}
+        itemName={deleteTarget?.name}
+      />
     </div>
   );
 }

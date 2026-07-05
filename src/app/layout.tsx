@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Outfit, JetBrains_Mono } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
@@ -44,14 +45,22 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const nonce = await headers().then(h => h.get("x-nonce") ?? "");
+
   return (
-    <html
-      lang="id"
-      className={`${outfit.variable} ${jetbrainsMono.variable} h-full antialiased`}
-    >
+      <html
+        lang="id"
+        className={`${outfit.variable} ${jetbrainsMono.variable} h-full antialiased`}
+        suppressHydrationWarning
+      >
+        <head>
+          {nonce && <script nonce={nonce} dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`
+          }} />}
+        </head>
       <body className="min-h-full bg-bg text-ink font-sans flex flex-col">
         <AppProvider>
           <QueryProvider>

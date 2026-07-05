@@ -141,6 +141,21 @@ async function handlePaymentNotification(notification: Record<string, unknown>) 
       },
     });
   });
+
+  /* Send WA notification (non-blocking, fire-and-forget) */
+  if (paymentStatus === "paid" && donation.donor_phone) {
+    try {
+      const { notifyDonasi } = await import("@/lib/actions/notifikasi");
+      notifyDonasi(
+        donation.donor_name ?? "Donatur",
+        donation.donor_phone,
+        grossAmount,
+        donation.program_name ?? donation.akad_type,
+      ).catch(() => {}); // silently swallow errors
+    } catch {
+      // import might fail in edge, swallow
+    }
+  }
 }
 
 /* ─── POST: webhook dari Midtrans ─── */
@@ -154,13 +169,17 @@ export async function POST(request: Request) {
 
   /* verifikasi IP origin — hanya terima dari Midtrans */
   const clientIp =
-    request.headers.get("cf-connecting-ip") ??
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    request.headers.get("cf-connecting-ip") ??  
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??  
     "unknown";
-  if (!ipInRanges(clientIp, MIDTRANS_IP_RANGES)) {
-    log.warn("Webhook dari IP tidak dikenal (diabaikan blokirnya, lanjut cek signature)", { ip: clientIp });
-    /* PERBAIKAN: Kami TIDAK memblokir IP (return 403) karena Midtrans sering mengubah range IP. 
-       Validasi signature HMAC di bawah ini sudah cukup kuat secara matematis. */
+
+  /* Production: blok IP luar Midtrans.
+     Sandbox mode (MIDTRANS_IS_PRODUCTION=false): skip blokir supaya testing lokal bisa jalan.
+     Signature HMAC tetap jalan sebagai safety net. */
+  const isProduction = process.env.MIDTRANS_IS_PRODUCTION !== "false";
+  if (isProduction && !ipInRanges(clientIp, MIDTRANS_IP_RANGES)) {
+    log.warn("Webhook ditolak — IP tidak dikenal", { ip: clientIp });
+    return new Response("Forbidden", { status: 403 });
   }
 
   const body = await request.json();

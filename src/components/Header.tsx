@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAppContext } from "@/stores/app-context";
 import { logout } from "@/lib/actions/auth";
+import ThemeToggle from "@/components/ThemeToggle";
 import {
   Menu, X, ShoppingCart, User, LogOut, ShieldAlert, Heart, Landmark,
 } from "lucide-react";
@@ -19,7 +20,7 @@ export default function Header() {
   const navItems = [
     { href: "/", label: "Beranda" },
     { href: "/bumm", label: "BUMM (Ekonomi)" },
-    { href: "/donasi", label: "Kalkulator Zakat" },
+    { href: "/donasi", label: "Donasi" },
     { href: "/laporan", label: "Laporan Transparansi" },
     { href: "/bank-infaq", label: "Bank Infaq" },
   ];
@@ -30,7 +31,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-outline shadow-xs">
+    <header className="sticky top-0 z-50 bg-surface/95 backdrop-blur-md border-b border-outline shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
 
@@ -66,7 +67,8 @@ export default function Header() {
             })}
           </nav>
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-1">
+            <ThemeToggle />
             {isLoggedIn ? (
               <div className="flex items-center gap-2 bg-bg p-1.5 rounded-lg border border-outline">
                 <Link
@@ -150,7 +152,7 @@ export default function Header() {
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden border-t border-outline bg-white px-4 py-4 space-y-2" id="mobile-menu-drawer">
+        <div className="md:hidden border-t border-outline bg-surface px-4 py-4 space-y-2" id="mobile-menu-drawer">
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (
@@ -169,7 +171,12 @@ export default function Header() {
             );
           })}
 
-          <div className="pt-4 border-t border-outline space-y-3">
+          <div className="pt-2 border-t border-outline flex items-center justify-between px-4 py-2">
+            <span className="text-xs font-medium text-muted">Tampilan</span>
+            <ThemeToggle />
+          </div>
+
+          <div className="border-t border-outline space-y-3 pt-4">
             {isLoggedIn ? (
               <>
                 <Link

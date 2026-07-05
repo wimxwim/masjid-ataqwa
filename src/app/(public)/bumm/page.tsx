@@ -1,7 +1,5 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import BummPage from "@/components/BummPage";
-
-export default function BummRoute() {
-  return <BummPage />;
+export default function BummRedirect() {
+  redirect("/");
 }

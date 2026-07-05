@@ -3,8 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { getMuzzakiList, createMuzzaki, updateMuzzaki, deleteMuzzaki, type InsertMuzzaki } from "@/lib/actions/muzzaki";
 import { createZakatPayment } from "@/lib/actions/zakat-payments";
-import { Search, Plus, X, Pencil, Trash2, HandCoins, CheckCircle2 } from "lucide-react";
+import { Search, Plus, X, Pencil, Trash2, HandCoins, CheckCircle2, Users, UserCheck, TrendingUp } from "lucide-react";
 import { formatNominal } from "@/lib/format";
+import { MUZZAKI_TYPE_LABEL, ZAKAT_TYPE_LABEL, label } from "@/lib/labels";
+import { StatCard } from "@/components/LargeUI";
+import SmartEmptyState from "@/components/SmartEmptyState";
 
 type Muzzaki = Awaited<ReturnType<typeof getMuzzakiList>>[number];
 
@@ -105,6 +108,13 @@ export default function AdminMuzzakiPage() {
 
   return (
     <div className="space-y-6">
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <StatCard icon={Users} label="Total Muzzaki" value={data.length.toString()} />
+        <StatCard icon={UserCheck} label="Muzzaki Reguler" value={data.filter(m => m.is_regular).length.toString()} sublabel="Berzakat rutin" />
+        <StatCard icon={TrendingUp} label="Total Aset" value={`Rp ${data.reduce((sum, m) => sum + (m.last_asset_value ?? 0), 0).toLocaleString("id-ID")}`} />
+      </div>
+
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-display font-bold text-xl text-ink">Muzzaki (Wajib Zakat)</h2>
@@ -147,7 +157,7 @@ export default function AdminMuzzakiPage() {
                   <label className="text-xs font-medium text-ink block mb-1">Tipe</label>
                   <select value={formMuzzakiType} onChange={(e) => setFormMuzzakiType(e.target.value)}
                     className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm">
-                    {MUZZAKI_TYPE.map((t) => <option key={t} value={t}>{t}</option>)}
+                    {MUZZAKI_TYPE.map((t) => <option key={t} value={t}>{MUZZAKI_TYPE_LABEL[t] ?? t}</option>)}
                   </select>
                 </div>
               </div>
@@ -202,7 +212,7 @@ export default function AdminMuzzakiPage() {
                 <label className="text-xs font-medium text-ink block mb-1">Jenis Zakat</label>
                 <select value={zakatType} onChange={(e) => setZakatType(e.target.value)}
                   className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm">
-                  {ZAKAT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                  {ZAKAT_TYPES.map((t) => <option key={t} value={t}>{ZAKAT_TYPE_LABEL[t] ?? t}</option>)}
                 </select>
               </div>
               <div>
@@ -227,10 +237,16 @@ export default function AdminMuzzakiPage() {
       <div className="bg-surface rounded-2xl border border-outline overflow-hidden">
         {loading ? (
           <p className="p-6 text-sm text-muted">Memuat...</p>
+        ) : filtered.length === 0 && data.length === 0 ? (
+          <SmartEmptyState
+            icon={Users}
+            title="Belum Ada Muzzaki"
+            description="Muzzaki adalah wajib zakat yang terdaftar di masjid. Tambahkan data muzzaki pertama untuk mulai pendataan dan pencatatan zakat."
+            actionLabel="Tambah Muzzaki"
+            onAction={() => { setEditing(null); resetForm(); setShowForm(true); setError(""); }}
+          />
         ) : filtered.length === 0 ? (
-          <p className="p-6 text-sm text-muted">
-            {data.length === 0 ? "Belum ada muzzaki terdaftar. Klik 'Tambah Muzzaki' untuk memulai." : "Tidak ada hasil pencarian."}
-          </p>
+          <p className="p-6 text-sm text-muted">Tidak ada hasil pencarian.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -247,7 +263,7 @@ export default function AdminMuzzakiPage() {
                 <tr key={m.id} className="border-b border-outline hover:bg-bg/30 transition-colors">
                   <td className="p-3"><div className="font-medium text-ink">{m.name}</div></td>
                   <td className="p-3">
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{m.muzzaki_type}</span>
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{label(m.muzzaki_type, MUZZAKI_TYPE_LABEL)}</span>
                   </td>
                   <td className="p-3 text-muted font-mono text-xs">{m.phone || "—"}</td>
                   <td className="p-3 text-right font-mono text-sm">Rp {(m.last_asset_value ?? 0).toLocaleString("id-ID")}</td>

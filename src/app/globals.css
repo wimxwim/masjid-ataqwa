@@ -72,6 +72,16 @@ body {
   animation: fade-in 0.3s ease-out;
 }
 
+.dark {
+  color-scheme: dark;
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-ink: #f1f5f9;
+  --color-muted: #94a3b8;
+  --color-outline: #334155;
+  --color-success-subtle: #022c22;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

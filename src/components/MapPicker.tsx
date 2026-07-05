@@ -119,18 +119,24 @@ export default function MapPicker({ defaultLat, defaultLng, externalOverride, on
           />
         </MapContainer>
       </div>
-      <div className="mt-2 p-2.5 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-between text-xs">
-        <div>
-          <span className="font-semibold text-emerald-800 flex items-center gap-1">📏 Kalkulasi Jarak Real-time <span className="bg-emerald-200 text-emerald-900 text-[8px] px-1.5 py-0.5 rounded-sm">Haversine Formula</span></span>
-          <p className="text-emerald-700 mt-0.5">Jarak atap rumah ke pusat Masjid: <strong className="font-mono text-emerald-900">{distance} meter</strong></p>
-        </div>
-        <div className="text-right">
-          <span className="bg-emerald-200 text-emerald-800 font-bold px-2 py-1 rounded-md text-[10px] uppercase">
-            Rekomendasi: {ringSuggestion}
+      <div className="mt-2 p-3 rounded-lg bg-emerald-50 border border-emerald-200 space-y-1.5">
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-emerald-800 flex items-center gap-1.5 text-sm">
+            📏 Jarak dari Masjid
+            <span className="bg-emerald-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-md tracking-wide" title="Rumus Haversine — kalkulasi jarak geospasial antara dua titik koordinat di permukaan bumi">Haversine Formula</span>
+          </span>
+          <span className="bg-emerald-200 text-emerald-800 font-bold px-2.5 py-1 rounded-md text-xs uppercase tracking-wide">
+            {ringSuggestion}
           </span>
         </div>
+        <p className="text-emerald-700 text-xs">
+          Jarak atap rumah ke pusat Masjid: <strong className="font-mono text-emerald-900 text-sm">{distance} meter</strong>
+        </p>
+        <p className="text-[11px] text-emerald-600/80 italic leading-relaxed">
+          Teknologi <strong>Rumus Haversine</strong> — kalkulasi jarak geospasial yang menghitung jarak akurat antar titik koordinat di permukaan bumi. Banyak digunakan dalam penelitian pemetaan sosial dan distribusi bantuan di Indonesia.
+        </p>
       </div>
-      <div className="text-[10px] text-muted mt-1.5 flex justify-between px-1">
+      <div className="text-[11px] text-muted mt-1.5 flex justify-between px-1">
         <span>📍 Geser pin merah ke lokasi persis rumah mustahik</span>
         <span className="font-mono">{position[0].toFixed(5)}, {position[1].toFixed(5)}</span>
       </div>

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { getZiswafRequests, createZiswafRequest, reviewZiswafRequest, type InsertZiswafRequest } from "@/lib/actions/ziswaf-requests";
 import { Search, Plus, X, HandHelping, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { formatNominal } from "@/lib/format";
+import { STATUS_LABEL, ZISWAF_TYPE_LABEL } from "@/lib/labels";
 
 type ZiswafRequest = Awaited<ReturnType<typeof getZiswafRequests>>[number];
 
@@ -76,7 +77,7 @@ export default function AdminZiswafPage() {
       rejected: "bg-red-100 text-red-700",
       disbursed: "bg-blue-100 text-blue-700",
     };
-    return <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${map[s] ?? "bg-slate-100 text-slate-600"}`}>{s}</span>;
+    return <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${map[s] ?? "bg-slate-100 text-slate-600"}`}>{STATUS_LABEL[s] ?? s}</span>;
   };
 
   return (
@@ -123,7 +124,7 @@ export default function AdminZiswafPage() {
                   <label className="text-xs font-medium text-ink block mb-1">Jenis Bantuan</label>
                   <select value={formType} onChange={(e) => setFormType(e.target.value)}
                     className="w-full px-3 py-2.5 bg-bg border border-outline rounded-xl text-sm">
-                    {REQUEST_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                    {REQUEST_TYPES.map((t) => <option key={t} value={t}>{ZISWAF_TYPE_LABEL[t] ?? t}</option>)}
                   </select>
                 </div>
               </div>
@@ -171,7 +172,7 @@ export default function AdminZiswafPage() {
                     {r.requestor_phone && <div className="text-xs text-muted font-mono">{r.requestor_phone}</div>}
                   </td>
                   <td className="p-3">
-                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{r.type}</span>
+                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{ZISWAF_TYPE_LABEL[r.type] ?? r.type}</span>
                   </td>
                   <td className="p-3 text-right font-mono text-sm">
                     {r.amount ? `Rp ${r.amount.toLocaleString("id-ID")}` : "—"}

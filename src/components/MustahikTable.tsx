@@ -6,9 +6,11 @@ import { formatNominal } from "@/lib/format";
 import { getAsnafList } from "@/lib/actions/asnaf";
 import type { InsertAsnaf } from "@/lib/actions/asnaf";
 import { MustahikDb } from "@/types";
-import { Search, Plus, X, Pencil, Trash2, MapPin, Navigation, ScanLine } from "lucide-react";
+import { Search, Plus, X, Pencil, Trash2, MapPin, Navigation, ScanLine, UsersRound } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { StatCard } from "@/components/LargeUI";
+import SmartEmptyState from "@/components/SmartEmptyState";
 
 const MapPicker = dynamic(() => import("./MapPicker"), { 
   ssr: false, 
@@ -61,7 +63,7 @@ export default function MustahikTable() {
 
   const ringLabel = (r: number | null) => {
     if (!r) return "-";
-    const labels = ["", "Ring 1", "Ring 2", "Ring 3", "Ring 4"];
+    const labels = ["", "Ring 1 (≤70m)", "Ring 2 (≤140m)", "Ring 3 (≤300m)", "Ring 4 (≤700m)"];
     return labels[r] || `Ring ${r}`;
   };
 
@@ -89,6 +91,13 @@ export default function MustahikTable() {
 
   return (
     <div className="space-y-6">
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <StatCard icon={UsersRound} label="Total Mustahik" value={String(data.length)} />
+        <StatCard icon={UsersRound} label="Ring 1" value={String(data.filter(m => m.ring_number === 1).length)} sublabel="≤70m" />
+        <StatCard icon={UsersRound} label="Ring 2-4" value={String(data.filter(m => Number(m.ring_number) >= 2).length)} sublabel="≥140m" />
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -138,10 +147,18 @@ export default function MustahikTable() {
       <div className="bg-surface border border-outline rounded-2xl overflow-hidden">
         {loading ? (
           <div className="p-12 text-center text-muted text-sm">Memuat data...</div>
+        ) : filtered.length === 0 && data.length === 0 ? (
+          <SmartEmptyState
+            icon={UsersRound}
+            title="Belum Ada Data Mustahik"
+            description="Mustahik adalah penerima zakat, infaq, dan sedekah. Tambahkan data mustahik pertama untuk mulai pendataan."
+            actionLabel="Tambah Mustahik"
+            onAction={() => { setEditing(null); setShowForm(true); setError(""); }}
+            secondaryLabel="Lihat Peta Sebaran"
+            secondaryHref="/admin/gis"
+          />
         ) : filtered.length === 0 ? (
-          <div className="p-12 text-center text-muted text-sm">
-            {data.length === 0 ? "Belum ada data mustahik. Klik 'Tambah Mustahik' untuk memulai." : "Tidak ada hasil pencarian."}
-          </div>
+          <div className="p-12 text-center text-muted text-sm">Tidak ada hasil pencarian.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
