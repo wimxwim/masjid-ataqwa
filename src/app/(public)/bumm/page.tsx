@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import BummPage from "@/components/BummPage";
 
-export default function BummRedirect() {
-  redirect("/");
+export default function BummPublicPage() {
+  return <BummPage />;
 }
