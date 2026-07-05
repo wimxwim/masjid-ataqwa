@@ -48,15 +48,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/admin/:path*",
-    "/auth/:path*",
-    "/api/:path*",
-    "/",
-    "/donasi/:path*",
-    "/laporan/:path*",
-    "/bank-infaq/:path*",
-    "/payment/:path*",
-    "/kebijakan-privasi",
-    "/syarat-ketentuan",
+    "/((?!_next/static|_next/image|favicon.ico|manifest\\.json|robots\\.txt|sitemap\\.xml).*)",
   ],
 };

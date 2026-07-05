@@ -6,6 +6,7 @@ import "./globals.css";
 import { AppProvider } from "@/stores/app-context";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import GlobalOverlays from "@/components/GlobalOverlays";
+import { buildMetadata, buildJsonLd, MOSQUE_JSON_LD, APP_NAME } from "@/lib/seo";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -19,23 +20,12 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const APP_NAME = "Masjid At-Taqwa Ulujami";
-const APP_DESCRIPTION =
-  "Dari masjid kita tuntaskan kemiskinan. Program pemberdayaan mustahik: Kampung Quran, Bank Infaq, Wakaf Domba, dan Beasiswa Anak Asuh.";
-
 export const metadata: Metadata = {
-  title: { default: APP_NAME, template: `%s | ${APP_NAME}` },
-  description: APP_DESCRIPTION,
+  ...buildMetadata({}),
   applicationName: APP_NAME,
   manifest: "/manifest.json",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: APP_NAME },
   formatDetection: { telephone: false },
-  openGraph: {
-    type: "website",
-    siteName: APP_NAME,
-    title: APP_NAME,
-    description: APP_DESCRIPTION,
-  },
 };
 
 export const viewport: Viewport = {
@@ -57,6 +47,10 @@ export default async function RootLayout({
         suppressHydrationWarning
       >
         <head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: buildJsonLd(MOSQUE_JSON_LD) }}
+          />
           {nonce && <script nonce={nonce} dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`
           }} />}

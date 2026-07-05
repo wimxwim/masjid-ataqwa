@@ -1,7 +1,10 @@
-export const metadata = {
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata = buildMetadata({
   title: "Syarat & Ketentuan",
   description: "Syarat dan ketentuan penggunaan platform digital Masjid Jami' At-Taqwa Ulujami",
-};
+  path: "/syarat-ketentuan",
+});
 
 export default function TermsPage() {
   return (

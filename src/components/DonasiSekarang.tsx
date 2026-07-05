@@ -236,6 +236,13 @@ export default function DonasiSekarang() {
         <button
           onClick={handleBayar}
           disabled={finalAmount < 5000 || !turnstileToken || submitState === "loading"}
+          title={
+            finalAmount < 5000
+              ? "Minimal donasi Rp 5.000"
+              : !turnstileToken
+                ? "Tunggu verifikasi captcha selesai"
+                : undefined
+          }
           className="w-full bg-primary hover:bg-primary-deep disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl text-base shadow-lg shadow-primary/10 transition-all flex items-center justify-center gap-2"
         >
           {submitState === "loading" ? (
@@ -245,6 +252,12 @@ export default function DonasiSekarang() {
           )}
           {submitState === "loading" ? "Memproses..." : `Donasi Sekarang — Rp ${finalAmount.toLocaleString("id-ID")}`}
         </button>
+        {finalAmount > 0 && finalAmount < 5000 && (
+          <p className="text-xs text-red-500 font-semibold mt-2">Minimal donasi Rp 5.000</p>
+        )}
+        {finalAmount >= 5000 && !turnstileToken && (
+          <p className="text-xs text-amber-600 font-semibold mt-2">Menunggu verifikasi captcha...</p>
+        )}
       </div>
 
     </div>

@@ -17,19 +17,16 @@ import { ZakatCalculator } from "@/components/landing/ZakatCalculator";
 import LiveActivityFeed from "@/components/LiveActivityFeed";
 import PrayerTimes from "@/components/PrayerTimes";
 import type { HeroStats } from "@/types";
+import { buildMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const mosque = await getDefaultMosque();
-  return {
-    title: mosque?.name ?? "Masjid At-Taqwa Ulujami",
-    description:
-      "Dari masjid kita tuntaskan kemiskinan. Kalkulator zakat, infaq & sedekah online untuk program pemberdayaan mustahik Masjid Jami' At-Taqwa Ulujami.",
-    openGraph: {
-      title: mosque?.name ?? "Masjid At-Taqwa Ulujami",
-      description:
-        "Dari masjid kita tuntaskan kemiskinan. Kalkulator zakat, infaq & sedekah online untuk program pemberdayaan mustahik Masjid Jami' At-Taqwa Ulujami.",
-    },
-  };
+  const title = mosque?.name ?? "Masjid At-Taqwa Ulujami";
+  return buildMetadata({
+    title,
+    description: "Dari masjid kita tuntaskan kemiskinan. Kalkulator zakat, infaq & sedekah online untuk program pemberdayaan mustahik Masjid Jami' At-Taqwa Ulujami.",
+    path: "/",
+  });
 }
 
 export default async function HomePage() {

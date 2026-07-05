@@ -1,7 +1,10 @@
-export const metadata = {
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata = buildMetadata({
   title: "Kebijakan Privasi",
   description: "Kebijakan privasi dan perlindungan data pribadi Masjid Jami' At-Taqwa Ulujami",
-};
+  path: "/kebijakan-privasi",
+});
 
 export default function PrivacyPage() {
   return (

@@ -9,6 +9,13 @@ import {
   getDashboardStats,
 } from "@/lib/actions/public";
 import TransparansiClient from "@/components/TransparansiClient";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata = buildMetadata({
+  title: "Laporan Transparansi",
+  description: "Laporan keuangan transparan Masjid Jami' At-Taqwa Ulujami — pemasukan, penyaluran, dan distribusi dana secara real-time.",
+  path: "/laporan",
+});
 
 export default async function LaporanPage() {
   const mosque = await getDefaultMosque();
