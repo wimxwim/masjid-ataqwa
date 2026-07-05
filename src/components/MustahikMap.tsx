@@ -32,17 +32,17 @@ export default function MustahikMap({ filtered, MOSQUE_CENTER, desilColor, desil
     const color = desilColor[desil || ""] || "#6b7280";
     return L.divIcon({
       className: "",
-      html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`,
-      iconSize: [14, 14],
-      iconAnchor: [7, 7],
+      html: `<div style="width:22px;height:22px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.5)"></div>`,
+      iconSize: [22, 22],
+      iconAnchor: [11, 11],
     });
   };
 
   const mosqueIcon = L.divIcon({
     className: "",
-    html: `<div style="width:24px;height:24px;border-radius:50%;background:#10b981;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:12px">🕌</div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
+    html: `<div style="width:36px;height:36px;border-radius:50%;background:#10b981;border:4px solid white;box-shadow:0 3px 10px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:18px">🕌</div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
   });
 
   return (
@@ -66,13 +66,13 @@ export default function MustahikMap({ filtered, MOSQUE_CENTER, desilColor, desil
       
         <MarkerClusterGroup
           chunkedLoading
-          maxClusterRadius={60}
+          maxClusterRadius={40}
           spiderfyOnMaxZoom
           showCoverageOnHover={false}
-          disableClusteringAtZoom={17}
+          disableClusteringAtZoom={16}
         >
           {/* Mosque center marker */}
-          <Marker position={MOSQUE_CENTER} icon={mosqueIcon}>
+          <Marker position={MOSQUE_CENTER} icon={mosqueIcon} zIndexOffset={1000}>
             <Popup>
               <div className="text-xs font-bold">Masjid At-Taqwa Ulujami</div>
             </Popup>
@@ -82,7 +82,7 @@ export default function MustahikMap({ filtered, MOSQUE_CENTER, desilColor, desil
           {filtered.map((m) => {
             if (!m.lat || !m.lng) return null;
             return (
-              <Marker key={m.id} position={[m.lat, m.lng]} icon={getMarkerIcon(m.desil_level)}>
+              <Marker key={m.id} position={[m.lat, m.lng]} icon={getMarkerIcon(m.desil_level)} zIndexOffset={500}>
                 <Popup>
                   <div className="text-xs space-y-1 min-w-[180px]">
                     <div className="font-bold text-sm">{m.name}</div>

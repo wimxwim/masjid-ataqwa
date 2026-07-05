@@ -146,6 +146,74 @@ export function useAdminDonations(mosqueId: string) {
   });
 }
 
+/* ─── Dashboard hooks ─── */
+async function fetchDashboard(mosqueId: string, type: string) {
+  const url = `/api/admin/dashboard?mosqueId=${encodeURIComponent(mosqueId)}&type=${type}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Dashboard ${type} failed: ${res.status}`);
+  return res.json() as Promise<unknown>;
+}
+
+export interface DashboardSummary {
+  saldo_kas: number;
+  total_masuk: number;
+  total_keluar: number;
+  donatur_aktif: number;
+  mustahik_aktif: number;
+}
+
+export interface DashboardTrend {
+  tanggal: string;
+  pemasukan: number;
+  pengeluaran: number;
+}
+
+export interface DashboardZiswaf {
+  fund_type: string;
+  total: number;
+}
+
+export interface DashboardActivity {
+  type: string;
+  nama: string;
+  alamat: string | null;
+  detail: string | null;
+  jumlah: number | null;
+  created_at: string;
+}
+
+export function useAdminDashboardSummary(mosqueId: string) {
+  return useQuery<DashboardSummary>({
+    queryKey: queryKeys.admin.dashboard(mosqueId).summary,
+    queryFn: () => fetchDashboard(mosqueId, "summary") as Promise<DashboardSummary>,
+    enabled: !!mosqueId,
+  });
+}
+
+export function useAdminTrend30d(mosqueId: string) {
+  return useQuery<DashboardTrend[]>({
+    queryKey: queryKeys.admin.dashboard(mosqueId).trend30d,
+    queryFn: () => fetchDashboard(mosqueId, "trend30d") as Promise<DashboardTrend[]>,
+    enabled: !!mosqueId,
+  });
+}
+
+export function useAdminZiswafBreakdown(mosqueId: string) {
+  return useQuery<DashboardZiswaf[]>({
+    queryKey: queryKeys.admin.dashboard(mosqueId).ziswaf,
+    queryFn: () => fetchDashboard(mosqueId, "ziswaf") as Promise<DashboardZiswaf[]>,
+    enabled: !!mosqueId,
+  });
+}
+
+export function useAdminActivityFeeds(mosqueId: string) {
+  return useQuery<DashboardActivity[]>({
+    queryKey: queryKeys.admin.dashboard(mosqueId).activity,
+    queryFn: () => fetchDashboard(mosqueId, "activity") as Promise<DashboardActivity[]>,
+    enabled: !!mosqueId,
+  });
+}
+
 /* ─── Donation summary type for overview ─── */
 export type DonationSummary = {
   total: number;

@@ -105,5 +105,11 @@ export const queryKeys = {
     employees: (mosqueId: string) => [...queryKeys.admin.all, "employees", mosqueId] as const,
     activity: (mosqueId: string) => [...queryKeys.admin.all, "activity", mosqueId] as const,
     santri: (mosqueId: string) => [...queryKeys.admin.all, "santri", mosqueId] as const,
+    dashboard: (mosqueId: string) => ({
+      summary: [...queryKeys.admin.all, "dashboard", mosqueId, "summary"] as const,
+      trend30d: [...queryKeys.admin.all, "dashboard", mosqueId, "trend30d"] as const,
+      ziswaf: [...queryKeys.admin.all, "dashboard", mosqueId, "ziswaf"] as const,
+      activity: [...queryKeys.admin.all, "dashboard", mosqueId, "activity"] as const,
+    }),
   },
 };

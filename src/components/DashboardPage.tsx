@@ -107,13 +107,7 @@ function DashboardContent() {
 
       {/* Tab Content — hanya 1 tab aktif */}
       {activeTab === "overview" && (
-        <OverviewTab
-          mustahikCount={mustahikCount}
-          jamaahData={jamaahList}
-          ledgerEntries={ledgerEntries}
-          donationSummary={donationSummary}
-          onNavigateToLaporan={() => router.push("/laporan")}
-        />
+        <OverviewTab mosqueId={mosqueId} />
       )}
 
       {activeTab === "inflow" && (
