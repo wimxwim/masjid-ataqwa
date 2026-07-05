@@ -4,7 +4,7 @@ import { db } from "@/db/client";
 import { ziswaf_requests, audit_logs } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
 import { resolveMosqueId } from "./_helpers";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export type InsertZiswafRequest = {

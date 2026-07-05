@@ -103,7 +103,7 @@ export default function GisPage() {
             <span className="font-mono text-[10px] text-muted">Pusat: {Math.abs(MOSQUE_CENTER[0]).toFixed(3)}°{MOSQUE_CENTER[0] < 0 ? "S" : "N"}, {MOSQUE_CENTER[1].toFixed(3)}°E</span>
           </div>
 
-          <div className="relative w-full h-[450px] rounded-xl overflow-hidden border border-outline z-0 bg-surface">
+          <div className="relative w-full h-[450px] rounded-xl overflow-hidden border border-outline bg-surface">
             <MapComponent 
               filtered={filtered} 
               MOSQUE_CENTER={MOSQUE_CENTER}

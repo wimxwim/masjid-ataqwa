@@ -77,9 +77,9 @@ export default function MapPicker({ defaultLat, defaultLng, externalOverride, on
 
   const pinIcon = L.divIcon({
     className: "",
-    html: `<div style="width:18px;height:18px;border-radius:50%;background:#ef4444;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.5);"></div>`,
-    iconSize: [18, 18],
-    iconAnchor: [9, 9],
+    html: `<div style="width:20px;height:20px;border-radius:50%;background:#ef4444;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.5);"></div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
   });
 
   const distance = Math.round(getDistanceInMeters(MOSQUE_CENTER[0], MOSQUE_CENTER[1], position[0], position[1]));
@@ -93,10 +93,6 @@ export default function MapPicker({ defaultLat, defaultLng, externalOverride, on
 
   return (
     <>
-      <style>{`
-        .leaflet-container .leaflet-tile { max-width: none !important; }
-        .leaflet-container { z-index: 0 !important; cursor: crosshair; }
-      `}</style>
       <div className="w-full h-[250px] relative overflow-hidden rounded-xl border border-outline bg-surface">
         <MapContainer 
           center={initPos} 

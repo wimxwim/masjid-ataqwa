@@ -73,7 +73,7 @@ export function ZakatCalculator({ zakatFitrahAmount }: ZakatCalculatorProps) {
         <div className="lg:col-span-7 bg-white rounded-2xl border border-gray-100 shadow-lg p-6 sm:p-8">
           <form onSubmit={handleQuickPay} className="space-y-6">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2.5">
                 Pilih Jenis Zakat
               </label>
               <div className="grid grid-cols-3 gap-1 bg-gray-50 p-1 rounded-xl">
@@ -99,7 +99,7 @@ export function ZakatCalculator({ zakatFitrahAmount }: ZakatCalculatorProps) {
 
             {zakatType === "fitrah" ? (
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
                   Jumlah Jiwa (Anggota Keluarga)
                 </label>
                 <div className="relative">
@@ -112,14 +112,14 @@ export function ZakatCalculator({ zakatFitrahAmount }: ZakatCalculatorProps) {
                     className="w-full bg-gray-50 border border-gray-200 focus:bg-white focus:border-emerald-600 focus:outline-hidden py-3 px-4 rounded-xl text-sm font-semibold transition-colors"
                     required
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-gray-400">
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-gray-600">
                     Jiwa
                   </span>
                 </div>
               </div>
             ) : (
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
                   {zakatType === "maal"
                     ? "Total Nilai Harta Simpanan (Emas/Tabungan)"
                     : "Total Pendapatan Bersih Bulanan"}
@@ -156,14 +156,14 @@ export function ZakatCalculator({ zakatFitrahAmount }: ZakatCalculatorProps) {
                 className={`w-full sm:w-auto px-6 py-3 rounded-lg text-sm font-bold shadow-md transition-all ${
                   calculationResult > 0
                     ? "bg-emerald-700 text-white hover:bg-emerald-800 shadow-emerald-700/15 cursor-pointer"
-                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-gray-200 text-gray-600 cursor-not-allowed"
                 }`}
               >
                 Bayar Zakat Sekarang
               </button>
             </div>
 
-            <p className="text-[11px] text-gray-400 text-center leading-relaxed font-sans">
+            <p className="text-[11px] text-gray-600 text-center leading-relaxed font-sans">
               *Nisab Zakat Maal setara 85g Emas (~Rp 85.000.000/tahun). Nisab Zakat Profesi
               setara 522kg beras (~Rp 6.800.000/bulan). Perhitungan ini adalah estimasi awal.
               Penyerahan zakat dijamin 100% masuk ke buku kas zakat terintegrasi.

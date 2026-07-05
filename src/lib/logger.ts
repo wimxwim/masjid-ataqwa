@@ -3,6 +3,9 @@ import pino from "pino";
 const SENSITIVE_KEYS = new Set([
   "token", "password", "secret", "key", "authorization",
   "card_number", "cvv", "card_expire", "bank",
+  "nik", "nik_encrypted", "nik_hash",
+  "cf_turnstile_response", "midtrans_server_key",
+  "fonnte_token", "encryption_key", "service_role",
 ]);
 
 function redactSensitiveData(obj: Record<string, unknown>, depth = 0): Record<string, unknown> {

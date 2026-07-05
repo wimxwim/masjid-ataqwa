@@ -131,37 +131,41 @@ export async function createTransaction(data: InsertTransaction) {
 
   validateSyariah({ ...data, fund_type: fundType, akad_type: akadType });
 
-  const [row] = await db
-    .insert(transactions)
-    .values({
-      mosque_id: mosqueId,
-      type: data.type,
-      category: data.category,
-      amount: Math.round(data.amount),
-      description: data.description ?? null,
-      donor_name: data.donor_name ?? null,
-      recipient_name: data.recipient_name ?? null,
-      phone: data.phone ?? null,
-      notes: data.notes ?? null,
-      transaction_date: data.transaction_date,
-      fund_type: fundType,
-      akad_type: akadType,
-      asnaf_type: data.asnaf_type ?? null,
-      is_restricted: data.is_restricted ?? null,
-      wakif_name: data.wakif_name ?? null,
-      ikrar_wakaf_ref: data.ikrar_wakaf_ref ?? null,
-      created_by: profile.id,
-    })
-    .returning();
-  if (!row) throw new Error("Operation failed");
+  const [row] = await db.transaction(async (tx) => {
+    const [inserted] = await tx
+      .insert(transactions)
+      .values({
+        mosque_id: mosqueId,
+        type: data.type,
+        category: data.category,
+        amount: Math.round(data.amount),
+        description: data.description ?? null,
+        donor_name: data.donor_name ?? null,
+        recipient_name: data.recipient_name ?? null,
+        phone: data.phone ?? null,
+        notes: data.notes ?? null,
+        transaction_date: data.transaction_date,
+        fund_type: fundType,
+        akad_type: akadType,
+        asnaf_type: data.asnaf_type ?? null,
+        is_restricted: data.is_restricted ?? null,
+        wakif_name: data.wakif_name ?? null,
+        ikrar_wakaf_ref: data.ikrar_wakaf_ref ?? null,
+        created_by: profile.id,
+      })
+      .returning();
+    if (!inserted) throw new Error("Operation failed");
 
-  await db.insert(audit_logs).values({
-    mosque_id: mosqueId,
-    action: "insert",
-    entity_type: "transactions",
-    entity_id: row.id,
-    actor_id: profile.id,
-    changes: data,
+    await tx.insert(audit_logs).values({
+      mosque_id: mosqueId,
+      action: "insert",
+      entity_type: "transactions",
+      entity_id: inserted.id,
+      actor_id: profile.id,
+      changes: data,
+    });
+
+    return [inserted];
   });
 
   revalidatePath(`/admin/${mosqueId}/keuangan`);

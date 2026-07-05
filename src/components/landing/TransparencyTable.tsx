@@ -63,7 +63,7 @@ export function TransparencyTable({ transactions }: TransparencyTableProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 text-gray-400 text-[10px] font-bold uppercase tracking-wider border-b border-gray-100">
+              <tr className="bg-slate-50 text-gray-600 text-[10px] font-bold uppercase tracking-wider border-b border-gray-100">
                 <th className="py-4 px-6 font-semibold">Tanggal</th>
                 <th className="py-4 px-6 font-semibold">Donatur</th>
                 <th className="py-4 px-6 font-semibold">Program</th>
@@ -73,7 +73,7 @@ export function TransparencyTable({ transactions }: TransparencyTableProps) {
             <tbody className="divide-y divide-gray-100 text-sm">
               {recentDonations.map((d) => (
                 <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="py-4 px-6 text-gray-400 font-mono text-xs">{d.tanggal}</td>
+                  <td className="py-4 px-6 text-gray-600 font-mono text-xs">{d.tanggal}</td>
                   <td className="py-4 px-6 font-medium text-gray-900">{d.donatur}</td>
                   <td className="py-4 px-6">
                     <span className="inline-flex items-center gap-1.5 text-xs text-gray-600">

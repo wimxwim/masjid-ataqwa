@@ -122,7 +122,7 @@ export default function LiveActivityFeed() {
                   <div className="space-y-2">
                     <div className="flex items-center flex-wrap gap-2">
                       {getEventBadge(evt.type)}
-                      <span className="text-[10px] text-gray-400 font-mono flex items-center gap-1">• {formatWaktu(new Date(evt.created_at))}</span>
+                      <span className="text-[10px] text-gray-600 font-mono flex items-center gap-1">• {formatWaktu(new Date(evt.created_at))}</span>
                     </div>
                     <div>
                       <h4 className="font-bold text-slate-900 text-sm flex items-center gap-1">
@@ -135,7 +135,7 @@ export default function LiveActivityFeed() {
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <span className="text-xs text-gray-400 font-bold block">Nominal</span>
+                    <span className="text-xs text-gray-600 font-bold block">Nominal</span>
                     <span className="text-base font-mono font-extrabold text-emerald-950">Rp {Number(evt.jumlah).toLocaleString("id-ID")}</span>
                   </div>
                 </div>

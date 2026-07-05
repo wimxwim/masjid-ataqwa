@@ -45,7 +45,7 @@ export async function getDonations(mosqueId: string) {
   return db
     .select()
     .from(donations)
-    .where(and(eq(donations.mosque_id, mosqueId)))
+    .where(eq(donations.mosque_id, mosqueId))
     .orderBy(desc(donations.created_at));
 }
 

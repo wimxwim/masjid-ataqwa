@@ -96,6 +96,7 @@ export async function verifyZakatPayment(id: string) {
   const profile = await requireAuth();
   const old = await getZakatPaymentById(id);
   if (!old) throw new Error("Pembayaran zakat tidak ditemukan");
+  if (old.is_verified) throw new Error("Sudah diverifikasi sebelumnya");
   await requireRole(old.mosque_id, "superadmin", "admin_dkm", "finance_director");
 
   const [row] = await db

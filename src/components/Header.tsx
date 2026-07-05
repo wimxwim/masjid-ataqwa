@@ -87,6 +87,7 @@ export default function Header() {
                   onClick={logout}
                   className="p-1.5 text-muted hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
                   title="Logout"
+                  aria-label="Logout dari akun admin"
                   id="admin-logout-btn"
                 >
                   <LogOut className="w-4 h-4" />
@@ -106,6 +107,7 @@ export default function Header() {
             <button
               onClick={() => setCartOpen(true)}
               className="relative p-2.5 text-muted hover:text-primary hover:bg-primary/5 rounded-full transition-all"
+              aria-label={`Buka keranjang belanja${cartCount > 0 ? ` (${cartCount} item)` : ""}`}
               id="header-cart-btn"
             >
               <ShoppingCart className="w-5 h-5" />
@@ -130,6 +132,7 @@ export default function Header() {
             <button
               onClick={() => setCartOpen(true)}
               className="relative p-2.5 text-muted hover:text-primary rounded-full"
+              aria-label={`Buka keranjang belanja${cartCount > 0 ? ` (${cartCount} item)` : ""}`}
               id="header-cart-mobile-btn"
             >
               <ShoppingCart className="w-5 h-5" />
@@ -143,6 +146,9 @@ export default function Header() {
               onClick={() => setMobileOpen(!mobileOpen)}
               className="p-2 text-muted hover:bg-bg rounded-lg"
               id="header-mobile-toggle"
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-menu-drawer"
+              aria-label={mobileOpen ? "Tutup menu navigasi" : "Buka menu navigasi"}
             >
               {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>

@@ -29,7 +29,7 @@ export default function GlobalOverlays() {
                   <ShoppingCart className="w-5 h-5 text-accent" />
                   <span className="font-display font-bold text-sm tracking-wide">Keranjang Belanja BUMM</span>
                 </div>
-                <button onClick={() => setCartOpen(false)} className="text-gray-400 hover:text-white">
+                <button onClick={() => setCartOpen(false)} className="text-gray-600 hover:text-white p-1 rounded-md" aria-label="Tutup keranjang">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -133,7 +133,7 @@ export default function GlobalOverlays() {
           <CheckCircle className={`w-5 h-5 shrink-0 ${appToast.type === "success" ? "text-emerald-400" : "text-accent"}`} />
           <div>
             <h4 className="font-bold text-xs">{appToast.title}</h4>
-            <p className="text-[11px] text-gray-400 mt-0.5">{appToast.desc}</p>
+            <p className="text-[11px] text-gray-600 mt-0.5">{appToast.desc}</p>
           </div>
         </div>
       )}

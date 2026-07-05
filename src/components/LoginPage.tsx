@@ -43,7 +43,7 @@ export default function LoginPage() {
             <Landmark className="w-6 h-6" />
           </div>
           <h2 className="font-display font-extrabold text-xl tracking-tight text-white">Sistem Administrasi At-Taqwa</h2>
-          <p className="text-xs text-gray-400 mt-1">Gerbang Akses Dashboard &amp; GIS Mustahik</p>
+          <p className="text-xs text-gray-600 mt-1">Gerbang Akses Dashboard &amp; GIS Mustahik</p>
         </div>
 
         <div className="p-6 sm:p-8 space-y-6">

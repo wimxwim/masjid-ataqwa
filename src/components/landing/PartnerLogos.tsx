@@ -10,7 +10,7 @@ export function PartnerLogos() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center space-y-6" id="partner">
-      <p className="text-xs font-bold uppercase tracking-widest text-gray-400">
+      <p className="text-xs font-bold uppercase tracking-widest text-gray-600">
         Mitra Strategis & Lembaga Audit
       </p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center opacity-65 grayscale hover:grayscale-0 transition-all duration-300">
