@@ -229,6 +229,19 @@ export async function getDashboardStats(mosqueId: string) {
       isNull(mustahiks.deleted_at),
     ));
 
+  // Terbantu bulan ini (distinct recipients — pengeluaran bulan berjalan)
+  const [terbantuBulanIni] = await db
+    .select({
+      count: sql<number>`COUNT(DISTINCT ${transactions.recipient_name})`,
+    })
+    .from(transactions)
+    .where(and(
+      eq(transactions.mosque_id, mosqueId),
+      eq(transactions.type, "Pengeluaran"),
+      isNull(transactions.deleted_at),
+      gte(transactions.transaction_date, sql`DATE_TRUNC('month', CURRENT_DATE)`),
+    ));
+
   // Total transactions summary
   const [incomeTotal] = await db
     .select({
@@ -256,6 +269,7 @@ export async function getDashboardStats(mosqueId: string) {
     totalDonations: donationStats?.total ?? 0,
     donationCount: donationStats?.count ?? 0,
     mustahikCount: mustahikCount?.count ?? 0,
+    terbantuBulanIni: terbantuBulanIni?.count ?? 0,
     totalIncome: incomeTotal?.total ?? 0,
     totalExpense: expenseTotal?.total ?? 0,
     balance: (incomeTotal?.total ?? 0) - (expenseTotal?.total ?? 0),

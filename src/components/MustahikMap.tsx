@@ -3,6 +3,7 @@
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { useEffect } from "react";
 import L from "leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
 import type { MustahikDb } from "@/types";
 import { Phone } from "lucide-react";
 import "leaflet/dist/leaflet.css";
@@ -63,34 +64,42 @@ export default function MustahikMap({ filtered, MOSQUE_CENTER, desilColor, desil
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
       
-      {/* Mosque center marker */}
-      <Marker position={MOSQUE_CENTER} icon={mosqueIcon}>
-        <Popup>
-          <div className="text-xs font-bold">Masjid At-Taqwa Ulujami</div>
-        </Popup>
-      </Marker>
-
-      {/* Mustahik markers */}
-      {filtered.map((m) => {
-        if (!m.lat || !m.lng) return null;
-        return (
-          <Marker key={m.id} position={[m.lat, m.lng]} icon={getMarkerIcon(m.desil_level)}>
+        <MarkerClusterGroup
+          chunkedLoading
+          maxClusterRadius={60}
+          spiderfyOnMaxZoom
+          showCoverageOnHover={false}
+          disableClusteringAtZoom={17}
+        >
+          {/* Mosque center marker */}
+          <Marker position={MOSQUE_CENTER} icon={mosqueIcon}>
             <Popup>
-              <div className="text-xs space-y-1 min-w-[180px]">
-                <div className="font-bold text-sm">{m.name}</div>
-                <div className="text-muted">{m.address}</div>
-                {m.phone && <div className="flex items-center gap-1"><Phone className="w-3 h-3" /> {m.phone}</div>}
-                <div className="flex items-center gap-2 pt-1 border-t border-outline mt-1">
-                  <span>{desilLabel[m.desil_level || ""] || "-"}</span>
-                  <span className="text-muted">•</span>
-                  <span>{ringLabel(m.ring_number)}</span>
-                </div>
-              </div>
+              <div className="text-xs font-bold">Masjid At-Taqwa Ulujami</div>
             </Popup>
           </Marker>
-        );
-      })}
-    </MapContainer>
+
+          {/* Mustahik markers */}
+          {filtered.map((m) => {
+            if (!m.lat || !m.lng) return null;
+            return (
+              <Marker key={m.id} position={[m.lat, m.lng]} icon={getMarkerIcon(m.desil_level)}>
+                <Popup>
+                  <div className="text-xs space-y-1 min-w-[180px]">
+                    <div className="font-bold text-sm">{m.name}</div>
+                    <div className="text-muted">{m.address}</div>
+                    {m.phone && <div className="flex items-center gap-1"><Phone className="w-3 h-3" /> {m.phone}</div>}
+                    <div className="flex items-center gap-2 pt-1 border-t border-outline mt-1">
+                      <span>{desilLabel[m.desil_level || ""] || "-"}</span>
+                      <span className="text-muted">•</span>
+                      <span>{ringLabel(m.ring_number)}</span>
+                    </div>
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          })}
+        </MarkerClusterGroup>
+      </MapContainer>
     </>
   );
 }

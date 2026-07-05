@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Product } from "@/types";
 import { useAppContext } from "@/stores/app-context";
-import { useDefaultMosque, useBummProducts, usePublicData } from "@/lib/queries/public";
+import { useDefaultMosque, useBummProducts, useBummStats } from "@/lib/queries/public";
 import { 
   Plus, Minus, Coffee, Cookie, Store, CheckCircle, 
   ArrowRight, ShieldCheck, Sparkles, ShoppingBag
@@ -13,8 +13,7 @@ export default function BummPage() {
   const { cartItems, handleAddToCart, handleRemoveFromCart, handleUpdateCartQuantity, handleCartCheckout, appToast } = useAppContext();
   const { data: mosque } = useDefaultMosque();
   const { data: dbProducts = [] } = useBummProducts(mosque?.id ?? "");
-  const { data: publicData } = usePublicData();
-  const bummStats = publicData?.bummStats;
+  const { data: bummStats } = useBummStats(mosque?.id ?? "");
   const bummProducts: Product[] = dbProducts.map((p) => ({
     id: p.id,
     name: p.product_name,

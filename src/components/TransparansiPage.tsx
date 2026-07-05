@@ -7,6 +7,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, Cell, PieChart, Pie, Legend
 } from "recharts";
+import { generateTransparansiPdf } from "@/lib/pdf/generate-transparansi-pdf";
 import { 
   FileText, ArrowDownToLine, Search, CheckCircle, 
   TrendingUp, ArrowUpRight, ArrowDownRight, Award
@@ -78,7 +79,39 @@ export default function TransparansiPage() {
 
   const saldoKas = totalPemasukan - totalPengeluaran;
 
-  const handleDownloadReport = (fileName: string) => {
+  const bulanIni = new Date().toLocaleDateString("id-ID", { month: "long", year: "numeric" });
+
+  const handleDownloadPDF = async () => {
+    setDownloading("Mutasi_ZISWAF_PDF");
+    try {
+      const rows = selectedType === "All" ? ledgerEntries : filteredLedger;
+      const blobs = await generateTransparansiPdf(
+        rows,
+        {
+          totalPemasukan,
+          totalPengeluaran,
+          saldo: saldoKas,
+          totalDonasi: stats?.totalDonations ?? 0,
+        },
+        mosque?.name ?? "Masjid At-Taqwa",
+        bulanIni,
+      );
+      const url = URL.createObjectURL(blobs);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "Mutasi_ZISWAF.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("PDF export failed:", e);
+    } finally {
+      setDownloading(null);
+    }
+  };
+
+  const handleDownloadCSV = (fileName: string) => {
     setDownloading(fileName);
     const rows = selectedType === "All" ? ledgerEntries : filteredLedger;
     const headers = ["Tanggal", "Kategori", "Keterangan", "Jumlah", "Tipe"];
@@ -292,7 +325,7 @@ export default function TransparansiPage() {
           {/* Download Buttons */}
           <div className="flex gap-2 flex-wrap shrink-0">
             <button
-              onClick={() => handleDownloadReport("Mutasi_ZISWAF_PDF")}
+              onClick={handleDownloadPDF}
               disabled={downloading !== null}
               className="flex items-center gap-1.5 border border-outline hover:bg-slate-50 text-ink px-3.5 py-2 rounded-lg text-xs font-semibold transition-all"
             >
@@ -300,7 +333,7 @@ export default function TransparansiPage() {
               {downloading === "Mutasi_ZISWAF_PDF" ? "Mengekspor..." : "Ekspor PDF"}
             </button>
             <button
-              onClick={() => handleDownloadReport("Mutasi_ZISWAF_Excel")}
+              onClick={() => handleDownloadCSV("Mutasi_ZISWAF_Excel")}
               disabled={downloading !== null}
               className="flex items-center gap-1.5 border border-outline hover:bg-slate-50 text-ink px-3.5 py-2 rounded-lg text-xs font-semibold transition-all"
             >
