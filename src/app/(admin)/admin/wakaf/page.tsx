@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getWakafAssets, createWakafAsset, updateWakafAsset, deleteWakafAsset, type InsertWakafAsset } from "@/lib/actions/wakaf";
-import { Search, Plus, X, Pencil, Trash2, Landmark, MapPin, TrendingUp } from "lucide-react";
+import { Search, Plus, X, Pencil, Trash2, Landmark } from "lucide-react";
 import { formatNominal } from "@/lib/format";
 
 type Wakaf = Awaited<ReturnType<typeof getWakafAssets>>[number];
@@ -38,7 +38,7 @@ export default function AdminWakafPage() {
 
   const load = useCallback(async () => {
     try { setLoading(true); setData(await getWakafAssets()); }
-    catch { setError("Gagal memuat data."); }
+    catch (e) { console.error(e); setError("Gagal memuat data."); }
     finally { setLoading(false); }
   }, []);
 
@@ -277,7 +277,7 @@ export default function AdminWakafPage() {
                         className="flex items-center gap-1.5 text-xs font-medium text-primary hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
                         <Pencil className="w-3.5 h-3.5" /> Edit
                       </button>
-                      <button onClick={async (e) => { e.stopPropagation(); if (confirm(`Hapus aset ${a.asset_name}? Data tidak bisa dikembalikan.`)) { await deleteWakafAsset(a.id); load(); } }}
+                      <button onClick={async (e) => { e.stopPropagation(); if (confirm(`Hapus aset ${a.asset_name}? Data tidak bisa dikembalikan.`)) { try { await deleteWakafAsset(a.id); load(); } catch (err) { console.error(err); setError("Gagal menghapus data."); } } }}
                         className="flex items-center gap-1.5 text-xs font-medium text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors">
                         <Trash2 className="w-3.5 h-3.5" /> Hapus
                       </button>

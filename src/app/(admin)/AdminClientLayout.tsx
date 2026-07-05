@@ -121,11 +121,11 @@ export default function AdminClientLayout({
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg p-4">
-        <div className="bg-surface rounded-2xl border border-outline shadow-xl max-w-md w-full p-8 text-center space-y-4">
+        <div className="glass-strong rounded-3xl border border-white/30 dark:border-white/10 shadow-4 max-w-md w-full p-8 text-center space-y-4">
           <ShieldAlert className="w-12 h-12 text-red-400 mx-auto" />
-          <h2 className="font-display font-bold text-xl text-ink">Akses Terbatas</h2>
+          <h2 className="font-display font-bold text-xl text-ink tracking-tight">Akses Terbatas</h2>
           <p className="text-sm text-muted">Silakan login terlebih dahulu untuk mengakses halaman admin.</p>
-          <Link href="/login" className="inline-block bg-primary hover:bg-primary-dark text-white font-bold py-3 px-8 rounded-xl text-sm transition-colors">
+          <Link href="/login" className="inline-block bg-primary hover:bg-primary-dark text-white font-bold py-3 px-8 rounded-2xl text-sm shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all">
             Login Pengelola
           </Link>
         </div>
@@ -144,15 +144,15 @@ export default function AdminClientLayout({
 
   return (
     <div className="min-h-screen bg-bg flex">
-      <aside className="w-64 bg-ink text-slate-300 flex flex-col shrink-0">
-        <div className="p-5 border-b border-slate-900">
+      <aside className="w-64 glass-dark text-slate-300 flex flex-col shrink-0 border-r border-white/10">
+        <div className="p-5 border-b border-white/10">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
+            <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-white shadow-md shadow-primary/20">
               <Landmark className="w-4 h-4" />
             </div>
             <div>
-              <div className="font-display font-bold text-sm text-white">At-Taqwa</div>
-              <p className="text-[10px] text-emerald-400 uppercase tracking-wider">Panel Admin</p>
+              <div className="font-display font-bold text-sm text-white tracking-tight">At-Taqwa</div>
+              <p className="text-[10px] text-emerald-400 uppercase tracking-widest">Panel Admin</p>
             </div>
           </Link>
         </div>
@@ -174,10 +174,10 @@ export default function AdminClientLayout({
                     <Link
                       key={link.href}
                       href={link.href}
-                      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
                         isActive
-                          ? "bg-primary text-white shadow-sm"
-                          : "text-slate-400 hover:text-white hover:bg-slate-900"
+                          ? "bg-primary text-white shadow-md shadow-primary/20"
+                          : "text-slate-400 hover:text-white hover:bg-white/10"
                       }`}
                     >
                       <Icon className="w-4 h-4 shrink-0" />
@@ -190,10 +190,10 @@ export default function AdminClientLayout({
           ))}
         </nav>
 
-        <div className="p-3 border-t border-slate-900 space-y-1">
+        <div className="p-3 border-t border-white/10 space-y-1">
           <Link
             href="/"
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-900 transition-all"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-white/10 transition-all"
           >
             <ArrowLeftFromLine className="w-4 h-4" />
             Kembali ke Portal
@@ -201,7 +201,7 @@ export default function AdminClientLayout({
           <form action={logout}>
             <button
               type="submit"
-              className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-lg text-sm text-slate-400 hover:text-red-400 hover:bg-slate-900 transition-all"
+              className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-red-400 hover:bg-white/10 transition-all"
             >
               <LogOut className="w-4 h-4" />
               Logout
@@ -211,14 +211,14 @@ export default function AdminClientLayout({
       </aside>
 
       <div className="flex-1 flex flex-col">
-        <header className="bg-surface border-b border-outline px-6 py-4 flex items-center justify-between">
+        <header className="glass-strong border-b border-white/20 dark:border-white/10 px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="font-display font-bold text-lg text-ink">
+            <h1 className="font-display font-bold text-lg text-ink tracking-tight">
               {HEADER_TITLES[pathname] ?? "Dashboard Masjid"}
             </h1>
             <p className="text-xs text-muted">Masjid Jami&apos; At-Taqwa Ulujami</p>
           </div>
-          <div className="flex items-center gap-2 text-xs text-muted bg-bg px-3 py-1.5 rounded-lg border border-outline">
+          <div className="flex items-center gap-2 text-xs text-muted glass px-3 py-1.5 rounded-xl border border-white/20 dark:border-white/10">
             <Users className="w-3.5 h-3.5" />
             Admin Aktif
           </div>

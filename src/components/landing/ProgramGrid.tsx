@@ -7,7 +7,7 @@ interface ProgramItem {
   description: string | null;
   slug: string;
   category: string | null;
-  config: Record<string, unknown> | null;
+  config: unknown;
 }
 
 interface ProgramGridProps {
@@ -18,17 +18,17 @@ export function ProgramGrid({ programs }: ProgramGridProps) {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4" id="core-programs">
       <div className="text-center space-y-3 mb-12">
-        <h2 className="text-3xl font-display font-extrabold text-slate-900 tracking-tight">
+        <h2 className="reveal text-3xl font-display font-extrabold text-slate-900 tracking-tighter">
           Pilar Kemandirian Umat
         </h2>
-        <p className="text-gray-500 max-w-2xl mx-auto text-sm sm:text-base">
+        <p className="reveal text-gray-500 max-w-2xl mx-auto text-sm sm:text-base" style={{ transitionDelay: '100ms' }}>
           Inisiatif strategis terstruktur untuk menyalurkan dana amanat secara tepat sasaran
           demi mencerdaskan, menyejahterakan, dan memberdayakan ekonomi warga.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {programs.map((prog) => {
+        {programs.map((prog, i) => {
           const cfg = prog.config as {
             target_budget?: number;
             target_beneficiaries?: number;
@@ -54,7 +54,8 @@ export function ProgramGrid({ programs }: ProgramGridProps) {
           return (
             <div
               key={prog.id}
-              className="bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-xl hover:border-emerald-100 transition-all overflow-hidden flex flex-col group"
+              className="reveal glass-strong rounded-3xl border border-white/30 dark:border-white/10 shadow-2 hover-lift overflow-hidden flex flex-col group"
+              style={{ transitionDelay: `${i * 100}ms` }}
             >
               <div className="h-48 bg-gray-100 relative overflow-hidden">
                 <Image
@@ -91,7 +92,7 @@ export function ProgramGrid({ programs }: ProgramGridProps) {
                   </div>
                   <a
                     href={cta.href}
-                    className="block w-full text-center bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold py-3 rounded-xl text-sm transition-all"
+                    className="block w-full text-center bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold py-3 rounded-2xl text-sm transition-all hover:shadow-sm"
                   >
                     {cta.label}
                     <ArrowRight className="w-4 h-4 inline ml-1" />

@@ -11,7 +11,7 @@ export async function getUserRole(): Promise<string> {
   const supabase = await createServerSupabase();
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return "ketua";
+  if (!user) return "viewer";
 
   // Try dkm_members first (DB-backed role system)
   const { data: dkm } = await supabase
@@ -29,6 +29,6 @@ export async function getUserRole(): Promise<string> {
     return metaRole;
   }
 
-  // Default
-  return "ketua";
+  // No fallback — unrecognized users get minimal access
+  return "viewer";
 }

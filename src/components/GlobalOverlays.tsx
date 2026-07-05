@@ -19,12 +19,12 @@ export default function GlobalOverlays() {
     <>
       {cartOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden" id="shopping-cart-drawer">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity" onClick={() => setCartOpen(false)} />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={() => setCartOpen(false)} />
 
           <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
-            <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col h-full overflow-hidden">
+            <div className="w-screen max-w-md glass-strong shadow-5 flex flex-col h-full overflow-hidden">
 
-              <div className="px-6 py-5 bg-ink text-white flex justify-between items-center border-b border-slate-900 shrink-0">
+              <div className="px-6 py-5 bg-ink/90 glass-dark text-white flex justify-between items-center border-b border-white/10 shrink-0">
                 <div className="flex items-center gap-2">
                   <ShoppingCart className="w-5 h-5 text-accent" />
                   <span className="font-display font-bold text-sm tracking-wide">Keranjang Belanja BUMM</span>
@@ -129,11 +129,11 @@ export default function GlobalOverlays() {
       )}
 
       {appToast && (
-        <div className="fixed bottom-6 left-6 z-50 bg-ink text-white p-4 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-800 max-w-sm">
+        <div className="fixed bottom-6 left-6 z-50 glass-dark text-white p-4 rounded-2xl shadow-4 flex items-center gap-3 border border-white/10 max-w-sm animate-bounce-in">
           <CheckCircle className={`w-5 h-5 shrink-0 ${appToast.type === "success" ? "text-emerald-400" : "text-accent"}`} />
           <div>
             <h4 className="font-bold text-xs">{appToast.title}</h4>
-            <p className="text-[11px] text-gray-600 mt-0.5">{appToast.desc}</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">{appToast.desc}</p>
           </div>
         </div>
       )}

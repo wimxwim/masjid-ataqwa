@@ -29,41 +29,41 @@ export default function Footer() {
             <p className="text-sm text-slate-400 leading-relaxed font-sans">
               Platfom digital modern terintegrasi untuk mewujudkan transparansi penuh, pengelolaan ZISWAF yang akuntabel, dan pemberdayaan ekonomi ummat di kelurahan Ulujami.
             </p>
-            <div className="flex items-center gap-2 text-xs bg-primary-deep/50 border border-slate-800 p-2.5 rounded-lg text-slate-400">
+            <div className="flex items-center gap-2 text-xs glass-dark p-2.5 rounded-xl text-slate-400">
               <Clock className="w-4 h-4 text-emerald-500 shrink-0" />
               <span>Jam Operasional Kantor Sekretariat: 08:00 - 17:00 WIB</span>
             </div>
           </div>
 
           <div>
-            <h4 className="font-display font-semibold text-white tracking-wide mb-5 relative after:content-[''] after:absolute after:bottom-[-8px] after:left-0 after:w-10 after:h-0.5 after:bg-emerald-500">
+            <h4 className="font-display font-semibold text-white tracking-tight mb-5 relative after:content-[''] after:absolute after:bottom-[-8px] after:left-0 after:w-10 after:h-0.5 after:bg-emerald-500">
               Program Unggulan
             </h4>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/bank-infaq" className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline">Bank Infaq Qardhul Hasan</Link></li>
-              <li><Link href="/bumm" className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline">BUMM (Kopi & Bakery)</Link></li>
-              <li><Link href="/donasi" className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline">Donasi</Link></li>
-              <li><Link href="/" className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline">Wakaf Domba Produktif</Link></li>
-              <li><Link href="/" className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline">Beasiswa Pendidikan Anak Asuh</Link></li>
+              <li><Link href="/bank-infaq" className="hover:text-emerald-400 transition-colors text-slate-400">Bank Infaq Qardhul Hasan</Link></li>
+              <li><Link href="/bumm" className="hover:text-emerald-400 transition-colors text-slate-400">BUMM (Kopi & Bakery)</Link></li>
+              <li><Link href="/donasi" className="hover:text-emerald-400 transition-colors text-slate-400">Donasi</Link></li>
+              <li><Link href="/" className="hover:text-emerald-400 transition-colors text-slate-400">Wakaf Domba Produktif</Link></li>
+              <li><Link href="/" className="hover:text-emerald-400 transition-colors text-slate-400">Beasiswa Pendidikan Anak Asuh</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-display font-semibold text-white tracking-wide mb-5 relative after:content-[''] after:absolute after:bottom-[-8px] after:left-0 after:w-10 after:h-0.5 after:bg-emerald-500">
+            <h4 className="font-display font-semibold text-white tracking-tight mb-5 relative after:content-[''] after:absolute after:bottom-[-8px] after:left-0 after:w-10 after:h-0.5 after:bg-emerald-500">
               Akses Cepat
             </h4>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/" className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline">Halaman Utama</Link></li>
-              <li><Link href="/laporan" className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline">Laporan Real-time & Kas</Link></li>
+              <li><Link href="/" className="hover:text-emerald-400 transition-colors text-slate-400">Halaman Utama</Link></li>
+              <li><Link href="/laporan" className="hover:text-emerald-400 transition-colors text-slate-400">Laporan Real-time & Kas</Link></li>
               <li>
-                <Link href={isLoggedIn ? "/admin" : "/login"} className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline flex items-center gap-1.5">
+                <Link href={isLoggedIn ? "/admin" : "/login"} className="hover:text-emerald-400 transition-colors text-slate-400 flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
                   {isLoggedIn ? "Dashboard Pengelola" : "Login Pengelola (Admin)"}
                 </Link>
               </li>
-              <li><a href="#partner" className="hover:text-emerald-400 transition-colors text-slate-400 hover:underline">Kemitraan Masjid</a></li>
+              <li><a href="#partner" className="hover:text-emerald-400 transition-colors text-slate-400">Kemitraan Masjid</a></li>
               <li className="pt-2">
-                <span className="inline-flex items-center gap-1 text-[11px] bg-primary-deep/50 border border-slate-800 text-emerald-400 px-2.5 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1 text-[11px] glass-dark text-emerald-400 px-2.5 py-1 rounded-full">
                   <Heart className="w-3 h-3 fill-emerald-400" /> Powered by Remaja Masjid
                 </span>
               </li>
@@ -71,7 +71,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-display font-semibold text-white tracking-wide mb-5 relative after:content-[''] after:absolute after:bottom-[-8px] after:left-0 after:w-10 after:h-0.5 after:bg-emerald-500">
+            <h4 className="font-display font-semibold text-white tracking-tight mb-5 relative after:content-[''] after:absolute after:bottom-[-8px] after:left-0 after:w-10 after:h-0.5 after:bg-emerald-500">
               Hubungi Kami
             </h4>
             <ul className="space-y-4 text-sm text-slate-400">

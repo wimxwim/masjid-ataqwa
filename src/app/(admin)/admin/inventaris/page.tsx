@@ -1,4 +1,4 @@
-import { Package, Construction } from "lucide-react";
+import { Package } from "lucide-react";
 import SmartEmptyState from "@/components/SmartEmptyState";
 
 export default function InventarisPlaceholderPage() {

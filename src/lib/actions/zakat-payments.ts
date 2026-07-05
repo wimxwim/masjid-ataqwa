@@ -4,7 +4,7 @@ import { db } from "@/db/client";
 import { zakat_payments, audit_logs, muzzaki } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
 import { resolveMosqueId } from "./_helpers";
-import { eq, and, desc, isNull, sql } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export type InsertZakatPayment = {

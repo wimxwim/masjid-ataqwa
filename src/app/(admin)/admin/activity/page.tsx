@@ -14,7 +14,7 @@ export default function AdminActivityPage() {
 
   const load = useCallback(async () => {
     try { setLoading(true); setData(await getActivityFeed()); }
-    catch { setError("Gagal memuat data."); }
+    catch (e) { console.error(e); setError("Gagal memuat data."); }
     finally { setLoading(false); }
   }, []);
 
@@ -116,7 +116,7 @@ export default function AdminActivityPage() {
             <div className="flex items-center gap-1 shrink-0">
               <button onClick={() => { setEditing(a); setShowForm(true); setError(""); }}
                 className="p-1.5 hover:bg-bg rounded-lg text-muted hover:text-primary transition-colors"><Pencil className="w-3.5 h-3.5" /></button>
-              <button onClick={async () => { if (confirm("Hapus?")) { await deleteActivity(a.id); load(); } }}
+              <button onClick={async () => { if (confirm("Hapus?")) { try { await deleteActivity(a.id); load(); } catch (err) { console.error(err); setError("Gagal menghapus data."); } } }}
                 className="p-1.5 hover:bg-bg rounded-lg text-muted hover:text-red-500 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
             </div>
           </div>

@@ -6,6 +6,11 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/admin";
 
+  // Validate next: must be a relative path starting with /, not protocol-relative (//)
+  if (!next.startsWith("/") || next.startsWith("//")) {
+    return NextResponse.redirect(`${origin}/login?error=invalid_redirect`);
+  }
+
   if (code) {
     const supabase = await createServerSupabase();
     const { error } = await supabase.auth.exchangeCodeForSession(code);

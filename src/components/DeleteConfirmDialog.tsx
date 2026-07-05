@@ -34,13 +34,13 @@ export default function DeleteConfirmDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
       <div
-        className="bg-surface rounded-2xl shadow-2xl border border-outline max-w-sm w-full overflow-hidden animate-scale-up"
+        className="glass-strong rounded-3xl shadow-4 border border-white/30 dark:border-white/10 max-w-sm w-full overflow-hidden animate-bounce-in"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 text-center space-y-4">
-          <div className="w-14 h-14 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto">
+          <div className="w-14 h-14 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto shadow-sm">
             <AlertTriangle className="w-7 h-7" />
           </div>
 
@@ -60,14 +60,14 @@ export default function DeleteConfirmDialog({
           <button
             onClick={() => onOpenChange(false)}
             disabled={externalLoading}
-            className="flex-1 bg-surface hover:bg-gray-50 text-ink font-bold py-2.5 rounded-xl text-xs border border-outline transition-all"
+            className="flex-1 glass hover:bg-white/80 text-ink font-bold py-2.5 rounded-2xl text-xs border border-outline transition-all"
           >
             Batal
           </button>
           <button
             onClick={onConfirm}
             disabled={externalLoading}
-            className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-xl text-xs transition-all flex items-center justify-center gap-2"
+            className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-2xl text-xs shadow-md shadow-red-600/20 hover:shadow-lg hover:shadow-red-600/30 transition-all flex items-center justify-center gap-2"
           >
             {externalLoading ? (
               <>

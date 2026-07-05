@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "./keys";
 import type { LedgerEntry, MustahikDb, Inventaris } from "@/types";
-import type { donations as DonationsTable } from "@/db/schema";
 
 /* ─── Type Adapters ─── */
 

@@ -27,11 +27,9 @@ export async function generateTransparansiPdf(
   const mono = await doc.embedFont(StandardFonts.Courier);
 
   const FONT_SIZE_TITLE = 16;
-  const FONT_SIZE_SUBTITLE = 9;
   const FONT_SIZE_BODY = 7;
   const FONT_SIZE_HEADER = 8;
   const PAGE_MARGIN = 40;
-  const TABLE_TOP = 520;
   const ROW_H = 15;
 
   const GRAY = rgb(0.4, 0.4, 0.4);
@@ -42,7 +40,7 @@ export async function generateTransparansiPdf(
   const WHITE = rgb(1, 1, 1);
   const PAGE_W = 595;
 
-  function drawHeader(page: ReturnType<typeof doc.addPage>, title: string) {
+  function drawHeader(page: ReturnType<typeof doc.addPage>, _title: string) {
     page.drawRectangle({
       x: 0, y: 770, width: 595, height: 80,
       color: rgb(0.02, 0.4, 0.15),

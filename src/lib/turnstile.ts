@@ -6,8 +6,8 @@ const log = createLogger("turnstile");
 export async function verifyTurnstile(token: string): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
-    log.warn("TURNSTILE_SECRET_KEY tidak diisi — skip verifikasi");
-    return true;
+    log.error("TURNSTILE_SECRET_KEY tidak diisi — captcha verification SKIPPED (insecure)");
+    throw new Error("Captcha verification unavailable — contact administrator");
   }
 
   try {

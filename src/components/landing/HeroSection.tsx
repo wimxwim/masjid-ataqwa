@@ -22,26 +22,28 @@ export function HeroSection({ stats, fundBreakdown, mosqueName, mosqueConfig }: 
 
         <div className="max-w-7xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6 lg:text-left text-center">
-            <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider">
+            <div className="reveal inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider">
               <span className="flex h-2 w-2 rounded-full bg-emerald-400" />
               Platform Masjid Modern Terintegrasi v2.0
             </div>
 
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-white leading-[1.1]">
+            <h1 className="reveal text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tighter text-white leading-[1.1]" style={{ transitionDelay: '100ms' }}>
               Membangun Peradaban Mulai dari{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-amber-300">
                 Masjid Jami&apos; At-Taqwa
               </span>
             </h1>
 
-            <p className="text-sm sm:text-base lg:text-lg text-emerald-100/80 max-w-2xl mx-auto lg:mx-0 font-sans leading-relaxed">
+            <p className="reveal text-sm sm:text-base lg:text-lg text-emerald-100/80 max-w-2xl mx-auto lg:mx-0 font-sans leading-relaxed" style={{ transitionDelay: '200ms' }}>
               Menghubungkan kebaikan muzakki, mengelola amanah dengan transparansi mutlak, dan memberdayakan mustahik menuju kemandirian ekonomi yang berkelanjutan di lingkungan Ulujami.
             </p>
 
-            <CTAButtons />
+            <div className="reveal" style={{ transitionDelay: '300ms' }}>
+              <CTAButtons />
+            </div>
           </div>
 
-          <div className="lg:col-span-5 relative w-full h-72 sm:h-96 rounded-2xl overflow-hidden shadow-2xl border-4 border-emerald-500/20 shadow-emerald-950/50">
+          <div className="reveal lg:col-span-5 relative w-full h-72 sm:h-96 rounded-2xl overflow-hidden shadow-4 border-4 border-emerald-500/20 shadow-emerald-950/50" style={{ transitionDelay: '200ms' }}>
             <Image
               src="https://images.unsplash.com/photo-1542810634-71277d95dcbb?auto=format&fit=crop&w=800&q=80"
               alt="At-Taqwa Mosque Dome"
@@ -51,7 +53,7 @@ export function HeroSection({ stats, fundBreakdown, mosqueName, mosqueConfig }: 
               className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent" />
-            <div className="absolute bottom-4 left-4 right-4 bg-slate-900/60 backdrop-blur-xs p-3 rounded-xl border border-slate-700/50">
+            <div className="absolute bottom-4 left-4 right-4 glass-dark p-3 rounded-xl border border-white/10">
               <p className="text-white font-semibold text-xs sm:text-sm">{mosqueName}</p>
               <p className="text-slate-300 text-[10px] mt-0.5">Membangun tatanan ekonomi masyarakat madani yang sejahtera.</p>
             </div>
@@ -60,7 +62,7 @@ export function HeroSection({ stats, fundBreakdown, mosqueName, mosqueConfig }: 
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 sm:-mt-16 relative z-20">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-xl p-6 sm:p-8 grid grid-cols-2 lg:grid-cols-4 gap-6 divide-y-2 lg:divide-y-0 lg:divide-x divide-gray-100">
+        <div className="reveal glass-strong rounded-3xl border border-white/30 dark:border-white/10 shadow-4 p-6 sm:p-8 grid grid-cols-2 lg:grid-cols-4 gap-6 divide-y-2 lg:divide-y-0 lg:divide-x divide-white/20 dark:divide-white/10">
           <StatCard
             icon={<Coins className="w-6 h-6" />}
             value={stats.totalTerkumpul > 0 ? `Rp ${stats.totalTerkumpul.toLocaleString("id-ID")}` : "—"}
@@ -111,8 +113,8 @@ function StatCard({
   iconColor: string;
 }) {
   return (
-    <div className="flex items-center gap-4 p-2">
-      <div className={`w-12 h-12 rounded-xl ${bgColor} flex items-center justify-center ${iconColor} shrink-0`}>
+      <div className="flex items-center gap-4 p-2">
+      <div className={`w-12 h-12 rounded-2xl ${bgColor} flex items-center justify-center ${iconColor} shrink-0 shadow-sm`}>
         {icon}
       </div>
       <div>

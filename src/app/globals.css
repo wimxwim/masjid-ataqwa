@@ -1,5 +1,3 @@
-@import "tailwindcss";
-
 @theme {
   --color-primary: #0e7a45;
   --color-primary-dark: #059669;
@@ -32,8 +30,18 @@
 
   --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-outfit), sans-serif;
+  --font-arabic: "Noto Naskh Arabic", "Traditional Arabic", serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --radius-card: 1.5rem;
+
+  /* ── 6-Tier Shadow System (Emerald-adapted from Nara) ── */
+  --shadow-1: 0 1px 3px rgba(14,122,69,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-2: 0 4px 12px rgba(14,122,69,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-3: 0 8px 24px rgba(14,122,69,0.10), 0 4px 8px rgba(0,0,0,0.06);
+  --shadow-4: 0 16px 48px rgba(14,122,69,0.12), 0 8px 16px rgba(0,0,0,0.06);
+  --shadow-5: 0 24px 64px rgba(14,122,69,0.14), 0 12px 24px rgba(0,0,0,0.08);
+  --shadow-glow: 0 0 20px rgba(14,122,69,0.3), 0 0 40px rgba(14,122,69,0.15);
+  --shadow-glow-accent: 0 0 20px rgba(200,168,78,0.3), 0 0 40px rgba(200,168,78,0.15);
 }
 
 :root {
@@ -47,6 +55,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* ── Animation Keyframes (Nara-inspired) ── */
 @keyframes slide-left {
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
@@ -55,31 +64,138 @@ body {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+@keyframes slide-down {
+  from { transform: translateY(-12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
 @keyframes spin-slow {
   to { transform: rotate(360deg); }
 }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+@keyframes bounce-in {
+  0% { opacity: 0; transform: scale(0.9); }
+  50% { transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
 @utility animate-slide-left {
   animation: slide-left 0.3s ease-out;
 }
 @utility animate-slide-up {
-  animation: slide-up 0.3s ease-out;
+  animation: slide-up 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@utility animate-slide-down {
+  animation: slide-down 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 @utility animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
+@utility animate-fade-in-up {
+  animation: fade-in-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@utility animate-scale-in {
+  animation: scale-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@utility animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+@utility animate-shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.4) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+@utility animate-bounce-in {
+  animation: bounce-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Glassmorphism Utilities ── */
+@utility glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+@utility glass-strong {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+@utility glass-dark {
+  background: rgba(2, 8, 5, 0.72);
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── Scroll Reveal Utility ── */
+@utility reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@utility reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Interactive Hover Utilities ── */
+@utility hover-lift {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@utility hover-lift-active {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-3);
+}
+
+/* ── Typography: Tight Letter-Spacing for Headings ── */
+@utility tracking-tighter {
+  letter-spacing: -0.04em;
+}
+@utility tracking-tight {
+  letter-spacing: -0.02em;
+}
 
 .dark {
   color-scheme: dark;
-  --color-bg: #0f172a;
-  --color-surface: #1e293b;
-  --color-ink: #f1f5f9;
-  --color-muted: #94a3b8;
-  --color-outline: #334155;
+  --color-bg: #020805;
+  --color-surface: #0a1a12;
+  --color-ink: #e8f5ee;
+  --color-muted: #7a9b8a;
+  --color-outline: #1a3a28;
   --color-success-subtle: #022c22;
+  --shadow-1: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.15);
+  --shadow-2: 0 4px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.15);
+  --shadow-3: 0 8px 24px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2);
+  --shadow-4: 0 16px 48px rgba(0,0,0,0.35), 0 8px 16px rgba(0,0,0,0.2);
+  --shadow-5: 0 24px 64px rgba(0,0,0,0.4), 0 12px 24px rgba(0,0,0,0.25);
+  --shadow-glow: 0 0 24px rgba(16,185,129,0.25), 0 0 48px rgba(16,185,129,0.1);
+  --shadow-glow-accent: 0 0 24px rgba(200,168,78,0.2), 0 0 48px rgba(200,168,78,0.08);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -88,6 +204,10 @@ body {
   *::after {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 

@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
-import { transactions, mustahiks, donatur_tetap, activity_feed } from "@/db/schema";
-import { eq, and, isNull, sql, desc, gte } from "drizzle-orm";
+import { transactions } from "@/db/schema";
+import { eq, sql, desc, gte } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth/server";
 
@@ -97,6 +97,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ error: "unknown type" }, { status: 400 });
   } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 500 });
+    console.error(e);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

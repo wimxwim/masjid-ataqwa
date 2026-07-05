@@ -46,7 +46,7 @@ export default function AdminMushafirPage() {
 
   const load = useCallback(async () => {
     try { setLoading(true); setData(await getMushafirAid()); }
-    catch { setError("Gagal memuat data."); }
+    catch (e) { console.error(e); setError("Gagal memuat data."); }
     finally { setLoading(false); }
   }, []);
 
@@ -239,9 +239,11 @@ export default function AdminMushafirPage() {
         onOpenChange={() => setDeleteTarget(null)}
         onConfirm={async () => {
           if (!deleteTarget) return;
-          await deleteMushafir(deleteTarget.id);
-          setDeleteTarget(null);
-          load();
+          try {
+            await deleteMushafir(deleteTarget.id);
+            load();
+          } catch (e) { console.error(e); setError("Gagal menghapus data."); }
+          finally { setDeleteTarget(null); }
         }}
         itemName={deleteTarget?.name}
       />

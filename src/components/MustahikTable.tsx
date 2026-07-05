@@ -45,7 +45,8 @@ export default function MustahikTable() {
       const [d, a] = await Promise.all([getMustahiks(), getAsnafList()]);
       setData(d);
       setAsnafList(a as (InsertAsnaf & { id: string })[]);
-    } catch {
+    } catch (e) {
+      console.error(e);
       setError("Gagal memuat data.");
     } finally {
       setLoading(false);
@@ -219,9 +220,11 @@ export default function MustahikTable() {
                         <button
                           onClick={async () => {
                             if (!confirm(`Hapus ${m.name}?`)) return;
-                            const res = await deleteMustahik(m.id);
-                            if (res.error) { setError(res.error); return; }
-                            load();
+                            try {
+                              const res = await deleteMustahik(m.id);
+                              if (res.error) { setError(res.error); return; }
+                              load();
+                            } catch (e) { console.error(e); setError("Gagal menghapus data."); }
                           }}
                           className="p-2.5 rounded-lg hover:bg-bg text-muted hover:text-red-600 transition-colors"
                           title="Hapus"

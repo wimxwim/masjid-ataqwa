@@ -63,7 +63,6 @@ async function handlePaymentNotification(notification: Record<string, unknown>) 
   const transactionId = String(notification.transaction_id ?? "");
   const paymentType = String(notification.payment_type ?? "");
   const grossAmount = Number(notification.gross_amount ?? 0);
-  const statusCode = String(notification.status_code ?? "");
 
   /* cari donasi berdasarkan order_id (prefix: donation-{uuid}) */
   const donationId = orderId.replace(/^donation-/, "");
@@ -75,6 +74,16 @@ async function handlePaymentNotification(notification: Record<string, unknown>) 
 
   if (!donation) {
     log.warn("Donasi tidak ditemukan", { orderId });
+    return;
+  }
+
+  /* cross-validate gross_amount against stored donation amount */
+  if (grossAmount !== donation.amount) {
+    log.error("grossAmount mismatch — possible tampering", {
+      orderId,
+      webhookAmount: grossAmount,
+      dbAmount: donation.amount,
+    });
     return;
   }
 

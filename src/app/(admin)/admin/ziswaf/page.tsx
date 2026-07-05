@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getZiswafRequests, createZiswafRequest, reviewZiswafRequest, type InsertZiswafRequest } from "@/lib/actions/ziswaf-requests";
-import { Search, Plus, X, HandHelping, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { Search, Plus, X, CheckCircle2, XCircle } from "lucide-react";
 import { formatNominal } from "@/lib/format";
 import { STATUS_LABEL, ZISWAF_TYPE_LABEL } from "@/lib/labels";
 
@@ -25,7 +25,7 @@ export default function AdminZiswafPage() {
 
   const load = useCallback(async () => {
     try { setLoading(true); setData(await getZiswafRequests()); }
-    catch { setError("Gagal memuat data."); }
+    catch (e) { console.error(e); setError("Gagal memuat data."); }
     finally { setLoading(false); }
   }, []);
 

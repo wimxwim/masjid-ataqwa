@@ -4,7 +4,7 @@ import { db } from "@/db/client";
 import { mosques, donations, transactions, mustahiks, profiles, memberships } from "@/db/schema";
 import { eq, and, isNull, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { requireAuth, requireRole } from "@/lib/auth/server";
+import { requireRole } from "@/lib/auth/server";
 import { resolveMosqueId } from "@/lib/actions/_helpers";
 
 export async function GET(request: Request) {
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   try {
     const mid = await resolveMosqueId();
     await requireRole(mid, "superadmin");
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Unauthorized: Superadmin only" }, { status: 401 });
   }
 

@@ -37,6 +37,7 @@ export async function rateLimit(
 
     return { success: true, remaining: max - count - 1 };
   } catch {
-    return { success: true, remaining: max };
+    // Fail CLOSED: block request when DB is down to prevent brute force
+    return { success: false, remaining: 0 };
   }
 }

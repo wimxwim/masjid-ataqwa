@@ -2,7 +2,7 @@ import { db } from "@/db/client";
 import { donations, mosques } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import { Clock, CreditCard, Landmark, ArrowLeft, Info, MessageCircle, BarChart3 } from "lucide-react";
+import { Clock, CreditCard, ArrowLeft, Info, MessageCircle, BarChart3 } from "lucide-react";
 import Link from "next/link";
 
 type SearchParams = Promise<{ order_id?: string; status_code?: string; transaction_status?: string }>;

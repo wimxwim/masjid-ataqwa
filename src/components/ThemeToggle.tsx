@@ -26,11 +26,13 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="p-2 text-muted hover:text-primary hover:bg-bg rounded-lg transition-all"
+      className="p-2 text-muted hover:text-primary hover:bg-primary/5 rounded-xl transition-all duration-200 hover:shadow-sm"
       title={dark ? "Mode Terang" : "Mode Gelap"}
       aria-label="Toggle theme"
     >
-      {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      <span className="block transition-transform duration-300" style={{ transform: dark ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+        {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      </span>
     </button>
   );
 }

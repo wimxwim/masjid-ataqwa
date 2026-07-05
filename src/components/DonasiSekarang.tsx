@@ -96,15 +96,15 @@ export default function DonasiSekarang() {
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-6" id="donasi-sekarang">
 
       <div className="text-center space-y-2 pt-6">
-        <h1 className="text-3xl font-display font-extrabold text-ink tracking-tight">
+        <h1 className="reveal text-3xl font-display font-extrabold text-ink tracking-tighter">
           Donasi Sekarang
         </h1>
-        <p className="text-muted text-sm max-w-md mx-auto">
+        <p className="reveal text-muted text-sm max-w-md mx-auto" style={{ transitionDelay: '100ms' }}>
           Zakat, infaq, atau sedekah — satu langkah mudah untuk kebaikan yang luas.
         </p>
       </div>
 
-      <div className="bg-surface rounded-2xl border border-outline shadow-lg p-6 sm:p-8 space-y-6">
+      <div className="reveal glass-strong rounded-3xl border border-white/30 dark:border-white/10 shadow-3 p-6 sm:p-8 space-y-6" style={{ transitionDelay: '150ms' }}>
 
         <div>
           <label className="block text-xs font-semibold text-muted mb-3">Nominal Donasi</label>
@@ -114,10 +114,10 @@ export default function DonasiSekarang() {
                 key={amt}
                 type="button"
                 onClick={() => setNominalDonasi(String(amt))}
-                className={`py-3 border rounded-xl text-xs sm:text-sm font-bold font-mono transition-all ${
+                className={`py-3 border rounded-2xl text-xs sm:text-sm font-bold font-mono transition-all ${
                   nominalDonasi === String(amt)
-                    ? "bg-primary text-white border-primary shadow-md"
-                    : "bg-surface hover:bg-gray-50 text-muted border-outline"
+                    ? "bg-primary text-white border-primary shadow-md shadow-primary/20"
+                    : "glass border-white/30 dark:border-white/10 hover:bg-white/80 dark:hover:bg-white/10 text-muted"
                 }`}
               >
                 Rp{amt.toLocaleString("id-ID")}
@@ -126,10 +126,10 @@ export default function DonasiSekarang() {
             <button
               type="button"
               onClick={() => setNominalDonasi("0")}
-              className={`py-3 border rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              className={`py-3 border rounded-2xl text-xs sm:text-sm font-bold transition-all ${
                 nominalDonasi === "0"
-                  ? "bg-primary text-white border-primary shadow-md"
-                  : "bg-surface hover:bg-gray-50 text-muted border-outline"
+                  ? "bg-primary text-white border-primary shadow-md shadow-primary/20"
+                  : "glass border-white/30 dark:border-white/10 hover:bg-white/80 dark:hover:bg-white/10 text-muted"
               }`}
             >
               Lainnya
@@ -145,7 +145,7 @@ export default function DonasiSekarang() {
                   value={formatNominal(nominalDonasi)}
                   onChange={(e) => setNominalDonasi(e.target.value.replace(/\D/g, ""))}
                   placeholder="Masukkan nominal"
-                  className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-3 pl-12 pr-4 rounded-xl text-sm font-mono transition-colors"
+                  className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:ring-2 focus:ring-primary/10 focus:outline-none py-3 pl-12 pr-4 rounded-2xl text-sm font-mono transition-all"
                 />
               </div>
             </div>
@@ -160,7 +160,7 @@ export default function DonasiSekarang() {
             value={nama}
             onChange={(e) => setNama(e.target.value)}
             placeholder="Masukkan nama Anda..."
-            className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-3 px-4 rounded-xl text-sm transition-colors"
+            className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:ring-2 focus:ring-primary/10 focus:outline-none py-3 px-4 rounded-2xl text-sm transition-all"
           />
         </div>
 
@@ -179,10 +179,10 @@ export default function DonasiSekarang() {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => setMetode("qris")}
-              className={`flex items-center justify-center gap-2 p-3 border rounded-xl text-xs font-bold transition-all ${
+              className={`flex items-center justify-center gap-2 p-3 border rounded-2xl text-xs font-bold transition-all ${
                 metode === "qris"
-                  ? "border-primary bg-success-subtle/50 text-primary shadow-xs"
-                  : "border-outline hover:bg-gray-50 text-muted"
+                  ? "border-primary bg-success-subtle/50 text-primary shadow-sm shadow-primary/10"
+                  : "glass border-white/30 dark:border-white/10 hover:bg-white/80 dark:hover:bg-white/10 text-muted"
               }`}
             >
               <CreditCard className="w-4 h-4" />
@@ -190,10 +190,10 @@ export default function DonasiSekarang() {
             </button>
             <button
               onClick={() => setMetode("transfer")}
-              className={`flex items-center justify-center gap-2 p-3 border rounded-xl text-xs font-bold transition-all ${
+              className={`flex items-center justify-center gap-2 p-3 border rounded-2xl text-xs font-bold transition-all ${
                 metode === "transfer"
-                  ? "border-primary bg-success-subtle/50 text-primary shadow-xs"
-                  : "border-outline hover:bg-gray-50 text-muted"
+                  ? "border-primary bg-success-subtle/50 text-primary shadow-sm shadow-primary/10"
+                  : "glass border-white/30 dark:border-white/10 hover:bg-white/80 dark:hover:bg-white/10 text-muted"
               }`}
             >
               <Landmark className="w-4 h-4" />
@@ -215,7 +215,7 @@ export default function DonasiSekarang() {
 
       </div>
 
-      <div className="bg-surface rounded-2xl border border-outline shadow-lg p-6 text-center space-y-4">
+      <div className="reveal glass-strong rounded-3xl border border-white/30 dark:border-white/10 shadow-3 p-6 text-center space-y-4" style={{ transitionDelay: '200ms' }}>
         <p className="text-[10px] uppercase font-bold text-muted tracking-wider">
           Total Donasi
         </p>
@@ -243,7 +243,7 @@ export default function DonasiSekarang() {
                 ? "Tunggu verifikasi captcha selesai"
                 : undefined
           }
-          className="w-full bg-primary hover:bg-primary-deep disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl text-base shadow-lg shadow-primary/10 transition-all flex items-center justify-center gap-2"
+          className="w-full bg-primary hover:bg-primary-deep disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl text-base shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all flex items-center justify-center gap-2"
         >
           {submitState === "loading" ? (
             <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -288,12 +288,12 @@ function KalkulatorZakat({ mosqueConfig }: { mosqueConfig: Record<string, unknow
   const [iCustom, setICustom] = useState("");
 
   return (
-    <div className="mt-4 space-y-4 border border-outline rounded-xl p-4 bg-bg">
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
+    <div className="mt-4 space-y-4 glass border border-white/20 dark:border-white/10 rounded-2xl p-4">
+      <div className="flex gap-1 glass p-1 rounded-2xl">
         {(["mal", "profesi", "infaq"] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)}
-            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
-              tab === t ? "bg-surface text-primary shadow-sm" : "text-muted"
+            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+              tab === t ? "bg-white dark:bg-white/10 text-primary shadow-sm" : "text-muted hover:text-ink"
             }`}>
             {t === "mal" ? "Zakat Mal" : t === "profesi" ? "Zakat Profesi" : "Infaq"}
           </button>
@@ -308,7 +308,7 @@ function KalkulatorZakat({ mosqueConfig }: { mosqueConfig: Record<string, unknow
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted font-mono">Rp</span>
                 <input type="text" inputMode="numeric" value={formatNominal(f.v)} onChange={(e) => f.s(e.target.value.replace(/\D/g,""))}
-                  className="w-full bg-surface border border-outline py-2 pl-10 pr-3 rounded-lg text-xs font-mono" />
+                  className="w-full glass border border-white/20 dark:border-white/10 py-2 pl-10 pr-3 rounded-xl text-xs font-mono focus:ring-2 focus:ring-primary/10 focus:outline-none transition-all" />
               </div>
             </div>
           ))}
@@ -324,7 +324,7 @@ function KalkulatorZakat({ mosqueConfig }: { mosqueConfig: Record<string, unknow
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted font-mono">Rp</span>
                 <input type="text" inputMode="numeric" value={formatNominal(f.v)} onChange={(e) => f.s(e.target.value.replace(/\D/g,""))}
-                  className="w-full bg-surface border border-outline py-2 pl-10 pr-3 rounded-lg text-xs font-mono" />
+                  className="w-full glass border border-white/20 dark:border-white/10 py-2 pl-10 pr-3 rounded-xl text-xs font-mono focus:ring-2 focus:ring-primary/10 focus:outline-none transition-all" />
               </div>
             </div>
           ))}
@@ -337,18 +337,18 @@ function KalkulatorZakat({ mosqueConfig }: { mosqueConfig: Record<string, unknow
           <div className="grid grid-cols-3 gap-2">
             {[25000,50000,100000,250000,500000].map((a) => (
               <button key={a} onClick={() => {setINominal(a);setICustom("");}}
-                className={`py-2 border rounded-lg text-xs font-bold font-mono transition-all ${
-                  iNominal===a&&!iCustom ? "bg-primary text-white border-primary" : "bg-surface text-muted border-outline"
+                className={`py-2 border rounded-xl text-xs font-bold font-mono transition-all ${
+                  iNominal===a&&!iCustom ? "bg-primary text-white border-primary shadow-sm shadow-primary/10" : "glass border-white/20 dark:border-white/10 text-muted hover:text-ink"
                 }`}>Rp{a.toLocaleString("id-ID")}</button>
             ))}
             <button onClick={() => setINominal(0)}
-              className={`py-2 border rounded-lg text-xs font-bold transition-all ${
-                iNominal===0 ? "bg-primary text-white border-primary" : "bg-surface text-muted border-outline"
+              className={`py-2 border rounded-xl text-xs font-bold transition-all ${
+                iNominal===0 ? "bg-primary text-white border-primary shadow-sm shadow-primary/10" : "glass border-white/20 dark:border-white/10 text-muted hover:text-ink"
               }`}>Kustom</button>
           </div>
           {iNominal===0&&<div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted font-mono">Rp</span>
             <input type="text" inputMode="numeric" value={formatNominal(iCustom)} onChange={(e)=>setICustom(e.target.value.replace(/\D/g,""))}
-              className="w-full bg-surface border border-outline py-2 pl-10 pr-3 rounded-lg text-xs font-mono" /></div>}
+              className="w-full glass border border-white/20 dark:border-white/10 py-2 pl-10 pr-3 rounded-xl text-xs font-mono focus:ring-2 focus:ring-primary/10 focus:outline-none transition-all" /></div>}
           <p className="text-center text-lg font-mono font-bold text-primary-deep">
             Rp {((iNominal===0?parseInt(iCustom):iNominal)||0).toLocaleString("id-ID")}
           </p>
@@ -360,10 +360,10 @@ function KalkulatorZakat({ mosqueConfig }: { mosqueConfig: Record<string, unknow
 
 function HasilZakat({ label, nominal, wajib, nisab, total }: { label: string; nominal: number; wajib: boolean; nisab: number; total: number }) {
   return (
-    <div className="space-y-2 pt-2 border-t border-outline">
+    <div className="space-y-2 pt-2 border-t border-white/20 dark:border-white/10">
       <div className="flex justify-between text-[10px]"><span className="text-muted">Total Harta</span><span className="font-bold font-mono">Rp{total.toLocaleString("id-ID")}</span></div>
       <div className="flex justify-between text-[10px]"><span className="text-muted">Nisab</span><span className="font-mono text-muted">Rp{nisab.toLocaleString("id-ID")}</span></div>
-      <div className={`p-3 rounded-lg flex gap-2 border text-[10px] ${wajib ? "bg-success-subtle border-primary/20" : "bg-accent/10 border-accent/20"}`}>
+      <div className={`p-3 rounded-xl flex gap-2 border text-[10px] ${wajib ? "bg-success-subtle border-primary/20" : "bg-accent/10 border-accent/20"}`}>
         {wajib ? <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" /> : <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />}
         <span>{wajib ? `Wajib ${label} — 2.5%` : "Belum wajib zakat (di bawah nisab)"}</span>
       </div>

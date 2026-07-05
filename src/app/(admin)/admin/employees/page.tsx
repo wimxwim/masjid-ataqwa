@@ -29,7 +29,7 @@ export default function AdminEmployeesPage() {
 
   const load = useCallback(async () => {
     try { setLoading(true); setData(await getEmployees()); }
-    catch { setError("Gagal memuat data."); }
+    catch (e) { console.error(e); setError("Gagal memuat data."); }
     finally { setLoading(false); }
   }, []);
 
@@ -196,7 +196,7 @@ export default function AdminEmployeesPage() {
                       <div className="flex items-center justify-end gap-1">
                         <button onClick={() => { setEditing(e); setShowForm(true); setError(""); }}
                           className="p-2 hover:bg-bg rounded-lg text-muted hover:text-primary transition-colors"><Pencil className="w-4 h-4" /></button>
-                        <button onClick={async () => { if (confirm("Hapus data pegawai ini?")) { await deleteEmployee(e.id); load(); } }}
+                        <button onClick={async () => { if (confirm("Hapus data pegawai ini?")) { try { await deleteEmployee(e.id); load(); } catch (err) { console.error(err); setError("Gagal menghapus data."); } } }}
                           className="p-2 hover:bg-bg rounded-lg text-muted hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                       </div>
                     </td>

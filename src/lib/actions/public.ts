@@ -2,7 +2,7 @@
 
 import { db } from "@/db/client";
 import { mosques, transactions, activity_feed, testimonials, programs, bumm_products, donations, mustahiks, asnaf, affiliate_sales } from "@/db/schema";
-import { eq, and, desc, asc, isNull, sql, gte, lte } from "drizzle-orm";
+import { eq, and, desc, asc, isNull, sql, gte } from "drizzle-orm";
 import { cache } from "react";
 import { AKAD_TO_FUND } from "@/lib/fund-mapping";
 
@@ -19,7 +19,14 @@ export const getDefaultMosque = cache(async () => {
 // 2. Get public transactions (no auth) — for Transparansi page
 export async function getPublicTransactions(mosqueId: string, limit = 50) {
   return db
-    .select()
+    .select({
+      id: transactions.id,
+      transaction_date: transactions.transaction_date,
+      donor_name: transactions.donor_name,
+      category: transactions.category,
+      amount: transactions.amount,
+      type: transactions.type,
+    })
     .from(transactions)
     .where(and(eq(transactions.mosque_id, mosqueId), isNull(transactions.deleted_at)))
     .orderBy(desc(transactions.transaction_date))
@@ -94,7 +101,14 @@ export async function getPublicTestimonials(mosqueId: string) {
 // 7. Get featured programs
 export async function getFeaturedPrograms(mosqueId: string) {
   return db
-    .select()
+    .select({
+      id: programs.id,
+      name: programs.name,
+      description: programs.description,
+      slug: programs.slug,
+      category: programs.category,
+      config: programs.config,
+    })
     .from(programs)
     .where(and(
       eq(programs.mosque_id, mosqueId),

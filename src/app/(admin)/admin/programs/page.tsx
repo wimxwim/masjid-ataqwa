@@ -17,7 +17,7 @@ export default function AdminProgramsPage() {
 
   const load = useCallback(async () => {
     try { setLoading(true); setData(await getPrograms()); }
-    catch { setError("Gagal memuat data."); }
+    catch (e) { console.error(e); setError("Gagal memuat data."); }
     finally { setLoading(false); }
   }, []);
 
@@ -73,9 +73,6 @@ export default function AdminProgramsPage() {
           className="w-full pl-9 pr-4 py-2.5 bg-surface border border-outline rounded-xl text-sm text-ink placeholder:text-muted outline-none focus:ring-2 focus:ring-primary/30" />
       </div>
 
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setShowForm(false)}>
-          <div className="bg-surface rounded-2xl border border-outline shadow-xl max-w-lg w-full p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard icon={FolderOpen} label="Total Program" value={data.length.toString()} />
@@ -83,7 +80,10 @@ export default function AdminProgramsPage() {
         <StatCard icon={Star} label="Unggulan" value={data.filter(p => p.is_featured).length.toString()} />
       </div>
 
-      <div className="flex items-center justify-between">
+      {showForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setShowForm(false)}>
+          <div className="bg-surface rounded-2xl border border-outline shadow-xl max-w-lg w-full p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
               <h3 className="font-display font-bold text-lg text-ink">{editing ? "Edit Program" : "Tambah Program Baru"}</h3>
               <button onClick={() => setShowForm(false)} className="p-1 hover:bg-bg rounded-lg"><X className="w-5 h-5 text-muted" /></button>
             </div>
@@ -156,7 +156,7 @@ export default function AdminProgramsPage() {
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => { setEditing(p); setShowForm(true); setError(""); }}
                         className="p-2 hover:bg-bg rounded-lg text-muted hover:text-primary transition-colors"><Pencil className="w-4 h-4" /></button>
-                      <form onSubmit={async (e) => { e.preventDefault(); if (confirm("Hapus program ini?")) { await deleteProgram(p.id); load(); } }}>
+                      <form onSubmit={async (e) => { e.preventDefault(); if (confirm("Hapus program ini?")) { try { await deleteProgram(p.id); load(); } catch (err) { console.error(err); setError("Gagal menghapus data."); } } }}>
                         <button type="submit" className="p-2 hover:bg-bg rounded-lg text-muted hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                       </form>
                     </div>

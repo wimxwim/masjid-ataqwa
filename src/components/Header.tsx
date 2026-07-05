@@ -31,7 +31,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-surface/95 backdrop-blur-md border-b border-outline shadow-xs">
+    <header className="sticky top-0 z-50 glass-strong border-b border-white/20 shadow-sm dark:border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
 
@@ -55,10 +55,10 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                     active
-                      ? "bg-primary/10 text-primary font-semibold shadow-xs"
-                      : "text-muted hover:text-primary hover:bg-bg"
+                      ? "bg-primary/10 text-primary font-semibold shadow-sm ring-1 ring-primary/20"
+                      : "text-muted hover:text-primary hover:bg-primary/5 hover:shadow-sm"
                   }`}
                 >
                   {item.label}
@@ -158,7 +158,7 @@ export default function Header() {
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden border-t border-outline bg-surface px-4 py-4 space-y-2" id="mobile-menu-drawer">
+        <div className="md:hidden border-t border-white/20 dark:border-white/10 glass px-4 py-4 space-y-2 animate-slide-down" id="mobile-menu-drawer">
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (

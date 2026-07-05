@@ -20,7 +20,7 @@ export default function AdminSahabatInfaqPage() {
 
   const load = useCallback(async () => {
     try { setLoading(true); setData(await getLoanApplications()); }
-    catch { setError("Gagal memuat data."); }
+    catch (e) { console.error(e); setError("Gagal memuat data."); }
     finally { setLoading(false); }
   }, []);
 
@@ -56,7 +56,7 @@ export default function AdminSahabatInfaqPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Hapus pengajuan ini?")) return;
     try { await deleteLoanApplication(id); load(); }
-    catch { setError("Gagal menghapus"); }
+    catch (e) { console.error(e); setError("Gagal menghapus"); }
   };
 
   const handleRunNPF = async () => {
@@ -67,8 +67,8 @@ export default function AdminSahabatInfaqPage() {
       if (res.success) {
         triggerToast("NPF Evaluated", `Berhasil mengevaluasi ${res.evaluated} pinjaman. Terupdate: ${res.updated} data.`);
       }
-    } catch (err: any) {
-      triggerToast("Error NPF", err.message || "Gagal menjalankan mesin NPF");
+    } catch (err: unknown) {
+      triggerToast("Error NPF", err instanceof Error ? err.message : "Gagal menjalankan mesin NPF");
     } finally {
       setEvaluating(false);
     }

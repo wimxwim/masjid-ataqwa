@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getDonaturTetap, createDonaturTetap, updateDonaturTetap, deleteDonaturTetap } from "@/lib/actions/donatur-tetap";
-import { Search, Plus, X, Pencil, Trash2, HandCoins, Navigation, Loader2, HeartHandshake, UserCheck, Wallet } from "lucide-react";
+import { Search, Plus, X, Pencil, Trash2, Loader2, HeartHandshake, UserCheck, Wallet } from "lucide-react";
 import { formatNominal } from "@/lib/format";
 import { StatCard } from "@/components/LargeUI";
 import SmartEmptyState from "@/components/SmartEmptyState";
@@ -29,7 +29,6 @@ export default function AdminDonaturPage() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Donatur | null>(null);
   const [error, setError] = useState("");
-  const [gpsLoading, setGpsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formKomitmen, setFormKomitmen] = useState("");
 
@@ -39,7 +38,7 @@ export default function AdminDonaturPage() {
 
   const load = useCallback(async () => {
     try { setLoading(true); setData(await getDonaturTetap()); }
-    catch { setError("Gagal memuat data."); }
+    catch (e) { console.error(e); setError("Gagal memuat data."); }
     finally { setLoading(false); }
   }, []);
 
@@ -224,7 +223,7 @@ export default function AdminDonaturPage() {
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => { setEditing(d); setShowForm(true); setError(""); }}
                         className="p-2 hover:bg-bg rounded-lg text-muted hover:text-primary transition-colors"><Pencil className="w-4 h-4" /></button>
-                      <button onClick={async () => { if (confirm(`Hapus donatur ${d.nama}?`)) { await deleteDonaturTetap(d.id); load(); } }}
+                      <button onClick={async () => { if (confirm(`Hapus donatur ${d.nama}?`)) { try { await deleteDonaturTetap(d.id); load(); } catch (err) { console.error(err); setError("Gagal menghapus data."); } } }}
                         className="p-2 hover:bg-bg rounded-lg text-muted hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </td>

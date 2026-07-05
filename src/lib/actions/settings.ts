@@ -44,7 +44,7 @@ export async function getMosqueSettings(): Promise<MosqueSettings> {
 }
 
 export async function updateMosqueSettings(formData: FormData): Promise<{ success: boolean; error?: string }> {
-  const profile = await requireAuth();
+  await requireAuth();
   const mosqueId = await resolveMosqueId();
   await requireRole(mosqueId, "superadmin", "admin_dkm");
 

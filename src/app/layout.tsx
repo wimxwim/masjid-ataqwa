@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
-import { Outfit, JetBrains_Mono } from "next/font/google";
+import { Outfit, JetBrains_Mono, Noto_Naskh_Arabic } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 import { AppProvider } from "@/stores/app-context";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import GlobalOverlays from "@/components/GlobalOverlays";
+import ScrollRevealProvider from "@/components/ScrollRevealProvider";
 import { buildMetadata, buildJsonLd, MOSQUE_JSON_LD, APP_NAME } from "@/lib/seo";
 
 const outfit = Outfit({
@@ -18,6 +19,13 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
   display: "swap",
+});
+
+const notoNaskhArabic = Noto_Naskh_Arabic({
+  variable: "--font-noto-naskh-arabic",
+  subsets: ["arabic"],
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -43,7 +51,7 @@ export default async function RootLayout({
   return (
       <html
         lang="id"
-        className={`${outfit.variable} ${jetbrainsMono.variable} h-full antialiased`}
+        className={`${outfit.variable} ${jetbrainsMono.variable} ${notoNaskhArabic.variable} h-full antialiased`}
         suppressHydrationWarning
       >
         <head>
@@ -58,6 +66,7 @@ export default async function RootLayout({
       <body className="min-h-full bg-bg text-ink font-sans flex flex-col">
         <AppProvider>
           <QueryProvider>
+            <ScrollRevealProvider />
             {children}
             <GlobalOverlays />
           </QueryProvider>

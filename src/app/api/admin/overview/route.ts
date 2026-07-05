@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
-import { transactions, mustahiks, jamaah, inventaris, donations, programs } from "@/db/schema";
-import { eq, and, desc, isNull, sql } from "drizzle-orm";
+import { transactions, mustahiks, jamaah, inventaris, donations } from "@/db/schema";
+import { eq, and, desc, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth/server";
 
@@ -50,6 +50,7 @@ export async function GET(request: Request) {
       donations: donationRows,
     });
   } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 500 });
+    console.error(e);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

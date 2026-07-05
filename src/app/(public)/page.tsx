@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import {
   getDefaultMosque,
   getDashboardStats,
@@ -89,11 +88,11 @@ export default async function HomePage() {
         <LiveActivityFeed />
       </section>
 
-      <ProgramGrid programs={featuredPrograms as any} />
+      <ProgramGrid programs={featuredPrograms} />
 
       <ZakatCalculator zakatFitrahAmount={zakatFitrahAmount} />
 
-      <TransparencyTable transactions={inflowTransactions as any} />
+      <TransparencyTable transactions={inflowTransactions} />
 
       <PartnerLogos />
     </div>

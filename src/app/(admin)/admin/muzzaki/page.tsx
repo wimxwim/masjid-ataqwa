@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { getMuzzakiList, createMuzzaki, updateMuzzaki, deleteMuzzaki, type InsertMuzzaki } from "@/lib/actions/muzzaki";
 import { createZakatPayment } from "@/lib/actions/zakat-payments";
-import { Search, Plus, X, Pencil, Trash2, HandCoins, CheckCircle2, Users, UserCheck, TrendingUp } from "lucide-react";
+import { Search, Plus, X, Pencil, Trash2, CheckCircle2, Users, UserCheck, TrendingUp } from "lucide-react";
 import { formatNominal } from "@/lib/format";
 import { MUZZAKI_TYPE_LABEL, ZAKAT_TYPE_LABEL, label } from "@/lib/labels";
 import { StatCard } from "@/components/LargeUI";
@@ -37,7 +37,7 @@ export default function AdminMuzzakiPage() {
 
   const load = useCallback(async () => {
     try { setLoading(true); setData(await getMuzzakiList()); }
-    catch { setError("Gagal memuat data."); }
+    catch (e) { console.error(e); setError("Gagal memuat data."); }
     finally { setLoading(false); }
   }, []);
 
@@ -280,7 +280,7 @@ export default function AdminMuzzakiPage() {
                         title="Catat pembayaran zakat"><CheckCircle2 className="w-4 h-4" /></button>
                       <button onClick={() => openEdit(m)}
                         className="p-2 hover:bg-bg rounded-lg text-muted hover:text-primary transition-colors"><Pencil className="w-4 h-4" /></button>
-                      <button onClick={async () => { if (confirm(`Hapus muzzaki ${m.name}?`)) { await deleteMuzzaki(m.id); load(); } }}
+                      <button onClick={async () => { if (confirm(`Hapus muzzaki ${m.name}?`)) { try { await deleteMuzzaki(m.id); load(); } catch (err) { console.error(err); setError("Gagal menghapus data."); } } }}
                         className="p-2 hover:bg-bg rounded-lg text-muted hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </td>

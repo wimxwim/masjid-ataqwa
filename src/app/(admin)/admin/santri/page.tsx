@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { getSantri, getSantriById, createSantri, updateSantri, deleteSantri, getAttendance, getHafalan, recordAttendance, createHafalan, deleteHafalan } from "@/lib/actions/santri";
+import { getSantri, createSantri, updateSantri, deleteSantri, getAttendance, getHafalan, recordAttendance, createHafalan, deleteHafalan } from "@/lib/actions/santri";
 import type { InsertSantri, InsertAttendance, InsertHafalan } from "@/lib/actions/santri";
-import { GraduationCap, BookOpen, Search, Plus, X, Pencil, Trash2, CheckCircle, Clock } from "lucide-react";
+import { BookOpen, Search, Plus, X, Pencil, Trash2, CheckCircle, Clock } from "lucide-react";
 
 const LEVELS = ["tahsin", "tahfidz", "tafsir"];
 const ATTENDANCE_STATUSES = ["hadir", "izin", "sakit", "alpha"];
@@ -40,7 +40,7 @@ export default function AdminSantriPage() {
 
   const load = useCallback(async () => {
     try { setLoading(true); setData(await getSantri()); }
-    catch { setError("Gagal memuat data."); }
+    catch (e) { console.error(e); setError("Gagal memuat data."); }
     finally { setLoading(false); }
   }, []);
 
@@ -267,7 +267,7 @@ export default function AdminSantriPage() {
                       <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                         <button onClick={() => { setEditing(s); setShowForm(true); setError(""); }}
                           className="p-2 hover:bg-bg rounded-lg text-muted hover:text-primary transition-colors"><Pencil className="w-4 h-4" /></button>
-                        <button onClick={async () => { if (confirm("Hapus santri ini?")) { await deleteSantri(s.id); load(); } }}
+                        <button onClick={async () => { if (confirm("Hapus santri ini?")) { try { await deleteSantri(s.id); load(); } catch (err) { console.error(err); setError("Gagal menghapus data."); } } }}
                           className="p-2 hover:bg-bg rounded-lg text-muted hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                       </div>
                     </td>
@@ -365,7 +365,7 @@ export default function AdminSantriPage() {
                                         <td className="p-2">{hafalanStatusBadge(h.status)}</td>
                                         <td className="p-2 text-muted text-xs">{h.notes || "—"}</td>
                                         <td className="p-2 text-right">
-                                          <button onClick={async () => { if (confirm("Hapus catatan hafalan ini?")) { await deleteHafalan(h.id); setHafalan(await getHafalan(s.id)); } }}
+                                          <button onClick={async () => { if (confirm("Hapus catatan hafalan ini?")) { try { await deleteHafalan(h.id); setHafalan(await getHafalan(s.id)); } catch (err) { console.error(err); setError("Gagal menghapus data."); } } }}
                                             className="p-1 hover:bg-bg rounded-lg text-muted hover:text-red-500 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                                         </td>
                                       </tr>

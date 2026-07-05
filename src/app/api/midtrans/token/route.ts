@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import crypto from "crypto";
 import { db } from "@/db/client";
 import { donations } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -22,7 +21,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { order_id, gross_amount, donor_name, donor_phone, akad_type } = body;
+    const { order_id, gross_amount, donor_name, donor_phone } = body;
 
     if (!order_id || !gross_amount || gross_amount <= 0) {
       return NextResponse.json({ error: "order_id dan gross_amount wajib" }, { status: 400 });
@@ -38,6 +37,10 @@ export async function POST(request: Request) {
 
     if (!donation) {
       return NextResponse.json({ error: "Donasi tidak ditemukan" }, { status: 404 });
+    }
+
+    if (donation.payment_status === "paid") {
+      return NextResponse.json({ error: "Donasi sudah dibayar" }, { status: 400 });
     }
 
     if (Number(gross_amount) !== donation.amount) {
