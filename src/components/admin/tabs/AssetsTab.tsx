@@ -59,8 +59,8 @@ export default function AssetsTab({ mosqueId, inventarisList, setInventarisList 
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      <div className="lg:col-span-5 bg-surface border border-outline rounded-2xl shadow-sm p-6 space-y-4">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start reveal">
+      <div className="lg:col-span-5 glass-strong rounded-2xl shadow-2 p-6 space-y-4">
         <h4 className="font-display font-bold text-base text-ink flex items-center gap-2 border-b border-outline/50 pb-2">
           <Hammer className="w-4.5 h-4.5 text-primary" />
           Catat Barang Inventaris Baru
@@ -71,19 +71,19 @@ export default function AssetsTab({ mosqueId, inventarisList, setInventarisList 
             <label className="text-[10px] font-bold text-muted uppercase">Nama Barang</label>
             <input type="text" required value={invNama} onChange={(e) => setInvNama(e.target.value)}
               placeholder="Contoh: Karpet Sajadah Turki"
-              className="w-full bg-bg border border-outline py-1.5 px-2.5 rounded-lg text-xs font-semibold" />
+              className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2 px-3 rounded-xl text-xs font-semibold transition-all shadow-1" />
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="text-[10px] font-bold text-muted uppercase">Jumlah</label>
               <input type="number" required min="1" value={invJumlah} onChange={(e) => setInvJumlah(e.target.value)}
                 placeholder="Contoh: 10"
-                className="w-full bg-bg border border-outline py-1.5 px-2.5 rounded-lg text-xs font-mono font-semibold" />
+                className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2 px-3 rounded-xl text-xs font-mono font-semibold transition-all shadow-1" />
             </div>
             <div>
               <label className="text-[10px] font-bold text-muted uppercase">Satuan</label>
               <select value={invSatuan} onChange={(e) => setInvSatuan(e.target.value)}
-                className="w-full bg-bg border border-outline py-1.5 px-2.5 rounded-lg text-xs font-semibold">
+                className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2 px-3 rounded-xl text-xs font-semibold transition-all shadow-1">
                 <option value="Unit">Unit</option>
                 <option value="Buah">Buah</option>
                 <option value="Set">Set</option>
@@ -96,7 +96,7 @@ export default function AssetsTab({ mosqueId, inventarisList, setInventarisList 
             <div>
               <label className="text-[10px] font-bold text-muted uppercase">Kondisi</label>
               <select value={invKondisi} onChange={(e) => setInvKondisi(e.target.value as "Baik" | "Rusak Ringan" | "Rusak Berat")}
-                className="w-full bg-bg border border-outline py-1.5 px-2.5 rounded-lg text-xs font-semibold">
+                className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2 px-3 rounded-xl text-xs font-semibold transition-all shadow-1">
                 <option value="Baik">Baik</option>
                 <option value="Rusak Ringan">Rusak Ringan</option>
                 <option value="Rusak Berat">Rusak Berat</option>
@@ -105,31 +105,31 @@ export default function AssetsTab({ mosqueId, inventarisList, setInventarisList 
             <div>
               <label className="text-[10px] font-bold text-muted uppercase">Asal</label>
               <select value={invAsal} onChange={(e) => setInvAsal(e.target.value as "Wakaf" | "Pembelian Kas")}
-                className="w-full bg-bg border border-outline py-1.5 px-2.5 rounded-lg text-xs font-semibold">
+                className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2 px-3 rounded-xl text-xs font-semibold transition-all shadow-1">
                 <option value="Wakaf">Wakaf</option>
                 <option value="Pembelian Kas">Pembelian Kas</option>
               </select>
             </div>
           </div>
           <button type="submit"
-            className="w-full bg-primary hover:bg-primary-deep text-white text-xs font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer">
+            className="w-full bg-primary hover:bg-primary-deep text-white font-bold rounded-xl shadow-md shadow-primary/10 hover:shadow-glow active:scale-95 transition-all text-xs py-2.5 flex items-center justify-center gap-1 cursor-pointer">
             <Plus className="w-3.5 h-3.5" /> Daftarkan Aset
           </button>
         </form>
       </div>
 
-      <div className="lg:col-span-7 bg-surface border border-outline rounded-2xl shadow-sm p-6 space-y-4">
+      <div className="lg:col-span-7 glass-strong rounded-2xl shadow-2 p-6 space-y-4">
         <div className="flex justify-between items-center border-b border-outline pb-2.5">
           <h4 className="font-display font-extrabold text-ink text-sm flex items-center gap-2">
             <Hammer className="w-4 h-4 text-primary" />
             Daftar Inventaris Fisik Masjid
           </h4>
-          <span className="text-xs bg-bg text-slate-500 font-mono font-bold px-2 py-0.5 rounded border border-outline">
+          <span className="text-xs bg-bg text-muted font-mono font-bold px-2 py-0.5 rounded border border-outline">
             {inventarisList.length} Barang
           </span>
         </div>
 
-        <div className="border border-outline rounded-xl overflow-hidden text-xs">
+        <div className="glass overflow-hidden rounded-[var(--radius-card)] shadow-2 text-xs">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-bg text-muted font-bold uppercase tracking-wider border-b border-outline">
@@ -140,9 +140,9 @@ export default function AssetsTab({ mosqueId, inventarisList, setInventarisList 
                 <th className="p-3 text-center">Asal</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-outline/50">
               {inventarisList.map((item) => (
-                <tr key={item.id} className="hover:bg-bg/50">
+                <tr key={item.id} className="hover:bg-primary/5 transition-colors">
                   <td className="p-3 font-semibold text-ink">{item.namaBarang}</td>
                   <td className="p-3 text-center font-mono font-bold text-ink">{item.jumlah}</td>
                   <td className="p-3 text-center font-medium text-muted">{item.satuan}</td>

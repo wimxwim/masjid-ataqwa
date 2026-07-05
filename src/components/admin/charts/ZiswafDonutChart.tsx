@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { BookMarked } from "lucide-react";
+import { GlassCard } from "@/components/design-system";
 
 const FUND_TYPE_LABEL: Record<string, string> = {
   zakat_fitrah: "Zakat Fitrah",
@@ -37,10 +38,10 @@ interface ZiswafDonutChartProps {
 export default function ZiswafDonutChart({ data, loading }: ZiswafDonutChartProps) {
   if (loading) {
     return (
-      <div className="bg-surface border border-outline rounded-2xl shadow-sm p-6 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-40 mb-4" />
-        <div className="h-56 bg-gray-100 rounded-full mx-auto" style={{ maxWidth: 200 }} />
-      </div>
+      <GlassCard rounded="2xl" className="p-6 animate-pulse shadow-2">
+        <div className="h-4 bg-bg rounded w-40 mb-4" />
+        <div className="h-56 bg-bg rounded-full mx-auto" style={{ maxWidth: 200 }} />
+      </GlassCard>
     );
   }
 
@@ -55,7 +56,7 @@ export default function ZiswafDonutChart({ data, loading }: ZiswafDonutChartProp
   const grandTotal = chartData.reduce((sum, d) => sum + d.value, 0);
 
   return (
-    <div className="bg-surface border border-outline rounded-2xl shadow-sm p-6 flex flex-col">
+    <GlassCard hover rounded="2xl" className="p-6 flex flex-col shadow-2 hover:hover-lift-active">
       <div className="mb-4">
         <h3 className="font-display font-bold text-lg text-ink flex items-center gap-2">
           <BookMarked className="w-5 h-5 text-primary" />
@@ -114,6 +115,6 @@ export default function ZiswafDonutChart({ data, loading }: ZiswafDonutChartProp
           </div>
         </>
       )}
-    </div>
+    </GlassCard>
   );
 }

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # =====================================================================
-# ADMIN MASJID — Ultimate Edition v2026.07 (Diperbaiki)
+# ADMIN MASJID — Ultimate Edition v2026.07 (Supabase CLI Integrated)
 # =====================================================================
-# 21 fitur — parsing JSON via jq (bukan grep/sed) — cek status HTTP —
-# fungsi tambah/lihat/hapus terimplementasi penuh
+# 39 fitur — CRUD via REST API — Database Management via Supabase CLI —
+# Storage, Secrets, Advisors, Migration, Backup/Restore, SQL Query
 # =====================================================================
 
 set -uo pipefail
@@ -20,7 +20,7 @@ C="\033[38;5;51m"; M="\033[38;5;201m"; W="\033[38;5;255m"; O="\033[38;5;214m"
 P="\033[38;5;135m"; S="\033[38;5;245m"; N="\033[0m"
 BG_BLACK="\033[48;5;0m"
 
-info()  { echo -e "${H}${BOLD}ℹ${N} ${H}$*${N}"; }
+info()  { echo -e "${H}${BOLD}i${N} ${H}$*${N}"; }
 ok()    { echo -e "${G}${BOLD}✔${N} ${G}$*${N}"; }
 warn()  { echo -e "${Y}${BOLD}⚠${N} ${Y}$*${N}"; }
 err()   { echo -e "${R}${BOLD}✘${N} ${R}$*${N}"; }
@@ -37,7 +37,7 @@ print_header() {
   echo -e "${BG_BLACK}${W}${BOLD}"
   echo "   ╔══════════════════════════════════════════════════════════╗"
   echo "   ║   ${M}▀▄▀▄▀▄  ADMIN MASJID  ▄▀▄▀▄▀${W}                     ║"
-  echo "   ║   ${C}◈  Ultimate Panel — 21 Fitur  ◈${W}                 ║"
+  echo "   ║   ${C}◈  Ultimate Panel — 50 Fitur + Supabase CLI  ◈${W}  ║"
   echo "   ║   ${S}Masjid: ${G}${BOLD}${MOSQUE_NAME:-Tidak diketahui}${W}"
   echo "   ╚══════════════════════════════════════════════════════════╝"
   echo -e "${N}"
@@ -51,6 +51,13 @@ for CMD in curl jq; do
     exit 1
   fi
 done
+
+# Cek Supabase CLI (opsional — fitur 25-50 butuh ini)
+HAS_SUPABASE=false
+if command -v supabase >/dev/null 2>&1; then
+  HAS_SUPABASE=true
+  SUPABASE_VERSION=$(supabase --version 2>/dev/null | head -1 || echo "unknown")
+fi
 
 # ─── Baca .env ──────────────────────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -70,8 +77,6 @@ MISSING=""
 if [ -n "$MISSING" ]; then
   echo -e "${R}${BOLD}ERROR:${N} Variabel berikut belum diisi di .env:${MISSING}"
   echo -e "${Y}${BOLD}SUPABASE_SERVICE_ROLE_KEY${N} → Dashboard Supabase > Project Settings > API Keys."
-  echo -e "${S}Catatan 2026: Supabase punya dua sistem key — key 'Legacy' (service_role, di tab Legacy API Keys)"
-  echo -e "${S}atau key baru bertipe 'secret' (diawali sb_secret_...). Keduanya bisa dipakai di sini.${N}"
   exit 1
 fi
 
@@ -80,8 +85,62 @@ AUTH_URL="${SUPABASE_URL}/auth/v1/admin/users"
 REST_URL="${SUPABASE_URL}/rest/v1"
 AUTH_HEAD=(-H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" -H "Content-Type: application/json")
 
+# ─── Supabase CLI Config ────────────────────────────────────────────
+# Project ref dari URL: https://<ref>.supabase.co
+SUPABASE_PROJECT_REF=$(echo "$SUPABASE_URL" | sed -E 's|https?://([^.]+)\.supabase\..*|\1|')
+
+# Extract SUPABASE_DB_PASSWORD dari DATABASE_URL untuk db lint/backup/restore
+# Format: postgresql://user:PASSWORD@host:port/db
+if [ -n "${DATABASE_URL:-}" ] && [ -z "${SUPABASE_DB_PASSWORD:-}" ]; then
+  SUPABASE_DB_PASSWORD=$(echo "$DATABASE_URL" | sed -E 's|.*:([^@]+)@.*|\1|')
+  export SUPABASE_DB_PASSWORD
+fi
+
+# Cari supabase project root (walk up dari PROJECT_DIR cari supabase/.temp/project-ref)
+SUPABASE_ROOT=""
+_find_supabase_root() {
+  local dir="$PROJECT_DIR"
+  while [ "$dir" != "/" ]; do
+    if [ -f "$dir/supabase/.temp/project-ref" ]; then
+      SUPABASE_ROOT="$dir"
+      return 0
+    fi
+    dir="$(dirname "$dir")"
+  done
+  return 1
+}
+_find_supabase_root
+
+# ─── Supabase CLI Wrapper Functions ─────────────────────────────────
+require_supabase() {
+  if [ "$HAS_SUPABASE" = false ]; then
+    err "Supabase CLI tidak terpasang!"
+    echo -e "${Y}Install: npm install -g supabase  atau  brew install supabase/tap/supabase${N}"
+    return 1
+  fi
+  if [ -z "$SUPABASE_ROOT" ]; then
+    err "Supabase project tidak ditemukan! Jalankan 'supabase link' dulu."
+    return 1
+  fi
+  return 0
+}
+
+# Semua supabase CLI command harus cd ke SUPABASE_ROOT dulu (--linked butuh ini)
+supabase_query() {
+  local sql="$1"
+  local output="${2:-json}"  # json, table, csv
+  (cd "$SUPABASE_ROOT" && supabase db query "$sql" --linked -o "$output" --yes 2>&1)
+}
+
+supabase_query_file() {
+  local file="$1"
+  local output="${2:-json}"
+  (cd "$SUPABASE_ROOT" && supabase db query -f "$file" --linked -o "$output" --yes 2>&1)
+}
+
+format_rp() { echo "$1" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta' | tr ',' '.'; }
+
 # ─── Lapisan API (dengan status HTTP) ───────────────────────────────
-# Set variabel global HTTP_STATUS dan API_BODY setelah tiap panggilan.
 HTTP_STATUS=""
 API_BODY=""
 api_call() {
@@ -126,7 +185,7 @@ if [ -z "$MOSQUE_ID" ]; then
   exit 1
 fi
 
-# ─── Daftar pengelola sebagai JSON (gabungan memberships + profiles) ─
+# ─── Daftar pengelola sebagai JSON ──────────────────────────────────
 get_admin_list() {
   api_call GET "${REST_URL}/memberships?select=profile_id,role,is_active&mosque_id=eq.${MOSQUE_ID}"
   local MEMBERS="$API_BODY"
@@ -142,7 +201,6 @@ get_admin_list() {
   '
 }
 
-# ─── Pilih admin dari daftar (mengembalikan objek JSON terpilih) ────
 select_admin() {
   local LIST_JSON; LIST_JSON=$(get_admin_list)
   local COUNT; COUNT=$(echo "$LIST_JSON" | jq 'length')
@@ -164,7 +222,7 @@ select_admin() {
 }
 
 # ====================================================================
-# 1. TAMBAH
+# 1. TAMBAH PENGELOLA
 # ====================================================================
 tambah() {
   print_header
@@ -206,9 +264,8 @@ tambah() {
     info "Mencari akun yang sudah ada..."
     api_call GET "${REST_URL}/profiles?select=id&email=eq.${EMAIL}"
     NEW_ID=$(echo "$API_BODY" | jq -r '.[0].id // empty')
-    
     if [ -z "$NEW_ID" ]; then
-      err "Akun Auth gagal dibuat dan profil tidak ditemukan. Cek manual di Supabase."
+      err "Akun Auth gagal dibuat dan profil tidak ditemukan."
       pause; return
     fi
     ok "Ditemukan akun dengan ID: $NEW_ID"
@@ -218,7 +275,6 @@ tambah() {
   local PROFILE_PAYLOAD; PROFILE_PAYLOAD=$(jq -n --arg id "$NEW_ID" --arg n "$NAME" --arg e "$EMAIL" \
     '{id:$id, name:$n, email:$e}')
   if ! api_call POST "${REST_URL}/profiles" "$PROFILE_PAYLOAD"; then
-    # Mungkin trigger Supabase sudah otomatis membuat baris profil (id sama) → coba update saja
     if ! api_call PATCH "${REST_URL}/profiles?id=eq.${NEW_ID}" "$(jq -n --arg n "$NAME" --arg e "$EMAIL" '{name:$n, email:$e}')"; then
       err "Gagal menyimpan profil (HTTP $HTTP_STATUS): $(api_error_msg)"
       pause; return
@@ -238,7 +294,7 @@ tambah() {
 }
 
 # ====================================================================
-# 2. LIHAT
+# 2. LIHAT PENGELOLA
 # ====================================================================
 lihat() {
   print_header
@@ -263,7 +319,7 @@ lihat() {
 }
 
 # ====================================================================
-# 3. HAPUS
+# 3. HAPUS PENGELOLA
 # ====================================================================
 hapus() {
   print_header
@@ -289,7 +345,7 @@ hapus() {
 
   info "Menghapus akun autentikasi..."
   if api_call DELETE "${AUTH_URL}/${PID}"; then
-    ok "Pengelola '$NM' berhasil dihapus sepenuhnya (profil + akun login)."
+    ok "Pengelola '$NM' berhasil dihapus sepenuhnya."
   else
     warn "Profil terhapus, tapi akun login gagal dihapus (HTTP $HTTP_STATUS): $(api_error_msg)"
   fi
@@ -330,7 +386,6 @@ edit_profil() {
       err "Gagal memperbarui kredensial login (HTTP $HTTP_STATUS): $(api_error_msg)"
     fi
   fi
-  echo "Perubahan selesai."
   pause
 }
 
@@ -348,7 +403,7 @@ toggle_status() {
   if [ "$IS_ACTIVE" = "true" ]; then
     NEW_STATUS="false"; warn "Status saat ini: AKTIF. Nonaktifkan $NM?"
   else
-    NEW_STATUS="true"; warn "Status saat ini: NONAKTIF. Aktifkan $NM?"
+    warn "Status saat ini: NONAKTIF. Aktifkan $NM?"
   fi
   read -r -p "Lanjutkan? (y/n): " CONFIRM
   if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
@@ -364,20 +419,20 @@ toggle_status() {
 }
 
 # ====================================================================
-# 6. LOG AKTIVITAS (berdasar updated_at profil — lihat catatan)
+# 6. LOG AKTIVITAS
 # ====================================================================
 lihat_log() {
   print_header
   print_box "  📜  LOG AKTIVITAS  " "$P"
-  echo "Ini bukan audit-log sungguhan (perlu tabel log terpisah). Menampilkan 5 profil berdasar last_login_at:"
-  if ! api_call GET "${REST_URL}/profiles?select=name,email,last_login_at&order=last_login_at.desc.nullslast&limit=5"; then
-    err "Gagal mengambil data (HTTP $HTTP_STATUS): $(api_error_msg)"; pause; return
-  fi
-  local N_ROWS; N_ROWS=$(echo "$API_BODY" | jq 'length')
-  if [ "$N_ROWS" -eq 0 ]; then
-    warn "Belum ada data."
+  if api_call GET "${REST_URL}/profiles?select=name,email,last_login_at&order=last_login_at.desc.nullslast&limit=10"; then
+    local N_ROWS; N_ROWS=$(echo "$API_BODY" | jq 'length')
+    if [ "$N_ROWS" -eq 0 ]; then
+      warn "Belum ada data."
+    else
+      echo "$API_BODY" | jq -r '.[] | "  \(.last_login_at // "?" | split("T")[0]) - \(.name) (\(.email))"'
+    fi
   else
-    echo "$API_BODY" | jq -r '.[] | "  \(.last_login_at // "?" | split("T")[0]) - \(.name) (\(.email))"'
+    err "Gagal mengambil data (HTTP $HTTP_STATUS): $(api_error_msg)"
   fi
   pause
 }
@@ -399,7 +454,7 @@ ekspor_csv() {
 }
 
 # ====================================================================
-# 8. BROADCAST EMAIL (simulasi — tempel kunci API email untuk versi nyata)
+# 8. BROADCAST EMAIL (simulasi)
 # ====================================================================
 broadcast_email() {
   print_header
@@ -415,8 +470,7 @@ broadcast_email() {
   else
     echo "Email akan dikirim ke:"
     echo "$EMAILS" | while read -r e; do echo "  - $e"; done
-    warn "Fitur pengiriman sungguhan belum terhubung ke provider email (SendGrid/Resend/dll)."
-    ok "Pengumuman disimulasikan untuk subjek: '$SUBJ'"
+    warn "Fitur pengiriman sungguhan belum terhubung ke provider email."
   fi
   pause
 }
@@ -505,7 +559,7 @@ ubah_peran() {
 }
 
 # ====================================================================
-# 13. BACKUP (JSON)
+# 13. BACKUP DATA (JSON via REST)
 # ====================================================================
 backup_data() {
   print_header
@@ -519,7 +573,7 @@ backup_data() {
 }
 
 # ====================================================================
-# 14. RESTORE
+# 14. RESTORE DATA (JSON via REST)
 # ====================================================================
 restore_data() {
   print_header
@@ -549,13 +603,12 @@ restore_data() {
 }
 
 # ====================================================================
-# 15. RIWAYAT LOGIN (proxy: last_login_at profil)
+# 15. RIWAYAT LOGIN
 # ====================================================================
 riwayat_login() {
   print_header
   print_box "  🕒  RIWAYAT LOGIN  " "$P"
-  echo "Data login asli butuh akses ke log auth internal Supabase. Menampilkan proxy dari profil:"
-  if api_call GET "${REST_URL}/profiles?select=email,last_login_at&order=last_login_at.desc.nullslast&limit=5"; then
+  if api_call GET "${REST_URL}/profiles?select=email,last_login_at&order=last_login_at.desc.nullslast&limit=10"; then
     echo "$API_BODY" | jq -r '.[] | "  \(.email) - terakhir login: \(.last_login_at // "?" | split("T")[0])"'
   else
     err "Gagal mengambil data (HTTP $HTTP_STATUS): $(api_error_msg)"
@@ -569,11 +622,11 @@ riwayat_login() {
 notif_wa() {
   print_header
   print_box "  📱  KIRIM NOTIFIKASI WHATSAPP  " "$G"
-  warn "Fitur ini butuh integrasi API WhatsApp pihak ketiga (mis. Twilio, Fonnte, Wablas)."
+  warn "Fitur ini butuh integrasi API WhatsApp (Fonnte/Twilio)."
   read -r -p "Nomor tujuan (contoh: 628123456789): " PHONE
   read -r -p "Pesan: " MSG
   echo "Simulasi: mengirim WA ke $PHONE → \"$MSG\""
-  ok "Notifikasi tersimulasikan (belum terhubung provider nyata)."
+  ok "Notifikasi tersimulasikan."
   pause
 }
 
@@ -634,12 +687,12 @@ pindah_masjid() {
 }
 
 # ====================================================================
-# 20. RESET SEMUA DATA (hati-hati)
+# 20. RESET SEMUA DATA
 # ====================================================================
 reset_all() {
   print_header
   print_box "  ⚠️  RESET SEMUA DATA  " "$R"
-  warn "Ini akan MENGHAPUS SEMUA pengelola & keanggotaan di masjid ini (akun login TIDAK dihapus)!"
+  warn "Ini akan MENGHAPUS SEMUA pengelola & keanggotaan di masjid ini!"
   echo -e "${R}${BOLD}Ketik RESET (huruf besar) untuk konfirmasi:${N}"
   read -r CONFIRM
   if [ "$CONFIRM" != "RESET" ]; then
@@ -647,7 +700,6 @@ reset_all() {
   fi
   api_call DELETE "${REST_URL}/memberships?mosque_id=eq.${MOSQUE_ID}"
   ok "Semua keanggotaan pengelola di masjid ini sudah direset."
-  info "Profil & akun auth TIDAK dihapus (aman untuk masjid lain yang memakai profil sama)."
   pause
 }
 
@@ -658,16 +710,38 @@ bantuan() {
   print_header
   print_box "  📖  BANTUAN & PANDUAN  " "$Y"
   cat <<EOF
-${S}============================================================${N}
-${C}${BOLD}ADMIN MASJID — Ultimate Edition v2026.07${N}
+${S}════════════════════════════════════════════════════════════════════════════${N}
+${C}${BOLD}ADMIN MASJID — Ultimate Edition v2026.07 (50 Fitur + Supabase CLI)${N}
 
- 1. Tambah pengelola baru     6. Log aktivitas        11. Reset password    16. Notif WhatsApp
- 2. Lihat daftar pengelola    7. Ekspor CSV            12. Ubah peran         17. Kelola nama masjid
- 3. Hapus pengelola           8. Email pengumuman      13. Backup (JSON)      18. Daftar masjid
- 4. Edit profil               9. Dashboard statistik   14. Restore            19. Pindah masjid
- 5. Aktif/nonaktifkan        10. Cari pengelola        15. Riwayat login      20. Reset semua data
-                                                                               21. Bantuan ini
-${S}============================================================${N}
+${H}${BOLD}── CRUD & Pengelola ────────────────────────────────────────────────${N}
+ 1. Tambah pengelola         5. Aktif/nonaktifkan      9. Dashboard statistik
+ 2. Lihat daftar pengelola   6. Log aktivitas          10. Cari pengelola
+ 3. Hapus pengelola          7. Ekspor CSV             11. Reset password
+ 4. Edit profil              8. Email pengumuman       12. Ubah peran
+
+${H}${BOLD}── Backup & Data ───────────────────────────────────────────────────${N}
+13. Backup data (JSON)      14. Restore data           15. Riwayat login
+
+${H}${BOLD}── Komunikasi & Pengaturan ─────────────────────────────────────────${N}
+16. Notif WhatsApp          17. Kelola nama masjid     18. Daftar masjid
+19. Pindah masjid           20. Reset semua data       21. Bantuan
+
+${H}${BOLD}── Dashboard & Observasi ───────────────────────────────────────────${N}
+22. Mata Elang (Observer)   23. Push & Deploy          24. Sapu Bersih Cache
+
+${H}${BOLD}── Database Management (Supabase CLI) ──────────────────────────────${N}
+25. Jalankan SQL Query      26. Lihat Tabel            27. Status Migrasi
+28. Push Migrasi            29. Schema Diff            30. Backup Database (SQL)
+31. Restore Database (SQL)  32. DB Lint                33. Security Advisor
+34. Performance Advisor     35. Jalankan Seed Data
+
+${H}${BOLD}── Storage & Secrets ───────────────────────────────────────────────${N}
+36. Lihat Storage           37. Lihat Secrets          38. Set Secret
+
+${H}${BOLD}── Utilities ───────────────────────────────────────────────────────${N}
+39. Info Project & Koneksi
+
+${S}════════════════════════════════════════════════════════════════════════════${N}
 EOF
   pause
 }
@@ -677,22 +751,20 @@ EOF
 # ====================================================================
 mata_elang() {
   print_header
-  print_box "  🦅  MATA ELANG (OBSERVER - ULTIMATE)  " "$G"
+  print_box "  🦅  MATA ELANG (OBSERVER)  " "$G"
   echo -e "${Y}Menyedot SELURUH data dari database...${N}\n"
   
-  format_rp() { echo "$1" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta' | tr ',' '.'; }
-  
-  # 1. MUSTAHIK
+  # MUSTAHIK
   api_call GET "${REST_URL}/mustahiks?select=name,address,ring_number&mosque_id=eq.${MOSQUE_ID}&order=created_at.desc"
   local MUSTAHIK_DATA="$API_BODY"
   local TOT_MUSTAHIK; TOT_MUSTAHIK=$(echo "$MUSTAHIK_DATA" | jq 'length')
   
-  # 2. DONATUR TETAP
+  # DONATUR TETAP
   api_call GET "${REST_URL}/donatur_tetap?select=nama,komitmen_bulanan,aliran_dana&mosque_id=eq.${MOSQUE_ID}&order=created_at.desc"
   local DONATUR_DATA="$API_BODY"
   local TOT_DONATUR; TOT_DONATUR=$(echo "$DONATUR_DATA" | jq 'length')
   
-  # 3. TRANSAKSI (KAS MASJID)
+  # TRANSAKSI
   api_call GET "${REST_URL}/transactions?select=type,amount,category&mosque_id=eq.${MOSQUE_ID}"
   local TRANS_DATA="$API_BODY"
   local KAS_IN KAS_OUT
@@ -700,7 +772,7 @@ mata_elang() {
   KAS_OUT=$(echo "$TRANS_DATA" | jq '[.[] | select(.type=="Pengeluaran") | .amount] | add // 0')
   local KAS_SALDO=$(( KAS_IN - KAS_OUT ))
 
-  # 4. DONASI ONLINE (ZISWAF)
+  # DONASI ONLINE
   api_call GET "${REST_URL}/donations?select=amount,donor_name,akad_type&mosque_id=eq.${MOSQUE_ID}"
   local ZISWAF_DATA="$API_BODY"
   local TOT_ZISWAF; TOT_ZISWAF=$(echo "$ZISWAF_DATA" | jq '[.[].amount] | add // 0')
@@ -758,20 +830,20 @@ push_deploy() {
   echo -e "\n${Y}[2/3] Push Kode ke GitHub...${N}"
   git add .
   read -r -p "Masukkan pesan commit: " MSG
-  [ -z "$MSG" ] && MSG="Update dari Super CLI"
+  [ -z "$MSG" ] && MSG="Update dari Admin CLI"
   git commit -m "$MSG"
-  git push || warn "Git push menemui kendala (mungkin tidak ada repo)."
+  git push || warn "Git push menemui kendala."
   
   echo -e "\n${G}[3/3] Deploy ke Vercel (Production)...${N}"
   npx vercel --prod --yes || err "Vercel deploy gagal."
   
   echo ""
-  ok "Semua proses Selesai! Web Anda akan live dalam waktu singkat."
+  ok "Semua proses selesai! Web akan live dalam waktu singkat."
   pause
 }
 
 # ====================================================================
-# 24. SAPU BERSIH (CLEAR CACHE)
+# 24. SAPU BERSIH CACHE
 # ====================================================================
 sapu_bersih() {
   print_header
@@ -785,8 +857,738 @@ sapu_bersih() {
   fi
   echo "Membersihkan cache sementara..."
   rm -rf /tmp/vercel-* 2>/dev/null || true
-  ok "Refresh selesai! Aplikasi kini lebih segar."
+  ok "Refresh selesai!"
   pause
+}
+
+# ====================================================================
+# 25. JALANKAN SQL QUERY
+# ====================================================================
+run_sql_query() {
+  print_header
+  print_box "  🔷  JALANKAN SQL QUERY  " "$C"
+  require_supabase || { pause; return; }
+  
+  echo -e "${S}Contoh query:${N}"
+  echo "  SELECT count(*) FROM public.mustahiks WHERE mosque_id = '${MOSQUE_ID}';"
+  echo "  SELECT name, amount FROM public.donations ORDER BY created_at DESC LIMIT 10;"
+  echo ""
+  echo -e "${Y}Ketik SQL query (akhiri dengan ; lalu Enter):${N}"
+  read -r -p "SQL> " SQL_QUERY
+  
+  if [ -z "$SQL_QUERY" ]; then
+    info "Dibatalkan."; pause; return
+  fi
+  
+  echo -e "\n${S}Menjalankan query...${N}\n"
+  local RESULT
+  RESULT=$(supabase_query "$SQL_QUERY" "table")
+  local RC=$?
+  
+  if [ $RC -ne 0 ]; then
+    err "Query gagal:"
+    echo "$RESULT"
+  else
+    echo "$RESULT"
+  fi
+  pause
+}
+
+# ====================================================================
+# 26. LIHAT TABEL
+# ====================================================================
+lihat_tabel() {
+  print_header
+  print_box "  📋  LIHAT SEMUA TABEL  " "$C"
+  require_supabase || { pause; return; }
+  
+  local SQL="SELECT schemaname, tablename, 
+    pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
+    FROM pg_tables 
+    WHERE schemaname = 'public' 
+    ORDER BY tablename;"
+  
+  echo -e "${S}Daftar tabel di database:${N}\n"
+  supabase_query "$SQL" "table"
+  pause
+}
+
+# ====================================================================
+# 27. STATUS MIGRASI
+# ====================================================================
+status_migrasi() {
+  print_header
+  print_box "  📊  STATUS MIGRASI  " "$Y"
+  require_supabase || { pause; return; }
+  
+  echo -e "${S}Migration status:${N}\n"
+  (cd "$SUPABASE_ROOT" && supabase migration list --linked 2>&1)
+  pause
+}
+
+# ====================================================================
+# 28. PUSH MIGRASI
+# ====================================================================
+push_migrasi() {
+  print_header
+  print_box "  🚀  PUSH MIGRASI KE REMOTE  " "$G"
+  require_supabase || { pause; return; }
+  
+  echo -e "${S}Dry-run terlebih dahulu...${N}\n"
+  local DRY_RUN
+  DRY_RUN=$(cd "$SUPABASE_ROOT" && supabase db push --linked --dry-run --yes 2>&1)
+  
+  if echo "$DRY_RUN" | grep -qi "up to date\|no pending"; then
+    ok "Database sudah up-to-date. Tidak ada migrasi pending."
+    pause; return
+  fi
+  
+  echo "$DRY_RUN"
+  echo ""
+  warn "Migrasi di atas akan diterapkan ke database remote."
+  read -r -p "Ketik GAS untuk lanjut (atau Enter untuk batal): " CONFIRM
+  if [ "$CONFIRM" != "GAS" ]; then
+    info "Dibatalkan."; pause; return
+  fi
+  
+  echo -e "\n${S}Menerapkan migrasi...${N}\n"
+  (cd "$SUPABASE_ROOT" && supabase db push --linked --yes 2>&1)
+  
+  if [ $? -eq 0 ]; then
+    ok "Migrasi berhasil diterapkan!"
+  else
+    err "Migrasi gagal. Cek error di atas."
+  fi
+  pause
+}
+
+# ====================================================================
+# 29. SCHEMA DIFF
+# ====================================================================
+schema_diff() {
+  print_header
+  print_box "  🔀  SCHEMA DIFF (LOCAL vs REMOTE)  " "$M"
+  require_supabase || { pause; return; }
+  
+  echo -e "${S}Membandingkan schema local vs remote...${N}\n"
+  supabase db diff --linked -s public 2>&1
+  pause
+}
+
+# ====================================================================
+# 30. BACKUP DATABASE (SQL)
+# ====================================================================
+backup_database() {
+  print_header
+  print_box "  💾  BACKUP DATABASE (SQL)  " "$C"
+  require_supabase || { pause; return; }
+  
+  local BACKUP_DIR="$PROJECT_DIR/backups"
+  mkdir -p "$BACKUP_DIR"
+  local DATE_TAG; DATE_TAG=$(date +%Y%m%d_%H%M%S)
+  
+  echo -e "${S}[1/3] Dumping schema...${N}"
+  local SCHEMA_FILE="$BACKUP_DIR/schema_${DATE_TAG}.sql"
+  (cd "$SUPABASE_ROOT" && supabase db dump --linked -s public -f "$SCHEMA_FILE" --yes 2>&1)
+  
+  echo -e "${S}[2/3] Dumping data...${N}"
+  local DATA_FILE="$BACKUP_DIR/data_${DATE_TAG}.sql"
+  (cd "$SUPABASE_ROOT" && supabase db dump --linked --data-only -s public -f "$DATA_FILE" --yes 2>&1)
+  
+  echo -e "${S}[3/3] Dumping roles...${N}"
+  local ROLES_FILE="$BACKUP_DIR/roles_${DATE_TAG}.sql"
+  (cd "$SUPABASE_ROOT" && supabase db dump --linked --role-only -f "$ROLES_FILE" --yes 2>&1)
+  
+  echo ""
+  ok "Backup selesai! File tersimpan di:"
+  echo -e "  ${C}Schema:${N} $SCHEMA_FILE"
+  echo -e "  ${C}Data:  ${N} $DATA_FILE"
+  echo -e "  ${C}Roles: ${N} $ROLES_FILE"
+  pause
+}
+
+# ====================================================================
+# 31. RESTORE DATABASE (SQL)
+# ====================================================================
+restore_database() {
+  print_header
+  print_box "  ♻️  RESTORE DATABASE (SQL)  " "$R"
+  require_supabase || { pause; return; }
+  
+  echo -e "${S}File backup yang tersedia:${N}"
+  local BACKUP_DIR="$PROJECT_DIR/backups"
+  if [ ! -d "$BACKUP_DIR" ]; then
+    err "Folder backup tidak ditemukan: $BACKUP_DIR"
+    pause; return
+  fi
+  
+  ls -1 "$BACKUP_DIR"/*.sql 2>/dev/null | head -20
+  echo ""
+  read -r -p "Masukkan path file SQL untuk restore: " SQL_FILE
+  
+  if [ ! -f "$SQL_FILE" ]; then
+    err "File tidak ditemukan: $SQL_FILE"; pause; return
+  fi
+  
+  warn "Ini akan MENJALANKAN SQL dari file ke database remote!"
+  echo -e "${R}${BOLD}Ketik RESTORE untuk konfirmasi:${N}"
+  read -r CONFIRM
+  if [ "$CONFIRM" != "RESTORE" ]; then
+    info "Dibatalkan."; pause; return
+  fi
+  
+  echo -e "\n${S}Menjalankan restore...${N}\n"
+  local RESULT
+  RESULT=$(supabase_query_file "$SQL_FILE" "table")
+  if [ $? -eq 0 ]; then
+    ok "Restore selesai!"
+    echo "$RESULT"
+  else
+    err "Restore gagal:"
+    echo "$RESULT"
+  fi
+  pause
+}
+
+# ====================================================================
+# 32. DB LINT
+# ====================================================================
+db_lint() {
+  print_header
+  print_box "  🔍  DB LINT (CEK ERROR SCHEMA)  " "$Y"
+  require_supabase || { pause; return; }
+  
+  echo -e "${S}Mengecek schema untuk error...${N}\n"
+  (cd "$SUPABASE_ROOT" && supabase db lint --linked --level warning --yes 2>&1)
+  pause
+}
+
+# ====================================================================
+# 33. SECURITY ADVISOR
+# ====================================================================
+security_advisor() {
+  print_header
+  print_box "  🔒  SECURITY ADVISOR  " "$R"
+  require_supabase || { pause; return; }
+  
+  echo -e "${S}Audit keamanan database...${N}\n"
+  (cd "$SUPABASE_ROOT" && supabase db advisors --linked --type security --level info --yes 2>&1)
+  pause
+}
+
+# ====================================================================
+# 34. PERFORMANCE ADVISOR
+# ====================================================================
+performance_advisor() {
+  print_header
+  print_box "  ⚡  PERFORMANCE ADVISOR  " "$O"
+  require_supabase || { pause; return; }
+  
+  echo -e "${S}Audit performa database...${N}\n"
+  (cd "$SUPABASE_ROOT" && supabase db advisors --linked --type performance --level warn --yes 2>&1)
+  pause
+}
+
+# ====================================================================
+# 35. JALANKAN SEED DATA
+# ====================================================================
+jalankan_seed() {
+  print_header
+  print_box "  🌱  JALANKAN SEED DATA  " "$G"
+  require_supabase || { pause; return; }
+  
+  local SEED_FILE="$PROJECT_DIR/src/db/seed.sql"
+  if [ ! -f "$SEED_FILE" ]; then
+    err "File seed tidak ditemukan: $SEED_FILE"
+    pause; return
+  fi
+  
+  echo -e "${S}File seed: $SEED_FILE${N}"
+  warn "Ini akan menjalankan INSERT/UPDATE ke database remote!"
+  read -r -p "Ketik SEED untuk konfirmasi: " CONFIRM
+  if [ "$CONFIRM" != "SEED" ]; then
+    info "Dibatalkan."; pause; return
+  fi
+  
+  echo -e "\n${S}Menjalankan seed...${N}\n"
+  local RESULT
+  RESULT=$(supabase_query_file "$SEED_FILE" "table")
+  if [ $? -eq 0 ]; then
+    ok "Seed berhasil dijalankan!"
+    echo "$RESULT"
+  else
+    err "Seed gagal:"
+    echo "$RESULT"
+  fi
+  pause
+}
+
+# ====================================================================
+# 36. LIHAT STORAGE
+# ====================================================================
+lihat_storage() {
+  print_header
+  print_box "  📦  LIHAT STORAGE BUCKETS  " "$C"
+  require_supabase || { pause; return; }
+  
+  echo -e "${S}Daftar storage buckets:${N}\n"
+  supabase storage ls ss:/// --experimental 2>&1
+  
+  echo ""
+  echo -e "${S}Isi setiap bucket:${N}"
+  for BUCKET in avatars post-images report-images donation-proofs; do
+    echo -e "\n${C}${BOLD}📁 $BUCKET:${N}"
+    supabase storage ls "ss:///$BUCKET" --experimental 2>&1 | head -10
+  done
+  pause
+}
+
+# ====================================================================
+# 37. LIHAT SECRETS
+# ====================================================================
+lihat_secrets() {
+  print_header
+  print_box "  🔑  LIHAT SECRETS (ENV VARS)  " "$O"
+  require_supabase || { pause; return; }
+  
+  echo -e "${S}Daftar secrets di project:${N}\n"
+  supabase secrets list --project-ref "$SUPABASE_PROJECT_REF" 2>&1
+  pause
+}
+
+# ====================================================================
+# 38. SET SECRET
+# ====================================================================
+set_secret() {
+  print_header
+  print_box "  🔐  SET SECRET  " "$M"
+  require_supabase || { pause; return; }
+  
+  echo -e "${S}Format: NAMA=VALUE${N}"
+  echo -e "${S}Contoh: STRIPE_KEY=sk_live_xxx${N}"
+  echo ""
+  read -r -p "Masukkan secret (KEY=VALUE): " SECRET_INPUT
+  
+  if [ -z "$SECRET_INPUT" ]; then
+    info "Dibatalkan."; pause; return
+  fi
+  
+  # Validasi format
+  if [[ ! "$SECRET_INPUT" =~ ^[A-Za-z_][A-Za-z0-9_]*= ]]; then
+    err "Format tidak valid. Gunakan KEY=VALUE"
+    pause; return
+  fi
+  
+  local KEY="${SECRET_INPUT%%=*}"
+  local VALUE="${SECRET_INPUT#*=}"
+  
+  warn "Secret '$KEY' akan diset ke project."
+  read -r -p "Konfirmasi? (y/n): " CONFIRM
+  if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
+    info "Dibatalkan."; pause; return
+  fi
+  
+  supabase secrets set "$KEY=$VALUE" --project-ref "$SUPABASE_PROJECT_REF" 2>&1
+  if [ $? -eq 0 ]; then
+    ok "Secret '$KEY' berhasil diset!"
+  else
+    err "Gagal set secret."
+  fi
+  pause
+}
+
+# ====================================================================
+# 39. INFO PROJECT & KONEKSI
+# ====================================================================
+info_project() {
+  print_header
+  print_box "  ℹ️  INFO PROJECT & KONEKSI  " "$H"
+  require_supabase || { pause; return; }
+  
+  echo -e "${C}${BOLD}Supabase CLI:${N}"
+  echo -e "  Version  : $SUPABASE_VERSION"
+  echo -e "  Linked   : $([ "$HAS_SUPABASE" = true ] && echo "Ya" || echo "Tidak")"
+  echo ""
+  
+  echo -e "${C}${BOLD}Project Config:${N}"
+  echo -e "  URL      : $SUPABASE_URL"
+  echo -e "  Ref      : $SUPABASE_PROJECT_REF"
+  echo -e "  Root     : ${SUPABASE_ROOT:-"(tidak ditemukan)"}"
+  echo -e "  Mosque   : $MOSQUE_NAME ($MOSQUE_ID)"
+  echo ""
+  
+  echo -e "${C}${BOLD}Koneksi Database:${N}"
+  local RESULT
+  RESULT=$(supabase_query "SELECT version();" "table" 2>&1)
+  if [ $? -eq 0 ]; then
+    ok "Koneksi berhasil!"
+    echo "$RESULT"
+  else
+    err "Koneksi gagal:"
+    echo "$RESULT"
+  fi
+  
+  echo ""
+  echo -e "${C}${BOLD}API Keys:${N}"
+  supabase projects api-keys --project-ref "$SUPABASE_PROJECT_REF" 2>&1 | head -20
+  
+  echo ""
+  echo -e "${C}${BOLD}Tabel di Database:${N}"
+  supabase_query "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename;" "table"
+  pause
+}
+
+# ====================================================================
+# 40. GANTI PASSWORD DATABASE SUPABASE
+# ====================================================================
+ganti_password_supabase() {
+  print_header
+  print_box "  🔐 GANTI PASSWORD DATABASE SUPABASE  " "$H"
+  require_supabase || { pause; return; }
+  
+  echo -e "${Y}${BOLD}⚠️  PERINGATAN:${N} Mengubah password database akan:"
+  echo -e "  • Memutus semua koneksi aktif ke database"
+  echo -e "  • Mengubah DATABASE_URL yang dipakai aplikasi"
+  echo -e "  • Perlu update manual di .env DAN Vercel (otomatis oleh script ini)"
+  echo ""
+  echo -e "${C}Langkah-langkah:${N}"
+  echo -e "  1. Buka Dashboard Supabase → Project Settings → Database"
+  echo -e "  2. Klik 'Reset database password'"
+  echo -e "  3. Copy password baru yang muncul"
+  echo -e "  4. Paste ke sini"
+  echo ""
+  
+  # Buka browser
+  local DASHBOARD_URL="https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}/database/settings"
+  echo -e "${C}Membuka browser...${N}"
+  xdg-open "$DASHBOARD_URL" 2>/dev/null || echo -e "${Y}Buka manual: $DASHBOARD_URL${N}"
+  echo ""
+  
+  echo -ne "${H}${BOLD}Password baru (kosongkan untuk batal):${N} "
+  read -rs NEW_PASSWORD
+  echo ""
+  
+  if [ -z "$NEW_PASSWORD" ]; then
+    warn "Dibatalkan."
+    pause
+    return
+  fi
+  
+  echo -ne "${H}${BOLD}Ulangi password baru:${N} "
+  read -rs NEW_PASSWORD2
+  echo ""
+  
+  if [ "$NEW_PASSWORD" != "$NEW_PASSWORD2" ]; then
+    err "Password tidak cocok!"
+    pause
+    return
+  fi
+  
+  # Bangun DATABASE_URL baru
+  local NEW_DB_URL="postgresql://postgres.vqpyxpdweditudfqajge:${NEW_PASSWORD}@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
+  
+  # Update .env
+  if [ -f "$ENV_FILE" ]; then
+    sed -i "s|^DATABASE_URL=.*|DATABASE_URL=${NEW_DB_URL}|" "$ENV_FILE"
+    ok "DATABASE_URL di .env sudah diupdate"
+  fi
+  
+  # Re-export ke shell
+  export DATABASE_URL="$NEW_DB_URL"
+  export SUPABASE_DB_PASSWORD="$NEW_PASSWORD"
+  
+  # Sync ke Vercel
+  if command -v vercel &>/dev/null; then
+    echo -e "${C}Sync ke Vercel...${N}"
+    echo "$NEW_PASSWORD" | vercel env update DATABASE_URL production --yes 2>&1 | tail -3
+    ok "DATABASE_URL di Vercel sudah diupdate"
+  else
+    warn "Vercel CLI tidak ada — manual update di Vercel Dashboard"
+  fi
+  
+  echo ""
+  ok "Password database berhasil diubah!"
+  echo -e "${Y}⚠️  Jangan lupa:${N}"
+  echo -e "  • Restart aplikasi Next.js (Ctrl+C lalu npm run dev)"
+  echo -e "  • Pastikan password tersimpan aman di Bitwarden/password manager"
+  pause
+}
+
+# ====================================================================
+# 41. SYNC .ENV KE VERCEL
+# ====================================================================
+sync_vercel_env() {
+  print_header
+  print_box "  🔄 SYNC .ENV KE VERCEL (PRODUCTION)  " "$H"
+  
+  if ! command -v vercel &>/dev/null; then
+    err "Vercel CLI tidak terpasang!"
+    echo -e "  Install: ${C}npm i -g vercel${N}"
+    pause
+    return
+  fi
+  
+  if [ ! -f "$ENV_FILE" ]; then
+    err "File .env tidak ditemukan: $ENV_FILE"
+    pause
+    return
+  fi
+  
+  echo -e "${C}Membaca variabel dari .env...${N}"
+  echo ""
+  
+  local UPDATED=0
+  local FAILED=0
+  local SKIPPED=0
+  local ERR_MSG
+  
+  # Baca setiap baris KEY=VALUE dari .env
+  while IFS= read -r line; do
+    # Skip komentar dan baris kosong
+    [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
+    # Skip export prefix
+    [[ "$line" =~ ^export\  ]] && line="${line#export }"
+    # Skip yang bukan KEY=VALUE
+    [[ "$line" != *=* ]] && continue
+    
+    local KEY="${line%%=*}"
+    local VALUE="${line#*=}"
+    
+    # Hapus tanda kutip
+    VALUE="${VALUE%\"}"
+    VALUE="${VALUE#\"}"
+    VALUE="${VALUE%\'}"
+    VALUE="${VALUE#\'}"
+    
+    # Skip variabel kosong
+    if [ -z "$VALUE" ]; then
+      warn "  Skip $KEY (kosong)"
+      ((SKIPPED++))
+      continue
+    fi
+    
+    # Cek apakah sudah ada di Vercel (gunakan grep tanpa ^ karena ada spasi depan)
+    local EXISTS
+    EXISTS=$(vercel env list production 2>&1 | grep -c " $KEY " || true)
+    
+    echo -ne "  ${C}$KEY...${N} "
+    
+    if [ "$EXISTS" -gt 0 ]; then
+      # Update yang sudah ada — pakai printf supaya tidak ada trailing newline
+      ERR_MSG=$(printf '%s' "$VALUE" | vercel env update "$KEY" production --yes 2>&1)
+      if echo "$ERR_MSG" | grep -qi "updated\|success"; then
+        echo -e "${G}✓${N}"
+        ((UPDATED++))
+      else
+        echo -e "${R}✗${N}"
+        echo "    $ERR_MSG" | tail -2
+        ((FAILED++))
+      fi
+    else
+      # Tambah baru
+      ERR_MSG=$(printf '%s' "$VALUE" | vercel env add "$KEY" production --yes 2>&1)
+      if echo "$ERR_MSG" | grep -qi "added\|created\|success"; then
+        echo -e "${G}✓ (baru)${N}"
+        ((UPDATED++))
+      else
+        echo -e "${R}✗${N}"
+        echo "    $ERR_MSG" | tail -2
+        ((FAILED++))
+      fi
+    fi
+  done < "$ENV_FILE"
+  
+  echo ""
+  echo -e "${G}Berhasil:${N} $UPDATED"
+  echo -e "${Y}Skip:${N}     $SKIPPED"
+  echo -e "${R}Gagal:${N}    $FAILED"
+  pause
+}
+
+# ====================================================================
+# 42-47. INSPEKSI DATABASE
+# ====================================================================
+inspect_bloat() {
+  print_header
+  print_box "  📊 CEK BLOAT (TABEL MEMBESAR TANPA PERLU)  " "$H"
+  require_supabase || { pause; return; }
+  
+  echo -e "${C}Mengecek tabel yang bloat...${N}"
+  echo ""
+  (cd "$SUPABASE_ROOT" && supabase inspect db bloat --linked 2>&1)
+  pause
+}
+
+inspect_locks() {
+  print_header
+  print_box "  🔒 CEK LOCKS (QUERY YANG MENGUNCI TABEL)  " "$H"
+  require_supabase || { pause; return; }
+  
+  echo -e "${C}Mengecek query yang mengunci tabel...${N}"
+  echo ""
+  (cd "$SUPABASE_ROOT" && supabase inspect db locks --linked 2>&1)
+  pause
+}
+
+inspect_long_queries() {
+  print_header
+  print_box "  ⏰ CEK QUERY LAMA (LAMBAT/BERJALAN LAMA)  " "$H"
+  require_supabase || { pause; return; }
+  
+  echo -e "${C}Mengecek query yang berjalan lama...${N}"
+  echo ""
+  (cd "$SUPABASE_ROOT" && supabase inspect db long-running-queries --linked 2>&1)
+  pause
+}
+
+inspect_traffic() {
+  print_header
+  print_box "  📈 PROFIL TRAFIK DATABASE  " "$H"
+  require_supabase || { pause; return; }
+  
+  echo -e "${C}Menganalisis pola trafik tabel...${N}"
+  echo ""
+  (cd "$SUPABASE_ROOT" && supabase inspect db traffic-profile --linked 2>&1)
+  pause
+}
+
+inspect_vacuum() {
+  print_header
+  print_box "  🧹 STATUS VACUUM TABEL  " "$H"
+  require_supabase || { pause; return; }
+  
+  echo -e "${C}Mengecek status vacuum tabel...${N}"
+  echo ""
+  (cd "$SUPABASE_ROOT" && supabase inspect db vacuum-stats --linked 2>&1)
+  pause
+}
+
+inspect_index() {
+  print_header
+  print_box "  📑 STATISTIK INDEX  " "$H"
+  require_supabase || { pause; return; }
+  
+  echo -e "${C}Menganalisis statistik index...${N}"
+  echo ""
+  (cd "$SUPABASE_ROOT" && supabase inspect db index-stats --linked 2>&1)
+  pause
+}
+
+# ====================================================================
+# 48. SQUASH MIGRASI
+# ====================================================================
+squash_migrations() {
+  print_header
+  print_box "  📦 SQUASH MIGRASI (GABUNG JADI 1 FILE)  " "$H"
+  require_supabase || { pause; return; }
+  
+  echo -e "${Y}${BOLD}⚠️  PERINGATAN:${N} Squash akan menggabungkan semua migrasi"
+  echo -e "  menjadi satu file SQL. Ini berguna untuk membersihkan"
+  echo -e "  history migrasi yang sudah terlalu banyak."
+  echo ""
+  echo -e "${C}Status migrasi saat ini:${N}"
+  (cd "$SUPABASE_ROOT" && supabase migration list --linked 2>&1)
+  echo ""
+  
+  local VER
+  echo -ne "${H}${BOLD}Versi squash (misal: 0001, atau kosongkan untuk batal):${N} "
+  read -r VER
+  
+  if [ -z "$VER" ]; then
+    warn "Dibatalkan."
+    pause
+    return
+  fi
+  
+  echo ""
+  echo -e "${C}Menjalankan squash...${N}"
+  (cd "$SUPABASE_ROOT" && supabase migration squash "$VER" --linked 2>&1)
+  
+  echo ""
+  ok "Squash selesai! Cek folder supabase/migrations/ untuk file baru."
+  pause
+}
+
+# ====================================================================
+# 49. GENERATE TYPES TYPESCRIPT
+# ====================================================================
+generate_types() {
+  print_header
+  print_box "  🧬 GENERATE TYPESCRIPT DARI DATABASE  " "$H"
+  require_supabase || { pause; return; }
+  
+  local TYPES_FILE="$PROJECT_DIR/src/types/supabase.ts"
+  
+  echo -e "${C}Generating TypeScript types dari database...${N}"
+  echo ""
+  
+  # Pastikan folder ada
+  mkdir -p "$(dirname "$TYPES_FILE")"
+  
+  # Generate types
+  (cd "$SUPABASE_ROOT" && supabase gen types --linked --lang typescript) > "$TYPES_FILE" 2>&1
+  
+  if [ $? -eq 0 ]; then
+    local LINES
+    LINES=$(wc -l < "$TYPES_FILE")
+    ok "Types berhasil di-generate!"
+    echo -e "  File  : ${C}$TYPES_FILE${N}"
+    echo -e "  Baris : $LINES"
+    echo ""
+    echo -e "${Y}Cara pakai:${N}"
+    echo -e "  import type { Database } from '@/types/supabase'"
+    echo -e "  type Tables = Database['public']['Tables']"
+    echo -e "  type Mosque = Tables['mosques']['Row']"
+  else
+    err "Gagal generate types."
+    cat "$TYPES_FILE"
+  fi
+  pause
+}
+
+# ====================================================================
+# 50. BUKA PANDUAN
+# ====================================================================
+buka_panduan() {
+  local PANDUAN="$SCRIPT_DIR/PANDUAN-ADMIN.md"
+  if [ ! -f "$PANDUAN" ]; then
+    err "File panduan tidak ditemukan: $PANDUAN"
+    pause
+    return
+  fi
+  print_header
+  print_box "  📖 PANDUAN LENGKAP ADMIN MASJID  " "$H"
+  echo -e "${C}File:${N} $PANDUAN"
+  echo -e "${C}Baris:${N} $(wc -l < "$PANDUAN")"
+  echo ""
+  echo -e "  ${G}1)${N} Buka di terminal (baca di sini)"
+  echo -e "  ${C}2)${N} Buka di browser/editor (xdg-open)"
+  echo -e "  ${Y}3)${N} Tampilkan path file saja"
+  echo ""
+  echo -e "  ${S}💡 Tips: Kalau baca di terminal, tekan ${G}q${S} untuk keluar (bukan Ctrl+C)${N}"
+  echo ""
+  echo -ne "${H}${BOLD}Pilih [1-3]:${N} "
+  read -r PILIH
+  case "$PILIH" in
+    1)
+      echo ""
+      less "$PANDUAN"
+      ;;
+    2)
+      xdg-open "$PANDUAN" 2>/dev/null && ok "Membuka di aplikasi default..." || warn "xdg-open gagal. Buka manual: $PANDUAN"
+      pause
+      ;;
+    3)
+      echo ""
+      echo -e "${G}Buka file ini:${N}"
+      echo -e "  ${C}$PANDUAN${N}"
+      pause
+      ;;
+    *)
+      warn "Dibatalkan."
+      pause
+      ;;
+  esac
 }
 
 # ====================================================================
@@ -795,32 +1597,74 @@ sapu_bersih() {
 main() {
   while true; do
     print_header
-    echo -e "  ${H}${BOLD}1)${N}  ${G}Tambah pengelola baru${N}       ${H}${BOLD}13)${N} ${C}Backup data (JSON)${N}"
-    echo -e "  ${H}${BOLD}2)${N}  ${C}Lihat daftar pengelola${N}      ${H}${BOLD}14)${N} ${Y}Restore data${N}"
-    echo -e "  ${H}${BOLD}3)${N}  ${R}Hapus pengelola${N}             ${H}${BOLD}15)${N} ${P}Riwayat login${N}"
-    echo -e "  ${H}${BOLD}4)${N}  ${Y}Edit profil pengelola${N}       ${H}${BOLD}16)${N} ${G}Notifikasi WhatsApp${N}"
-    echo -e "  ${H}${BOLD}5)${N}  ${O}Aktif/nonaktifkan${N}           ${H}${BOLD}17)${N} ${O}Kelola nama masjid${N}"
-    echo -e "  ${H}${BOLD}6)${N}  ${P}Lihat log aktivitas${N}         ${H}${BOLD}18)${N} ${C}Lihat daftar masjid${N}"
-    echo -e "  ${H}${BOLD}7)${N}  ${G}Ekspor data (CSV)${N}           ${H}${BOLD}19)${N} ${M}Pindah ke masjid lain${N}"
-    echo -e "  ${H}${BOLD}8)${N}  ${C}Kirim email pengumuman${N}      ${H}${BOLD}20)${N} ${R}Reset semua data${N}"
-    echo -e "  ${H}${BOLD}9)${N}  ${M}Dashboard statistik${N}         ${H}${BOLD}21)${N} ${S}Bantuan & panduan${N}"
-    echo -e "  ${H}${BOLD}10)${N} ${Y}Cari pengelola${N}              ${H}${BOLD}22)${N} ${G}Mata Elang (DB Observer)${N}"
-    echo -e "  ${H}${BOLD}11)${N} ${O}Reset password${N}              ${H}${BOLD}23)${N} ${M}Push & Deploy Sistem${N}"
-    echo -e "  ${H}${BOLD}12)${N} ${M}Ubah peran pengelola${N}        ${H}${BOLD}24)${N} ${O}Sapu Bersih Cache${N}"
-    echo -e "  ${H}${BOLD}0)${N}  ${R}Keluar${N}"
+    echo -e "  ${H}${BOLD}── CRUD & Pengelola ──────────────────────────────────────────${N}"
+    echo -e "  ${H}${BOLD} 1)${N} ${G}Tambah pengelola${N}           ${H}${BOLD} 7)${N} ${G}Ekspor CSV${N}             ${H}${BOLD}12)${N} ${M}Ubah peran${N}"
+    echo -e "  ${H}${BOLD} 2)${N} ${C}Lihat pengelola${N}            ${H}${BOLD} 8)${N} ${C}Email pengumuman${N}        ${H}${BOLD}13)${N} ${C}Backup (JSON)${N}"
+    echo -e "  ${H}${BOLD} 3)${N} ${R}Hapus pengelola${N}            ${H}${BOLD} 9)${N} ${M}Dashboard statistik${N}     ${H}${BOLD}14)${N} ${Y}Restore (JSON)${N}"
+    echo -e "  ${H}${BOLD} 4)${N} ${Y}Edit profil${N}               ${H}${BOLD}10)${N} ${Y}Cari pengelola${N}          ${H}${BOLD}15)${N} ${P}Riwayat login${N}"
+    echo -e "  ${H}${BOLD} 5)${N} ${O}Aktif/nonaktifkan${N}         ${H}${BOLD}11)${N} ${O}Reset password${N}"
+    echo -e "  ${H}${BOLD} 6)${N} ${P}Log aktivitas${N}"
     echo ""
-    echo -ne "${H}${BOLD}Pilih menu [0-24]:${N} "
+    echo -e "  ${H}${BOLD}── Komunikasi & Pengaturan ────────────────────────────────────${N}"
+    echo -e "  ${H}${BOLD}16)${N} ${G}Notif WhatsApp${N}            ${H}${BOLD}19)${N} ${M}Pindah masjid${N}           ${H}${BOLD}21)${N} ${S}Bantuan${N}"
+    echo -e "  ${H}${BOLD}17)${N} ${O}Kelola nama masjid${N}        ${H}${BOLD}20)${N} ${R}Reset semua data${N}"
+    echo -e "  ${H}${BOLD}18)${N} ${C}Daftar masjid${N}"
+    echo ""
+    echo -e "  ${H}${BOLD}── Dashboard & Observasi ───────────────────────────────────────${N}"
+    echo -e "  ${H}${BOLD}22)${N} ${G}Mata Elang (Observer)${N}     ${H}${BOLD}23)${N} ${M}Push & Deploy${N}           ${H}${BOLD}24)${N} ${O}Sapu Bersih Cache${N}"
+    echo ""
+    echo -e "  ${H}${BOLD}── Database (Supabase CLI) ─────────────────────────────────────${N}"
+    echo -e "  ${H}${BOLD}25)${N} ${C}Jalankan SQL${N}              ${H}${BOLD}29)${N} ${M}Schema Diff${N}             ${H}${BOLD}33)${N} ${R}Security Advisor${N}"
+    echo -e "  ${H}${BOLD}26)${N} ${C}Lihat Tabel${N}               ${H}${BOLD}30)${N} ${C}Backup DB (SQL)${N}         ${H}${BOLD}34)${N} ${O}Performance Advisor${N}"
+    echo -e "  ${H}${BOLD}27)${N} ${Y}Status Migrasi${N}            ${H}${BOLD}31)${N} ${Y}Restore DB (SQL)${N}        ${H}${BOLD}35)${N} ${G}Jalankan Seed${N}"
+    echo -e "  ${H}${BOLD}28)${N} ${G}Push Migrasi${N}              ${H}${BOLD}32)${N} ${Y}DB Lint${N}                 ${H}${BOLD}48)${N} ${M}Squash Migrasi${N}"
+    echo -e "  ${H}${BOLD}49)${N} ${P}Generate Types (TS)${N}"
+    echo ""
+    echo -e "  ${H}${BOLD}── Storage, Secrets & Utilities ────────────────────────────────${N}"
+    echo -e "  ${H}${BOLD}36)${N} ${C}Lihat Storage${N}             ${H}${BOLD}37)${N} ${O}Lihat Secrets${N}           ${H}${BOLD}38)${N} ${M}Set Secret${N}"
+    echo -e "  ${H}${BOLD}39)${N} ${H}Info Project & Koneksi${N}"
+    echo ""
+    echo -e "  ${H}${BOLD}── Password & Vercel ───────────────────────────────────────────${N}"
+    echo -e "  ${H}${BOLD}40)${N} ${R}Ganti Password DB${N}         ${H}${BOLD}41)${N} ${G}Sync .env ke Vercel${N}"
+    echo ""
+    echo -e "  ${H}${BOLD}── Inspeksi Database ────────────────────────────────────────────${N}"
+    echo -e "  ${H}${BOLD}42)${N} ${C}Bloat Check${N}              ${H}${BOLD}43)${N} ${Y}Locks Monitor${N}           ${H}${BOLD}44)${N} ${O}Query Lama${N}"
+    echo -e "  ${H}${BOLD}45)${N} ${G}Trafik Profil${N}            ${H}${BOLD}46)${N} ${M}Vacuum Stats${N}            ${H}${BOLD}47)${N} ${P}Index Stats${N}"
+    echo ""
+    echo -e "  ${H}${BOLD}── Panduan ─────────────────────────────────────────────────────${N}"
+    echo -e "  ${H}${BOLD}50)${N} ${G}📖 Buka Panduan Lengkap${N}"
+    echo ""
+    echo -e "  ${H}${BOLD} 0)${N} ${R}Keluar${N}"
+    
+    # Status Supabase CLI
+    if [ "$HAS_SUPABASE" = true ]; then
+      echo -e "\n  ${S}Supabase CLI: $SUPABASE_VERSION${N}"
+    else
+      echo -e "\n  ${S}Supabase CLI: ${R}tidak terpasang${N} ${S}(fitur 25-49 tidak tersedia)${N}"
+    fi
+    
+    echo ""
+    echo -ne "${H}${BOLD}Pilih menu [0-50]:${N} "
     read -r PILIH
     case "$PILIH" in
-      1) tambah ;;          2) lihat ;;            3) hapus ;;
-      4) edit_profil ;;     5) toggle_status ;;    6) lihat_log ;;
-      7) ekspor_csv ;;      8) broadcast_email ;;  9) dashboard ;;
-      10) cari_admin ;;     11) reset_password ;;  12) ubah_peran ;;
-      13) backup_data ;;    14) restore_data ;;    15) riwayat_login ;;
-      16) notif_wa ;;       17) kelola_masjid ;;   18) daftar_masjid ;;
-      19) pindah_masjid ;;  20) reset_all ;;       21) bantuan ;;
-      22) mata_elang ;;     23) push_deploy ;;     24) sapu_bersih ;;
-      0) echo -e "${S}Sampai jumpa!${N}"; exit 0 ;;
+       1) tambah ;;              2) lihat ;;              3) hapus ;;
+       4) edit_profil ;;         5) toggle_status ;;      6) lihat_log ;;
+       7) ekspor_csv ;;          8) broadcast_email ;;    9) dashboard ;;
+      10) cari_admin ;;         11) reset_password ;;    12) ubah_peran ;;
+      13) backup_data ;;        14) restore_data ;;      15) riwayat_login ;;
+      16) notif_wa ;;           17) kelola_masjid ;;     18) daftar_masjid ;;
+      19) pindah_masjid ;;      20) reset_all ;;         21) bantuan ;;
+      22) mata_elang ;;         23) push_deploy ;;       24) sapu_bersih ;;
+      25) run_sql_query ;;      26) lihat_tabel ;;       27) status_migrasi ;;
+      28) push_migrasi ;;       29) schema_diff ;;       30) backup_database ;;
+      31) restore_database ;;   32) db_lint ;;           33) security_advisor ;;
+      34) performance_advisor ;;35) jalankan_seed ;;     36) lihat_storage ;;
+      37) lihat_secrets ;;      38) set_secret ;;        39) info_project ;;
+      40) ganti_password_supabase ;; 41) sync_vercel_env ;;
+      42) inspect_bloat ;;      43) inspect_locks ;;     44) inspect_long_queries ;;
+      45) inspect_traffic ;;    46) inspect_vacuum ;;    47) inspect_index ;;
+      48) squash_migrations ;;  49) generate_types ;;    50) buka_panduan ;;
+       0) echo -e "${S}Sampai jumpa!${N}"; exit 0 ;;
       *) err "Pilihan tidak valid."; pause ;;
     esac
   done

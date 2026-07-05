@@ -7,6 +7,9 @@ import { AppProvider } from "@/stores/app-context";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import GlobalOverlays from "@/components/GlobalOverlays";
 import ScrollRevealProvider from "@/components/ScrollRevealProvider";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { buildMetadata, buildJsonLd, MOSQUE_JSON_LD, APP_NAME } from "@/lib/seo";
 
 const outfit = Outfit({
@@ -69,6 +72,9 @@ export default async function RootLayout({
             <ScrollRevealProvider />
             {children}
             <GlobalOverlays />
+            <Analytics />
+            <SpeedInsights />
+            <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID ?? ""} nonce={nonce} />
           </QueryProvider>
         </AppProvider>
       </body>

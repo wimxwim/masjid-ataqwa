@@ -3,6 +3,7 @@
 import React from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { TrendingUp } from "lucide-react";
+import { GlassCard } from "@/components/design-system";
 
 interface TrendData {
   tanggal: string;
@@ -30,15 +31,15 @@ function formatTanggal(tgl: string): string {
 export default function TrendLineChart({ data, loading }: TrendLineChartProps) {
   if (loading) {
     return (
-      <div className="bg-surface border border-outline rounded-2xl shadow-sm p-6 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-40 mb-4" />
-        <div className="h-64 bg-gray-100 rounded-xl" />
-      </div>
+      <GlassCard rounded="2xl" className="p-6 animate-pulse shadow-2">
+        <div className="h-4 bg-bg rounded w-40 mb-4" />
+        <div className="h-64 bg-bg rounded-xl" />
+      </GlassCard>
     );
   }
 
   return (
-    <div className="bg-surface border border-outline rounded-2xl shadow-sm p-6">
+    <GlassCard hover rounded="2xl" className="p-6 shadow-2 hover:hover-lift-active">
       <div className="flex items-center gap-2 mb-4">
         <TrendingUp className="w-5 h-5 text-primary" />
         <h3 className="font-display font-bold text-lg text-ink">Tren 30 Hari Terakhir</h3>
@@ -98,6 +99,6 @@ export default function TrendLineChart({ data, loading }: TrendLineChartProps) {
           </ResponsiveContainer>
         </div>
       )}
-    </div>
+    </GlassCard>
   );
 }

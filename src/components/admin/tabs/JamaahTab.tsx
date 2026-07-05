@@ -75,9 +75,9 @@ export default function JamaahTab({ mosqueId }: JamaahTabProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start reveal">
       <div className="lg:col-span-5">
-        <div className="bg-surface border border-outline rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
+        <div className="glass-strong rounded-2xl shadow-2 p-6 sm:p-8 space-y-6">
           <div className="border-b border-outline pb-3">
             <h3 className="font-display font-bold text-xl text-primary-deep flex items-center gap-1.5">
               <Users className="w-5 h-5 text-primary" />
@@ -93,7 +93,7 @@ export default function JamaahTab({ mosqueId }: JamaahTabProps) {
               <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">Nama Lengkap</label>
               <input type="text" required value={jamNama} onChange={(e) => setJamNama(e.target.value)}
                 placeholder="Contoh: Ahmad Fauzan"
-                className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors" />
+                className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-1" />
             </div>
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">No. Telepon / WhatsApp</label>
@@ -105,26 +105,26 @@ export default function JamaahTab({ mosqueId }: JamaahTabProps) {
               <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">Alamat</label>
               <textarea required rows={2} value={jamAlamat} onChange={(e) => setJamAlamat(e.target.value)}
                 placeholder="Contoh: Jl. H. Nawi Raya, RT 01/05, Ulujami"
-                className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors" />
+                className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-1" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">RT / RW</label>
                 <select value={jamRtRw} onChange={(e) => setJamRtRw(e.target.value)}
-                  className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors">
+                  className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-1">
                   {rtRwOptions.map((opt) => (<option key={opt} value={opt}>{opt}</option>))}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-1.5">Peran / Status</label>
                 <select value={jamPeran} onChange={(e) => setJamPeran(e.target.value)}
-                  className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors">
+                  className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-1">
                   {peranOptions.map((opt) => (<option key={opt} value={opt}>{opt}</option>))}
                 </select>
               </div>
             </div>
             <button type="submit"
-              className="w-full bg-primary hover:bg-primary-deep active:scale-95 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+              className="w-full bg-primary hover:bg-primary-deep text-white font-bold rounded-xl shadow-md shadow-primary/10 hover:shadow-glow active:scale-95 transition-all py-3 px-4 text-xs sm:text-sm flex items-center justify-center gap-1.5 cursor-pointer">
               <Plus className="w-4 h-4" />
               Simpan Data Jamaah
             </button>
@@ -133,7 +133,7 @@ export default function JamaahTab({ mosqueId }: JamaahTabProps) {
       </div>
 
       <div className="lg:col-span-7">
-        <div className="bg-surface border border-outline rounded-2xl shadow-sm p-6 space-y-4">
+        <div className="glass-strong rounded-2xl shadow-2 p-6 space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
               <h3 className="font-display font-bold text-lg text-ink flex items-center gap-2">
@@ -146,11 +146,11 @@ export default function JamaahTab({ mosqueId }: JamaahTabProps) {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
               <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cari jamaah..."
-                className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2 pl-9 pr-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors" />
+                className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2 pl-9 pr-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-1" />
             </div>
           </div>
 
-          <div className="border border-outline rounded-xl overflow-hidden">
+          <div className="glass overflow-hidden rounded-[var(--radius-card)] shadow-2">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
@@ -162,9 +162,9 @@ export default function JamaahTab({ mosqueId }: JamaahTabProps) {
                     <th className="py-3 px-4 text-center">Peran</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-outline/50">
                   {filteredJamaah.map((j) => (
-                    <tr key={j.id} className="hover:bg-bg/50 transition-colors">
+                    <tr key={j.id} className="hover:bg-primary/5 transition-colors">
                       <td className="py-3 px-4 font-semibold text-ink whitespace-nowrap">{j.nama}</td>
                       <td className="py-3 px-4 font-mono text-muted whitespace-nowrap">{j.phone}</td>
                       <td className="py-3 px-4 text-muted max-w-[200px] truncate" title={j.alamat ?? ""}>{j.alamat}</td>

@@ -83,10 +83,10 @@ function DashboardContent() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-8 animate-fade-in" id="admin-dashboard-page">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-8 reveal" id="admin-dashboard-page">
 
       {/* Dashboard Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-2 pb-6 border-b border-white/20 dark:border-white/10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 glass rounded-2xl shadow-2 p-4 sm:p-5">
         <div>
           <h1 className="text-2xl font-display font-extrabold text-ink tracking-tighter">
             Dashboard Masjid
@@ -97,7 +97,7 @@ function DashboardContent() {
         <div className="flex gap-2.5 shrink-0 w-full sm:w-auto">
           <button
             onClick={() => router.push("/admin/gis")}
-            className="flex-1 sm:flex-initial bg-primary hover:bg-primary-dark text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all flex items-center justify-center gap-1.5"
+            className="flex-1 sm:flex-initial bg-primary hover:bg-primary-deep text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-md shadow-primary/10 hover:shadow-glow active:scale-95 transition-all flex items-center justify-center gap-1.5"
           >
             <Map className="w-3.5 h-3.5" />
             Buka Peta Mustahik

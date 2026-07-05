@@ -85,11 +85,11 @@ export default function InflowTab({ mosqueId, onAddLedgerEntry }: InflowTabProps
     }
   };
 
-  const inputClass = "w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors";
+  const inputClass = "w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-1";
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      <div className="lg:col-span-7 bg-surface rounded-2xl border border-outline shadow-sm p-6 sm:p-8 space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start reveal">
+      <div className="lg:col-span-7 glass-strong rounded-2xl shadow-2 p-6 sm:p-8 space-y-6">
         <div className="border-b border-outline pb-3">
           <h3 className="font-display font-bold text-xl text-primary-deep flex items-center gap-1.5">
             <Coins className="w-5 h-5 text-primary" />
@@ -98,7 +98,7 @@ export default function InflowTab({ mosqueId, onAddLedgerEntry }: InflowTabProps
           <p className="text-xs text-muted mt-1">Gunakan formulir ini untuk mencatat uang masuk dari kotak amal, donasi, zakat, atau wakaf.</p>
         </div>
 
-        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-start gap-2.5 text-xs">
+        <div className="glass rounded-xl px-4 py-3 flex items-start gap-2.5 text-xs border border-accent/20">
           <svg className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           <div>
             <span className="font-bold text-amber-800">Catat bukti transaksi:</span>{" "}
@@ -108,7 +108,7 @@ export default function InflowTab({ mosqueId, onAddLedgerEntry }: InflowTabProps
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {submitError && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-xs font-semibold px-4 py-3 rounded-xl">
+            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 text-xs font-semibold px-4 py-3 rounded-xl">
               {submitError}
             </div>
           )}
@@ -140,7 +140,7 @@ export default function InflowTab({ mosqueId, onAddLedgerEntry }: InflowTabProps
                   onChange={(e) => setInflowAmount(e.target.value.replace(/\D/g, ""))}
                   placeholder="Contoh: 2.000.000"
                   disabled={isSubmitting}
-                  className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2.5 pl-9 pr-4 rounded-xl text-xs sm:text-sm font-mono font-semibold transition-colors"
+                  className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2.5 pl-9 pr-4 rounded-xl text-xs sm:text-sm font-mono font-semibold transition-all shadow-1"
                 />
               </div>
             </div>
@@ -168,7 +168,7 @@ export default function InflowTab({ mosqueId, onAddLedgerEntry }: InflowTabProps
                 onChange={(e) => setInflowPhone(e.target.value.replace(/[^0-9+]/g, ""))}
                 placeholder="Masukkan no WA untuk kirim kwitansi..."
                 disabled={isSubmitting}
-                className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-mono font-semibold transition-colors"
+                className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-mono font-semibold transition-all shadow-1"
               />
             </div>
           </div>
@@ -188,7 +188,7 @@ export default function InflowTab({ mosqueId, onAddLedgerEntry }: InflowTabProps
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-primary hover:bg-primary-deep active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full bg-primary hover:bg-primary-deep text-white font-bold rounded-xl shadow-md shadow-primary/10 hover:shadow-glow active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed py-3 px-4 text-xs sm:text-sm flex items-center justify-center gap-1.5 cursor-pointer"
           >
             {isSubmitting ? (
               <><Loader2 className="w-4 h-4 animate-spin" /> Menyimpan...</>
@@ -200,7 +200,7 @@ export default function InflowTab({ mosqueId, onAddLedgerEntry }: InflowTabProps
       </div>
 
       <div className="lg:col-span-5 space-y-6">
-        <div className="bg-success-subtle border border-primary/20 rounded-2xl p-6 space-y-3">
+        <div className="glass rounded-2xl shadow-2 p-6 space-y-3 border border-primary/20">
           <h4 className="font-display font-extrabold text-primary-deep text-sm flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-primary animate-bounce" />
             Fitur Integrasi Kwitansi WA

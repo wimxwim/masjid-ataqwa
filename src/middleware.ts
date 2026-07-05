@@ -10,11 +10,11 @@ function generateNonce(): string {
 function buildCsp(nonce: string) {
   return [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'unsafe-eval' https://app.sandbox.midtrans.com https://app.midtrans.com https://challenges.cloudflare.com`,
+    `script-src 'self' 'nonce-${nonce}' 'unsafe-eval' https://app.sandbox.midtrans.com https://app.midtrans.com https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://va.vercel-scripts.com`,
     `style-src 'self' 'unsafe-inline' 'nonce-${nonce}' https://fonts.googleapis.com`,
-    "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://*.tile.openstreetmap.org https://tile.openstreetmap.org",
+    "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.google-analytics.com",
     "font-src 'self' data: https://fonts.gstatic.com",
-    "connect-src 'self' https://*.supabase.co https://api.aladhan.com https://challenges.cloudflare.com https://*.tile.openstreetmap.org",
+    "connect-src 'self' https://*.supabase.co https://api.aladhan.com https://challenges.cloudflare.com https://*.tile.openstreetmap.org https://www.google-analytics.com https://vitals.vercel-analytics.com https://vitals.vercel-insights.com https://va.vercel-scripts.com",
     "frame-src 'self' https://challenges.cloudflare.com",
     "frame-ancestors 'none'",
     "form-action 'self'",

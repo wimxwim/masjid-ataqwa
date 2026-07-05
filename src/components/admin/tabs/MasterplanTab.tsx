@@ -78,8 +78,8 @@ export default function MasterplanTab() {
   const totalProfit = usahaCalc.reduce((sum, u) => sum + u.profit, 0);
 
   return (
-    <div className="space-y-10 animate-fade-in">
-      <section className="bg-surface border border-outline rounded-2xl shadow-sm p-6 lg:p-8">
+    <div className="space-y-10">
+      <section className="glass-strong rounded-2xl shadow-2 p-6 lg:p-8 reveal">
         <div className="flex items-center gap-2 mb-6">
           <Sparkles className="w-5 h-5 text-primary" />
           <h2 className="font-display font-bold text-lg text-ink">Roadmap 5 Tahun Masjid Berdaya</h2>
@@ -90,10 +90,10 @@ export default function MasterplanTab() {
             <button
               key={y.tahun}
               onClick={() => setSelectedRoadmapYear(y.tahun)}
-              className={`w-16 h-16 rounded-full font-display font-bold text-sm transition-all duration-200 flex flex-col items-center justify-center leading-tight ${
+              className={`w-16 h-16 rounded-full font-display font-bold text-sm transition-all duration-200 flex flex-col items-center justify-center leading-tight active:scale-95 ${
                 selectedRoadmapYear === y.tahun
-                  ? "bg-primary text-white shadow-lg shadow-primary/25 scale-110"
-                  : "bg-bg text-muted border border-outline hover:border-primary hover:text-primary"
+                  ? "bg-primary text-white shadow-glow scale-110"
+                  : "glass border-white/40 text-muted hover:bg-surface/80 hover:text-primary"
               }`}
             >
               <span className="text-[10px] font-semibold">Tahun</span>
@@ -102,9 +102,9 @@ export default function MasterplanTab() {
           ))}
         </div>
 
-        <div className="bg-bg border border-outline rounded-xl p-6 space-y-4">
+        <div className="glass rounded-2xl p-6 space-y-4 border border-primary/20">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-sm font-bold">
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-sm font-bold shadow-md shadow-primary/20">
               {currentYear.tahun}
             </span>
             <h3 className="font-display font-bold text-base text-ink">{currentYear.label}</h3>
@@ -120,7 +120,7 @@ export default function MasterplanTab() {
         </div>
       </section>
 
-      <section className="bg-surface border border-outline rounded-2xl shadow-sm p-6 lg:p-8">
+      <section className="glass-strong rounded-2xl shadow-2 p-6 lg:p-8 reveal">
         <div className="flex items-center gap-2 mb-6">
           <ShoppingBag className="w-5 h-5 text-primary" />
           <h2 className="font-display font-bold text-lg text-ink">Simulasi Usaha Unit Pemuda (BUMM)</h2>
@@ -131,7 +131,7 @@ export default function MasterplanTab() {
             const val = usahaSales[u.stateKey];
             const setter = setUsahaSales[u.stateKey];
             return (
-              <div key={u.id} className="bg-bg border border-outline rounded-xl p-5 space-y-3">
+              <div key={u.id} className="glass rounded-2xl p-5 space-y-3 shadow-2 hover-lift hover:hover-lift-active">
                 <div className="flex items-center gap-2">
                   <Coins className="w-4 h-4 text-primary" />
                   <span className="font-display font-semibold text-sm text-ink">{u.label}</span>
@@ -150,7 +150,7 @@ export default function MasterplanTab() {
                     min={0}
                     value={formatNominal(val ?? 0)}
                     onChange={(e) => setter(Number(e.target.value.replace(/\D/g, "")) || 0)}
-                    className="w-full bg-surface border border-outline rounded-lg px-3 py-2 text-sm font-mono text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+                    className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-mono transition-all shadow-1"
                     placeholder="0"
                   />
                 </div>
@@ -159,7 +159,7 @@ export default function MasterplanTab() {
           })}
         </div>
 
-        <div className="border border-outline rounded-xl overflow-hidden bg-bg">
+        <div className="glass overflow-hidden rounded-[var(--radius-card)] shadow-2">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-bg text-muted font-bold uppercase tracking-wider border-b border-outline">
@@ -170,9 +170,9 @@ export default function MasterplanTab() {
                 <th className="py-3 px-4 text-right">Profit</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline">
+            <tbody className="divide-y divide-outline/50">
               {usahaCalc.map((u) => (
-                <tr key={u.id} className="hover:bg-surface/50 transition-colors">
+                <tr key={u.id} className="hover:bg-primary/5 transition-colors">
                   <td className="py-3 px-4 font-semibold text-ink">{u.label}</td>
                   <td className="py-3 px-4 text-right font-mono text-muted">{u.sales} pcs</td>
                   <td className="py-3 px-4 text-right font-mono font-bold text-ink">{formatRp(u.revenue)}</td>

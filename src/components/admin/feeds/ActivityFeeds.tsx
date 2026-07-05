@@ -2,6 +2,7 @@
 
 import React from "react";
 import { HandCoins, Landmark, Receipt } from "lucide-react";
+import { GlassCard } from "@/components/design-system";
 
 interface ActivityItem {
   type: string;
@@ -45,7 +46,7 @@ function FeedColumn({
   iconBg: string;
 }) {
   return (
-    <div className="bg-surface border border-outline rounded-2xl shadow-sm p-5">
+    <GlassCard variant="default" rounded="2xl" className="p-5 shadow-2 hover-lift hover:hover-lift-active">
       <h4 className="font-display font-bold text-sm text-ink flex items-center gap-2 mb-3">
         <Icon className="w-4 h-4" style={{ color: accentColor }} />
         {title}
@@ -55,8 +56,14 @@ function FeedColumn({
       ) : (
         <div className="space-y-2.5">
           {items.slice(0, 5).map((item, i) => (
-            <div key={i} className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-bg/50 transition-colors">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style={{ backgroundColor: iconBg, color: accentColor }}>
+            <div
+              key={i}
+              className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-bg/50 transition-colors"
+            >
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                style={{ backgroundColor: iconBg, color: accentColor }}
+              >
                 {item.nama.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
@@ -65,7 +72,10 @@ function FeedColumn({
                 <p className="text-[10px] text-muted">{timeAgo(item.created_at)}</p>
               </div>
               {item.jumlah != null && item.jumlah > 0 && (
-                <span className="text-xs font-mono font-bold shrink-0" style={{ color: accentColor }}>
+                <span
+                  className="text-xs font-mono font-bold shrink-0"
+                  style={{ color: accentColor }}
+                >
                   Rp {item.jumlah.toLocaleString("id-ID")}
                 </span>
               )}
@@ -73,7 +83,7 @@ function FeedColumn({
           ))}
         </div>
       )}
-    </div>
+    </GlassCard>
   );
 }
 
@@ -82,14 +92,14 @@ export default function ActivityFeeds({ data, loading }: ActivityFeedsProps) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-surface border border-outline rounded-2xl shadow-sm p-5 animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-32 mb-3" />
+          <GlassCard key={i} rounded="2xl" className="p-5 animate-pulse shadow-2">
+            <div className="h-4 bg-bg rounded w-32 mb-3" />
             <div className="space-y-2">
               {[1, 2, 3, 4, 5].map((j) => (
-                <div key={j} className="h-10 bg-gray-100 rounded" />
+                <div key={j} className="h-10 bg-bg rounded" />
               ))}
             </div>
-          </div>
+          </GlassCard>
         ))}
       </div>
     );
@@ -100,7 +110,7 @@ export default function ActivityFeeds({ data, loading }: ActivityFeedsProps) {
   const pengeluaran = data.filter((d) => d.type === "mustahik");
 
   return (
-    <div>
+    <div className="reveal">
       <h3 className="font-display font-bold text-lg text-ink mb-4">Aktivitas Terbaru</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FeedColumn

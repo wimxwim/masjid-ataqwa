@@ -90,18 +90,18 @@ export default function OutflowTab({ mosqueId, onAddLedgerEntry }: OutflowTabPro
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form onSubmit={handleSubmit} className="glass-strong rounded-2xl shadow-2 p-6 reveal">
       <div className="mb-6 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100">
-          <ArrowDownToLine className="h-5 w-5 text-amber-700" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/15">
+          <ArrowDownToLine className="h-5 w-5 text-accent" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-slate-900">Dana Keluar</h3>
-          <p className="text-sm text-slate-500">Catat pengeluaran dan otorisasi pengurangan saldo kas masjid</p>
+          <h3 className="text-lg font-semibold text-ink">Dana Keluar</h3>
+          <p className="text-sm text-muted">Catat pengeluaran dan otorisasi pengurangan saldo kas masjid</p>
         </div>
       </div>
 
-      <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-start gap-2.5 text-xs">
+      <div className="mb-4 glass rounded-lg px-4 py-3 flex items-start gap-2.5 text-xs border border-accent/20">
         <svg className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         <div>
           <span className="font-bold text-amber-800">Catat bukti transaksi:</span>{" "}
@@ -110,7 +110,7 @@ export default function OutflowTab({ mosqueId, onAddLedgerEntry }: OutflowTabPro
       </div>
 
       {submitError && (
-        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold px-4 py-3 rounded-lg">
+        <div className="mb-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 text-xs font-semibold px-4 py-3 rounded-xl">
           {submitError}
         </div>
       )}
@@ -119,14 +119,14 @@ export default function OutflowTab({ mosqueId, onAddLedgerEntry }: OutflowTabPro
         <div className="md:col-span-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">
                 Kategori Pengeluaran
               </label>
               <select
                 value={outflowCategory}
                 onChange={(e) => setOutflowCategory(e.target.value)}
                 disabled={isSubmitting}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-1"
               >
                 {EXPENSE_CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -137,7 +137,7 @@ export default function OutflowTab({ mosqueId, onAddLedgerEntry }: OutflowTabPro
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">
                 Jumlah (Rp)
               </label>
               <input
@@ -147,12 +147,12 @@ export default function OutflowTab({ mosqueId, onAddLedgerEntry }: OutflowTabPro
                 value={formatNominal(outflowAmount)}
                 onChange={(e) => setOutflowAmount(e.target.value.replace(/\D/g, ""))}
                 disabled={isSubmitting}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-1"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">
                 Pihak Penerima
               </label>
               <input
@@ -161,12 +161,12 @@ export default function OutflowTab({ mosqueId, onAddLedgerEntry }: OutflowTabPro
                 value={outflowRecipient}
                 onChange={(e) => setOutflowRecipient(e.target.value)}
                 disabled={isSubmitting}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-1"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">
                 Petugas Verifikator
               </label>
               <input
@@ -174,19 +174,19 @@ export default function OutflowTab({ mosqueId, onAddLedgerEntry }: OutflowTabPro
                 value={outflowAmil}
                 onChange={(e) => setOutflowAmil(e.target.value)}
                 disabled={isSubmitting}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-1"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">
                 Sumber Dana
               </label>
               <select
                 value={outflowFundSource}
                 onChange={(e) => setOutflowFundSource(e.target.value as FundType)}
                 disabled={isSubmitting}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-1"
               >
                 {FUND_SOURCES.map((fs) => (
                   <option key={fs.value} value={fs.value}>
@@ -199,7 +199,7 @@ export default function OutflowTab({ mosqueId, onAddLedgerEntry }: OutflowTabPro
         </div>
 
         <div className="flex flex-col md:col-span-6">
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">
+          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">
             Keterangan / Catatan
           </label>
           <textarea
@@ -208,13 +208,13 @@ export default function OutflowTab({ mosqueId, onAddLedgerEntry }: OutflowTabPro
             value={outflowNotes}
             onChange={(e) => setOutflowNotes(e.target.value)}
             disabled={isSubmitting}
-            className="w-full flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+            className="w-full flex-1 bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2.5 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-1 placeholder:text-muted"
           />
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+            className="mt-4 inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-deep text-white font-bold rounded-xl shadow-md shadow-primary/10 hover:shadow-glow active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed px-5 py-3 text-xs sm:text-sm"
           >
             {isSubmitting ? (
               <><Loader2 className="h-4 w-4 animate-spin" /> Menyimpan...</>

@@ -42,6 +42,8 @@
   --shadow-5: 0 24px 64px rgba(14,122,69,0.14), 0 12px 24px rgba(0,0,0,0.08);
   --shadow-glow: 0 0 20px rgba(14,122,69,0.3), 0 0 40px rgba(14,122,69,0.15);
   --shadow-glow-accent: 0 0 20px rgba(200,168,78,0.3), 0 0 40px rgba(200,168,78,0.15);
+  --shadow-glow-amber: 0 0 20px rgba(245,158,11,0.3), 0 0 40px rgba(245,158,11,0.15);
+  --shadow-glow-red: 0 0 20px rgba(239,68,68,0.3), 0 0 40px rgba(239,68,68,0.15);
 }
 
 :root {
@@ -129,6 +131,12 @@ body {
 }
 @utility animate-bounce-in {
   animation: bounce-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@utility shadow-glow-amber {
+  box-shadow: var(--shadow-glow-amber);
+}
+@utility shadow-glow-red {
+  box-shadow: var(--shadow-glow-red);
 }
 
 /* ── Glassmorphism Utilities ── */

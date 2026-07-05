@@ -23,9 +23,9 @@ export default function OverviewTab({ mosqueId }: OverviewTabProps) {
   const { data: activity, isLoading: loadingActivity } = useAdminActivityFeeds(mosqueId);
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8">
       {/* 5 Kartu Statistik */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 reveal">
         <StatCard
           label="Saldo Kas"
           value={summary ? formatRp(summary.saldo_kas) : "—"}
@@ -74,7 +74,7 @@ export default function OverviewTab({ mosqueId }: OverviewTabProps) {
       </section>
 
       {/* Baris 2: Chart Tren + Donut ZISWAF */}
-      <section className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      <section className="grid grid-cols-1 lg:grid-cols-5 gap-4 reveal">
         <div className="lg:col-span-3">
           <TrendLineChart data={trend ?? []} loading={loadingTrend} />
         </div>
@@ -84,7 +84,9 @@ export default function OverviewTab({ mosqueId }: OverviewTabProps) {
       </section>
 
       {/* Baris 3: Activity Feeds */}
-      <ActivityFeeds data={activity ?? []} loading={loadingActivity} />
+      <div className="reveal">
+        <ActivityFeeds data={activity ?? []} loading={loadingActivity} />
+      </div>
     </div>
   );
 }

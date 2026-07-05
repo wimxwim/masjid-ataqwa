@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { LedgerEntry } from "@/types";
-import { 
+import {
   Landmark, CheckCircle, ChevronRight, Info
 } from "lucide-react";
 import { useAppContext } from "@/stores/app-context";
 import { useRouter } from "next/navigation";
+import { GlassCard, SectionHeader, SectionShell, IslamicDivider } from "@/components/design-system";
 
 interface BankInfaqClientProps {
   mosqueName: string;
@@ -41,7 +42,7 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
   const [bizType, setBizType] = useState("Warung Makan / Kelontong");
   const [bizAddress, setBizAddress] = useState("");
   const [bizAge, setBizAge] = useState("1-2 Tahun");
-  
+
   const [userName, setUserName] = useState("");
   const [userPhone, setUserPhone] = useState("");
   const [userNik, setUserNik] = useState("");
@@ -91,239 +92,262 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
     }, 1500);
   };
 
+  const inputBaseClass =
+    "w-full bg-surface/70 border border-white/50 dark:border-white/10 focus:bg-surface focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/10 py-2 px-3 rounded-xl text-sm transition-all shadow-1";
+
+  const primaryBtnClass =
+    "bg-primary hover:bg-primary-deep text-white font-bold rounded-xl hover:shadow-glow active:scale-95 transition-all flex items-center gap-1.5";
+
+  const secondaryBtnClass =
+    "glass border-white/40 text-muted font-bold rounded-xl hover:bg-surface/80 active:scale-95 transition-all";
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-16 animate-fade-in" id="bank-infaq-page">
-      
+    <div className="animate-fade-in" id="bank-infaq-page">
+
       {/* 1. Hero Section */}
-      <section className="relative overflow-hidden bg-radial from-slate-900 via-slate-950 to-slate-900 text-white py-16 sm:py-20 px-6 sm:px-12 rounded-3xl shadow-xl">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20" />
-        <div className="absolute top-1/4 right-1/4 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-        
-        <div className="max-w-3xl relative z-10 space-y-6">
-          <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-primary/30 text-primary px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
-            <Landmark className="w-3.5 h-3.5" />
-            Program Infaq Qardhul Hasan
+      <SectionShell className="pb-0">
+        <section className="reveal relative overflow-hidden glass-dark text-white rounded-[var(--radius-card)] shadow-4 py-16 sm:py-20 px-6 sm:px-12">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20" />
+          <div className="absolute top-1/4 right-1/4 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-accent/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="max-w-3xl relative z-10 space-y-6">
+            <div className="inline-flex items-center gap-1.5 glass border-primary/30 text-primary px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
+              <Landmark className="w-3.5 h-3.5" />
+              Program Infaq Qardhul Hasan
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl font-display font-extrabold tracking-tight text-white leading-tight">
+              Bank Infaq: Melawan Riba, <span className="text-primary">Memandirikan Dhuafa</span>
+            </h1>
+
+            <p className="text-base sm:text-lg text-white/80 max-w-2xl font-sans leading-relaxed">
+              Bank Infaq Qardhul Hasan At-Taqwa Ulujami hadir sebagai solusi pinjaman modal bergulir 100% bebas bunga dan biaya administrasi. Kami menyelamatkan pedagang kecil dari jeratan rentenir keliling, sekaligus mendampingi usaha mereka dengan bimbingan rohani & manajemen bisnis syariah.
+            </p>
+
+            <div className="flex flex-wrap gap-4 pt-2">
+              <button
+                onClick={handleOpenApply}
+                className={`${primaryBtnClass} px-7 py-3.5 text-sm`}
+              >
+                Ajukan Bantuan Modal Usaha
+                <ChevronRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => router.push('/donasi?type=Infaq Bank Infaq Qardhul Hasan')}
+                className="glass border-white/20 hover:shadow-glow text-white font-semibold px-7 py-3.5 rounded-xl text-sm transition-all flex items-center gap-1.5"
+              >
+                Top Up Dana Bank Infaq
+              </button>
+            </div>
           </div>
-
-          <h1 className="text-3xl sm:text-5xl font-display font-extrabold tracking-tight text-white leading-tight">
-            Bank Infaq: Melawan Riba, <span className="text-primary">Memandirikan Dhuafa</span>
-          </h1>
-
-          <p className="text-base sm:text-lg text-muted max-w-2xl font-sans leading-relaxed">
-            Bank Infaq Qardhul Hasan At-Taqwa Ulujami hadir sebagai solusi pinjaman modal bergulir 100% bebas bunga dan biaya administrasi. Kami menyelamatkan pedagang kecil dari jeratan rentenir keliling, sekaligus mendampingi usaha mereka dengan bimbingan rohani & manajemen bisnis syariah.
-          </p>
-
-          <div className="flex flex-wrap gap-4 pt-2">
-            <button
-              onClick={handleOpenApply}
-              className="bg-primary hover:bg-primary active:scale-95 text-white font-bold px-7 py-3.5 rounded-xl text-sm shadow-md shadow-primary/25 transition-all flex items-center gap-1.5"
-            >
-              Ajukan Bantuan Modal Usaha
-              <ChevronRight className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => router.push('/donasi?type=Infaq Bank Infaq Qardhul Hasan')}
-              className="bg-ink hover:bg-ink text-white font-semibold px-7 py-3.5 rounded-xl text-sm border border-outline transition-all flex items-center gap-1.5"
-            >
-              Top Up Dana Bank Infaq
-            </button>
-          </div>
-        </div>
-      </section>
+        </section>
+      </SectionShell>
 
       {/* 2. Repayment Simulator */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center" id="simulator-section">
-        
-        {/* Left Side: Sliders */}
-        <div className="lg:col-span-7 bg-surface rounded-2xl border border-outline shadow-lg p-6 sm:p-8 space-y-8">
-          <div>
-            <h2 className="text-2xl font-display font-extrabold text-ink tracking-tight">
-              Simulasi Pembiayaan Kebajikan (Qardhul Hasan)
-            </h2>
-            <p className="text-xs text-muted mt-1">
-              Gunakan slider di bawah untuk mengatur jumlah pinjaman modal bergulir dan periode angsuran bulanan.
-            </p>
-          </div>
+      <SectionShell className="reveal" id="simulator-section">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
 
-          <div className="space-y-6">
-            {/* Amount Slider */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center text-xs font-semibold uppercase tracking-wider text-muted">
-                <span>Nominal Pengajuan Modal</span>
-                <span className="text-lg font-mono font-bold text-primary">Rp {loanAmount.toLocaleString("id-ID")}</span>
-              </div>
-              <input
-                type="range"
-                min={500000}
-                max={5000000}
-                step={250000}
-                value={loanAmount}
-                onChange={(e) => setLoanAmount(parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-emerald-700 focus:outline-none"
-              />
-              <div className="flex justify-between text-[10px] text-muted font-mono">
-                <span>Min: Rp 500 Ribu</span>
-                <span>Max: Rp 5 Juta</span>
-              </div>
+          {/* Left Side: Sliders */}
+          <GlassCard variant="strong" rounded="2xl" className="lg:col-span-7 p-6 sm:p-8 space-y-8">
+            <div>
+              <h2 className="text-2xl font-display font-extrabold text-ink tracking-tight">
+                Simulasi Pembiayaan Kebajikan (Qardhul Hasan)
+              </h2>
+              <p className="text-xs text-muted mt-1">
+                Gunakan slider di bawah untuk mengatur jumlah pinjaman modal bergulir dan periode angsuran bulanan.
+              </p>
             </div>
 
-            {/* Duration Slider */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center text-xs font-semibold uppercase tracking-wider text-muted">
-                <span>Jangka Waktu Angsuran</span>
-                <span className="text-lg font-mono font-bold text-primary">{loanPeriod} Bulan</span>
-              </div>
-              <input
-                type="range"
-                min={2}
-                max={12}
-                step={1}
-                value={loanPeriod}
-                onChange={(e) => setLoanPeriod(parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-emerald-700 focus:outline-none"
-              />
-              <div className="flex justify-between text-[10px] text-muted font-mono">
-                <span>Min: 2 Bulan</span>
-                <span>Max: 12 Bulan</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Side: Simulation Breakdown Card */}
-        <div className="lg:col-span-5 bg-bg border border-outline rounded-2xl p-6 sm:p-8 space-y-6 text-center">
-          <div className="space-y-1">
-            <p className="text-[10px] uppercase font-bold text-muted tracking-wider">Estimasi Cicilan Bulanan</p>
-            <p className="text-3xl sm:text-4xl font-mono font-black text-ink tracking-tight">
-              Rp {monthlyInstallment.toLocaleString("id-ID")}<span className="text-sm font-sans font-medium text-muted">/bln</span>
-            </p>
-          </div>
-
-          <div className="border-t border-b border-outline py-4 text-xs text-left space-y-3 font-semibold text-ink">
-            <div className="flex justify-between">
-              <span className="text-muted font-normal">Tingkat Bunga / Jasa Pinjam:</span>
-              <span className="text-primary flex items-center gap-1">0% (Bebas Riba)</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted font-normal">Biaya Administrasi & Materai:</span>
-              <span className="text-primary">Rp 0 (Subsidi Infaq)</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted font-normal">Total Pengembalian Dana:</span>
-              <span className="font-mono text-ink">Rp {loanAmount.toLocaleString("id-ID")}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted font-normal">Syarat Pendampingan:</span>
-              <span className="text-accent">Hadir Majelis Pekanan</span>
-            </div>
-          </div>
-
-          <button
-            onClick={handleOpenApply}
-            className="w-full bg-primary hover:bg-primary-deep text-white font-bold py-3.5 rounded-xl text-sm shadow-md transition-all flex items-center justify-center gap-1.5"
-          >
-            Ajukan Modal Usaha Sekarang
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-
-      </section>
-
-      {/* 3. Steps of Benevolent Micro-finance */}
-      <section className="space-y-10">
-        <div className="text-center space-y-2">
-          <h2 className="text-3xl font-display font-extrabold text-ink tracking-tight">Alur Pengajuan Dana Bergulir</h2>
-          <p className="text-sm text-muted max-w-xl mx-auto">Sederhana, beradab, berprinsip gotong royong, dan memprioritaskan warga kurang mampu.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
-          
-          <div className="bg-surface border border-outline rounded-xl p-6 shadow-xs relative text-center space-y-3">
-            <div className="w-10 h-10 rounded-full bg-success-subtle text-primary font-black flex items-center justify-center mx-auto border border-primary/20 text-sm">1</div>
-            <h4 className="font-semibold text-sm text-ink">Isi Form Online</h4>
-            <p className="text-xs text-muted font-medium">Lengkapi rincian jenis usaha mikro Anda dan nominal kebutuhan modal.</p>
-          </div>
-
-          <div className="bg-surface border border-outline rounded-xl p-6 shadow-xs relative text-center space-y-3">
-            <div className="w-10 h-10 rounded-full bg-success-subtle text-primary font-black flex items-center justify-center mx-auto border border-primary/20 text-sm">2</div>
-            <h4 className="font-semibold text-sm text-ink">Survey Kelayakan</h4>
-            <p className="text-xs text-muted font-medium">Tim amil masjid berkunjung silaturahmi untuk survey dan verifikasi lapangan.</p>
-          </div>
-
-          <div className="bg-surface border border-outline rounded-xl p-6 shadow-xs relative text-center space-y-3">
-            <div className="w-10 h-10 rounded-full bg-success-subtle text-primary font-black flex items-center justify-center mx-auto border border-primary/20 text-sm">3</div>
-            <h4 className="font-semibold text-sm text-ink">Persetujuan & Akad</h4>
-            <p className="text-xs text-muted font-medium">Akad qardhul hasan ditandatangani tanpa jaminan, pencairan dana instan.</p>
-          </div>
-
-          <div className="bg-surface border border-outline rounded-xl p-6 shadow-xs relative text-center space-y-3">
-            <div className="w-10 h-10 rounded-full bg-success-subtle text-primary font-black flex items-center justify-center mx-auto border border-primary/20 text-sm">4</div>
-            <h4 className="font-semibold text-sm text-ink">Binaan Majelis</h4>
-            <p className="text-xs text-muted font-medium">Cicilan diangsur per pekan sembari mengikuti kajian fikih & pembukuan usaha.</p>
-          </div>
-
-        </div>
-      </section>
-
-      {/* 4. Stories of Beneficiaries (Kisah Sukses) — dari DB */}
-      <section className="space-y-10">
-        <div className="text-center space-y-2">
-          <h2 className="text-3xl font-display font-extrabold text-ink tracking-tight">Kisah Sukses Penerima Manfaat</h2>
-          <p className="text-sm text-muted max-w-xl mx-auto">Inspirasi perjuangan UMKM dhuafa binaan At-Taqwa yang bangkit dari lilitan rentenir.</p>
-        </div>
-
-        {testimonials.length === 0 ? (
-          <p className="text-center text-sm text-muted">Belum ada kisah yang tersedia.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {testimonials.map((t) => (
-              <div key={t.id} className="bg-surface rounded-2xl border border-outline shadow-sm p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-center sm:items-start">
-                {t.image_url ? (
-                  <img
-                    src={t.image_url}
-                    alt={t.nama}
-                    className="w-24 h-24 rounded-full object-cover shrink-0 border-2 border-primary/20 shadow-md"
-                  />
-                ) : (
-                  <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border-2 border-primary/20 shadow-md text-primary font-bold text-xl">
-                    {t.nama.charAt(0)}
-                  </div>
-                )}
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h4 className="font-display font-bold text-base text-ink">
-                      {t.nama}{t.usia ? ` (${t.usia} Thn)` : ""}
-                    </h4>
-                    {t.title && (
-                      <span className="text-[10px] bg-success-subtle text-primary font-bold px-2 py-0.5 rounded-md">{t.title}</span>
-                    )}
-                  </div>
-                  <p className="text-xs text-slate-600 leading-relaxed font-sans">"{t.story}"</p>
-                  <p className="text-[10px] text-muted font-mono font-bold">
-                    {t.ring ? `★ ${t.ring}` : ""}{t.durasi_bulan ? ` • Terbantu ${t.durasi_bulan} Bulan` : ""}
-                  </p>
+            <div className="space-y-6">
+              {/* Amount Slider */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-xs font-semibold uppercase tracking-wider text-muted">
+                  <span>Nominal Pengajuan Modal</span>
+                  <span className="text-lg font-mono font-black text-primary">Rp {loanAmount.toLocaleString("id-ID")}</span>
+                </div>
+                <input
+                  type="range"
+                  min={500000}
+                  max={5000000}
+                  step={250000}
+                  value={loanAmount}
+                  onChange={(e) => setLoanAmount(parseInt(e.target.value))}
+                  className="w-full h-2 bg-surface/50 rounded-lg appearance-none cursor-pointer accent-emerald-700 focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+                />
+                <div className="flex justify-between text-[10px] text-muted font-mono">
+                  <span>Min: Rp 500 Ribu</span>
+                  <span>Max: Rp 5 Juta</span>
                 </div>
               </div>
+
+              {/* Duration Slider */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-xs font-semibold uppercase tracking-wider text-muted">
+                  <span>Jangka Waktu Angsuran</span>
+                  <span className="text-lg font-mono font-black text-primary">{loanPeriod} Bulan</span>
+                </div>
+                <input
+                  type="range"
+                  min={2}
+                  max={12}
+                  step={1}
+                  value={loanPeriod}
+                  onChange={(e) => setLoanPeriod(parseInt(e.target.value))}
+                  className="w-full h-2 bg-surface/50 rounded-lg appearance-none cursor-pointer accent-emerald-700 focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+                />
+                <div className="flex justify-between text-[10px] text-muted font-mono">
+                  <span>Min: 2 Bulan</span>
+                  <span>Max: 12 Bulan</span>
+                </div>
+              </div>
+            </div>
+          </GlassCard>
+
+          {/* Right Side: Simulation Breakdown Card */}
+          <GlassCard variant="strong" rounded="2xl" className="lg:col-span-5 p-6 sm:p-8 space-y-6 text-center">
+            <div className="space-y-1">
+              <p className="text-[10px] uppercase font-bold text-muted tracking-wider">Estimasi Cicilan Bulanan</p>
+              <p className="text-3xl sm:text-4xl font-mono font-black text-ink tracking-tight">
+                Rp {monthlyInstallment.toLocaleString("id-ID")}<span className="text-sm font-sans font-medium text-muted">/bln</span>
+              </p>
+            </div>
+
+            <div className="border-t border-b border-outline py-4 text-xs text-left space-y-3 font-semibold text-ink">
+              <div className="flex justify-between">
+                <span className="text-muted font-normal">Tingkat Bunga / Jasa Pinjam:</span>
+                <span className="text-primary flex items-center gap-1">0% (Bebas Riba)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted font-normal">Biaya Administrasi & Materai:</span>
+                <span className="text-primary">Rp 0 (Subsidi Infaq)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted font-normal">Total Pengembalian Dana:</span>
+                <span className="font-mono font-black text-ink">Rp {loanAmount.toLocaleString("id-ID")}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted font-normal">Syarat Pendampingan:</span>
+                <span className="text-accent">Hadir Majelis Pekanan</span>
+              </div>
+            </div>
+
+            <button
+              onClick={handleOpenApply}
+              className={`${primaryBtnClass} w-full py-3.5 text-sm justify-center`}
+            >
+              Ajukan Modal Usaha Sekarang
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </GlassCard>
+
+        </div>
+      </SectionShell>
+
+      {/* 3. Steps of Benevolent Micro-finance */}
+      <SectionShell className="reveal">
+        <div className="space-y-10">
+          <SectionHeader
+            align="center"
+            title="Alur Pengajuan Dana Bergulir"
+            description="Sederhana, beradab, berprinsip gotong royong, dan memprioritaskan warga kurang mampu."
+          />
+          <IslamicDivider className="max-w-xs mx-auto -mt-4" />
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+            {[
+              { num: 1, title: "Isi Form Online", desc: "Lengkapi rincian jenis usaha mikro Anda dan nominal kebutuhan modal." },
+              { num: 2, title: "Survey Kelayakan", desc: "Tim amil masjid berkunjung silaturahmi untuk survey dan verifikasi lapangan." },
+              { num: 3, title: "Persetujuan & Akad", desc: "Akad qardhul hasan ditandatangani tanpa jaminan, pencairan dana instan." },
+              { num: 4, title: "Binaan Majelis", desc: "Cicilan diangsur per pekan sembari mengikuti kajian fikih & pembukuan usaha." },
+            ].map((step, i) => (
+              <GlassCard
+                key={step.num}
+                hover
+                rounded="2xl"
+                className="relative text-center space-y-3 p-6 reveal"
+                style={{ transitionDelay: `${i * 80}ms` }}
+              >
+                <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 font-black flex items-center justify-center mx-auto text-sm">
+                  {step.num}
+                </div>
+                <h4 className="font-semibold text-sm text-ink">{step.title}</h4>
+                <p className="text-xs text-muted font-medium">{step.desc}</p>
+              </GlassCard>
             ))}
           </div>
-        )}
-      </section>
+        </div>
+      </SectionShell>
+
+      {/* 4. Stories of Beneficiaries (Kisah Sukses) — dari DB */}
+      <SectionShell className="reveal">
+        <div className="space-y-10">
+          <SectionHeader
+            align="center"
+            title="Kisah Sukses Penerima Manfaat"
+            description="Inspirasi perjuangan UMKM dhuafa binaan At-Taqwa yang bangkit dari lilitan rentenir."
+          />
+          <IslamicDivider className="max-w-xs mx-auto -mt-4" />
+
+          {testimonials.length === 0 ? (
+            <p className="text-center text-sm text-muted">Belum ada kisah yang tersedia.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {testimonials.map((t, i) => (
+                <GlassCard
+                  key={t.id}
+                  hover
+                  rounded="2xl"
+                  className="p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-center sm:items-start reveal"
+                  style={{ transitionDelay: `${i * 100}ms` }}
+                >
+                  {t.image_url ? (
+                    <img
+                      src={t.image_url}
+                      alt={t.nama}
+                      className="w-24 h-24 rounded-full object-cover shrink-0 border-2 border-primary/20 shadow-md"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border-2 border-primary/20 shadow-md text-primary font-bold text-xl">
+                      {t.nama.charAt(0)}
+                    </div>
+                  )}
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="font-display font-bold text-base text-ink">
+                        {t.nama}{t.usia ? ` (${t.usia} Thn)` : ""}
+                      </h4>
+                      {t.title && (
+                        <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-md">{t.title}</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed font-sans">"{t.story}"</p>
+                    <p className="text-[10px] text-muted font-mono font-bold">
+                      {t.ring ? `★ ${t.ring}` : ""}{t.durasi_bulan ? ` • Terbantu ${t.durasi_bulan} Bulan` : ""}
+                    </p>
+                  </div>
+                </GlassCard>
+              ))}
+            </div>
+          )}
+        </div>
+      </SectionShell>
 
       {/* MULTI-STEP LOAN APPLICATION MODAL */}
       {applyModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
-          <div className="bg-surface rounded-2xl shadow-2xl border border-outline max-w-lg w-full overflow-hidden animate-scale-up">
-            
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="glass-strong rounded-[var(--radius-card)] shadow-4 border border-outline max-w-lg w-full overflow-hidden animate-scale-up">
+
             {/* Header */}
-            <div className="bg-ink text-white px-6 py-4 flex justify-between items-center border-b border-transparent">
+            <div className="glass-dark text-white px-6 py-4 flex justify-between items-center border-b border-white/10">
               <div className="flex items-center gap-2">
                 <Landmark className="w-4 h-4 text-primary" />
                 <span className="font-display font-bold text-sm">Permohonan Modal Qardhul Hasan</span>
               </div>
               {applyStep !== 4 && (
-                <button 
+                <button
                   onClick={() => setApplyModalOpen(false)}
-                  className="text-muted hover:text-white"
+                  className="text-white/70 hover:text-white text-xs font-bold transition-colors"
                 >
                   Batal
                 </button>
@@ -332,8 +356,8 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
 
             {/* Stepper Progress bar */}
             {applyStep < 4 && (
-              <div className="bg-slate-100 h-1.5 w-full">
-                <div 
+              <div className="glass h-2 w-full overflow-hidden rounded-full">
+                <div
                   className="bg-primary h-full transition-all duration-300"
                   style={{ width: `${(applyStep / 3) * 100}%` }}
                 />
@@ -342,13 +366,13 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
 
             {/* Form Container */}
             <form onSubmit={handleFormSubmit}>
-              
+
               {/* STEP 1: Profil Usaha */}
               {applyStep === 1 && (
                 <div className="p-6 space-y-4">
                   <h3 className="font-display font-bold text-base text-ink">Langkah 1: Deskripsi Usaha Mikro</h3>
                   <p className="text-xs text-muted">Harap infokan kondisi unit bisnis mikro yang membutuhkan suntikan dana.</p>
-                  
+
                   <div className="space-y-3 text-sm">
                     <div>
                       <label className="block text-xs font-semibold text-muted mb-1">Nama Dagang / Usaha</label>
@@ -358,7 +382,7 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                         value={bizName}
                         onChange={(e) => setBizName(e.target.value)}
                         placeholder="Contoh: Gorengan Maknyus Ibu Sumarni"
-                        className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2 px-3 rounded-lg"
+                        className={inputBaseClass}
                       />
                     </div>
 
@@ -368,7 +392,7 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                         <select
                           value={bizType}
                           onChange={(e) => setBizType(e.target.value)}
-                          className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2 px-3 rounded-lg"
+                          className={inputBaseClass}
                         >
                           <option>Warung Makan / Kelontong</option>
                           <option>Kuliner / Jajanan Keliling</option>
@@ -382,7 +406,7 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                         <select
                           value={bizAge}
                           onChange={(e) => setBizAge(e.target.value)}
-                          className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2 px-3 rounded-lg"
+                          className={inputBaseClass}
                         >
                           <option>Baru Memulai (&lt; 6 Bulan)</option>
                           <option>6 - 12 Bulan</option>
@@ -400,7 +424,7 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                         value={bizAddress}
                         onChange={(e) => setBizAddress(e.target.value)}
                         placeholder="Contoh: Depan SD Negeri Ulujami 01"
-                        className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2 px-3 rounded-lg"
+                        className={inputBaseClass}
                       />
                     </div>
                   </div>
@@ -409,7 +433,7 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                     <button
                       type="button"
                       onClick={handleNextStep}
-                      className="bg-primary hover:bg-primary-deep text-white font-bold py-2.5 px-5 rounded-lg text-xs tracking-wider flex items-center gap-1.5"
+                      className={`${primaryBtnClass} py-2.5 px-5 text-xs tracking-wider`}
                     >
                       Selanjutnya
                       <ChevronRight className="w-4 h-4" />
@@ -423,7 +447,7 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                 <div className="p-6 space-y-4">
                   <h3 className="font-display font-bold text-base text-ink">Langkah 2: Data Diri Pemohon</h3>
                   <p className="text-xs text-muted">Data Anda dilindungi enkripsi SSL amanah pengurus masjid.</p>
-                  
+
                   <div className="space-y-3 text-sm">
                     <div>
                       <label className="block text-xs font-semibold text-muted mb-1">Nama Lengkap Pemohon</label>
@@ -433,7 +457,7 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
                         placeholder="Contoh: Ahmad Subarkah"
-                        className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2 px-3 rounded-lg"
+                        className={inputBaseClass}
                       />
                     </div>
 
@@ -446,7 +470,7 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                           value={userPhone}
                           onChange={(e) => setUserPhone(e.target.value)}
                           placeholder="Contoh: 0812XXXXXXXX"
-                          className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2 px-3 rounded-lg font-mono"
+                          className={`${inputBaseClass} font-mono`}
                         />
                       </div>
                       <div>
@@ -457,7 +481,7 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                           value={userNik}
                           onChange={(e) => setUserNik(e.target.value)}
                           placeholder="NIK KTP 16 Digit..."
-                          className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2 px-3 rounded-lg font-mono"
+                          className={`${inputBaseClass} font-mono`}
                         />
                       </div>
                     </div>
@@ -467,7 +491,7 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                       <select
                         value={homeStatus}
                         onChange={(e) => setHomeStatus(e.target.value)}
-                        className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2 px-3 rounded-lg"
+                        className={inputBaseClass}
                       >
                         <option>Milik Sendiri</option>
                         <option>Sewa / Kontrak Bulanan</option>
@@ -480,14 +504,14 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                     <button
                       type="button"
                       onClick={handlePrevStep}
-                      className="bg-gray-100 hover:bg-gray-200 text-muted font-bold py-2.5 px-4 rounded-lg text-xs"
+                      className={`${secondaryBtnClass} py-2.5 px-4 text-xs`}
                     >
                       Kembali
                     </button>
                     <button
                       type="button"
                       onClick={handleNextStep}
-                      className="bg-primary hover:bg-primary-deep text-white font-bold py-2.5 px-5 rounded-lg text-xs tracking-wider flex items-center gap-1.5"
+                      className={`${primaryBtnClass} py-2.5 px-5 text-xs tracking-wider`}
                     >
                       Selanjutnya
                       <ChevronRight className="w-4 h-4" />
@@ -501,20 +525,20 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                 <div className="p-6 space-y-4">
                   <h3 className="font-display font-bold text-base text-ink">Langkah 3: Rincian Penggunaan Dana</h3>
                   <p className="text-xs text-muted">Harap sebutkan secara spesifik penggunaan dana demi asaz kemaslahatan.</p>
-                  
+
                   <div className="space-y-4 text-sm">
-                    <div className="p-4 bg-success-subtle rounded-lg border border-primary/20 flex justify-between items-center text-xs">
+                    <div className="glass border border-primary/20 rounded-xl p-4 flex justify-between items-center text-xs">
                       <div>
                         <span className="text-muted block">Dana Diajukan:</span>
-                        <span className="font-mono font-bold text-primary-deep text-sm">Rp {loanAmount.toLocaleString("id-ID")}</span>
+                        <span className="font-mono font-black text-primary-deep text-sm">Rp {loanAmount.toLocaleString("id-ID")}</span>
                       </div>
                       <div>
                         <span className="text-muted block">Tenor:</span>
-                        <span className="font-bold text-primary-deep text-sm">{loanPeriod} Bulan</span>
+                        <span className="font-black text-primary-deep text-sm">{loanPeriod} Bulan</span>
                       </div>
                       <div>
                         <span className="text-muted block">Angsuran / Bln:</span>
-                        <span className="font-mono font-bold text-ink text-sm">Rp {monthlyInstallment.toLocaleString("id-ID")}</span>
+                        <span className="font-mono font-black text-ink text-sm">Rp {monthlyInstallment.toLocaleString("id-ID")}</span>
                       </div>
                     </div>
 
@@ -526,11 +550,11 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                         value={loanReason}
                         onChange={(e) => setLoanReason(e.target.value)}
                         placeholder="Contoh: Membeli etalase kaca baru, belanja minyak goreng, terigu, dan tabung gas 3kg..."
-                        className="w-full bg-bg border border-outline focus:bg-surface focus:border-primary focus:outline-none py-2.5 px-3.5 rounded-lg"
+                        className={inputBaseClass}
                       />
                     </div>
 
-                    <div className="p-3 bg-accent/10 rounded-lg border border-accent/20 flex gap-2.5 text-[11px] text-amber-900/80 font-sans">
+                    <div className="glass border border-accent/20 rounded-xl p-3 flex gap-2.5 text-[11px] text-amber-900/80 font-sans">
                       <Info className="w-4.5 h-4.5 text-accent shrink-0" />
                       <span>Dengan mengklik "Kirim Pengajuan", Anda setuju untuk disurvey oleh tim pengurus Bank Infaq At-Taqwa Ulujami secara sukarela & adil.</span>
                     </div>
@@ -540,14 +564,14 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                     <button
                       type="button"
                       onClick={handlePrevStep}
-                      className="bg-gray-100 hover:bg-gray-200 text-muted font-bold py-2.5 px-4 rounded-lg text-xs"
+                      className={`${secondaryBtnClass} py-2.5 px-4 text-xs`}
                     >
                       Kembali
                     </button>
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="bg-primary hover:bg-primary-deep text-white font-bold py-2.5 px-6 rounded-lg text-xs tracking-wider flex items-center gap-1.5"
+                      className={`${primaryBtnClass} py-2.5 px-6 text-xs tracking-wider disabled:opacity-70 disabled:cursor-not-allowed`}
                     >
                       {submitting ? (
                         <>
@@ -568,10 +592,10 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
               {/* STEP 4: Success Screen */}
               {applyStep === 4 && (
                 <div className="p-8 text-center space-y-6 animate-fade-in">
-                  <div className="w-16 h-16 bg-success-subtle text-primary rounded-full flex items-center justify-center mx-auto">
+                  <div className="w-16 h-16 bg-success-subtle text-primary rounded-full flex items-center justify-center mx-auto shadow-glow">
                     <CheckCircle className="w-8 h-8" />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <h3 className="font-display font-bold text-2xl text-primary-deep">Permohonan Terkirim!</h3>
                     <p className="text-sm text-muted max-w-sm mx-auto leading-relaxed">
@@ -591,7 +615,7 @@ export default function BankInfaqClient({ mosqueName, testimonials }: BankInfaqC
                   <button
                     type="button"
                     onClick={() => setApplyModalOpen(false)}
-                    className="w-full bg-ink hover:bg-primary-deep text-white font-bold py-3 rounded-xl text-xs transition-all"
+                    className="w-full bg-ink hover:bg-primary-deep hover:shadow-glow text-white font-bold py-3 rounded-xl text-xs transition-all"
                   >
                     Selesai & Tutup
                   </button>
