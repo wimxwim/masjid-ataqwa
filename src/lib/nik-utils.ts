@@ -22,7 +22,7 @@ export function extractNameFromOcr(text: string): string | null {
   if (namaIdx >= 0 && namaIdx + 1 < lines.length) {
     const nextLine = lines[namaIdx + 1];
     if (nextLine) {
-      const name = nextLine.replace(/[^A-Za-z\s\.]/g, "").trim();
+      const name = nextLine.replace(/[^A-Za-z\s.]/g, "").trim();
       if (name.length > 2) return name;
     }
   }

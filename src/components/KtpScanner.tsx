@@ -162,7 +162,6 @@ export default function KtpScanner({ onScan, onClear }: Props) {
       {/* Image preview */}
       {image && !loading && (
         <div className="relative rounded-xl overflow-hidden border border-outline">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={image} alt="KTP" className="w-full h-48 object-contain bg-black/5" />
         </div>
       )}

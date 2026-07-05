@@ -1,11 +1,19 @@
 let snapPromise: Promise<void> | null = null;
 
+function isProduction() {
+  return process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true";
+}
+
 function getSnapUrl() {
-  return "https://app.sandbox.midtrans.com/snap/snap.js";
+  return isProduction()
+    ? "https://app.midtrans.com/snap/snap.js"
+    : "https://app.sandbox.midtrans.com/snap/snap.js";
 }
 
 function getClientKey() {
-  return process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY ?? "";
+  return isProduction()
+    ? (process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY_PRODUCTION ?? "")
+    : (process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY ?? "");
 }
 
 export function loadSnapScript(): Promise<void> {

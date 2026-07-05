@@ -24,7 +24,7 @@ function buildCsp(nonce: string) {
   ].join("; ");
 }
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isProtected = pathname.startsWith("/admin") || pathname.startsWith("/api/admin");

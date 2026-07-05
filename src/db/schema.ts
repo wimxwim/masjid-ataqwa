@@ -230,7 +230,7 @@ export const mustahiks = pgTable("mustahiks", {
 }, (t) => [
   index("mustahiks_mosque_idx").on(t.mosque_id),
   index("mustahiks_ring_idx").on(t.mosque_id, t.ring_number),
-  unique("mustahiks_nik_hash").on(t.nik_hash),
+  unique("mustahiks_mosque_nik_hash").on(t.mosque_id, t.nik_hash),
   index("mustahiks_coordinate_idx").on(t.lat, t.lng),
   index("mustahiks_asnaf_idx").on(t.mosque_id, t.asnaf_id),
   unique("mustahiks_nim_mosque_unique").on(t.mosque_id, t.nomor_induk_mustahik),
@@ -832,7 +832,7 @@ export const muzzaki = pgTable("muzzaki", {
   deleted_at: timestamp("deleted_at", { withTimezone: true }),
 }, (t) => [
   index("muzzaki_mosque_idx").on(t.mosque_id),
-  unique("muzzaki_nik_hash").on(t.nik_hash),
+  unique("muzzaki_mosque_nik_hash").on(t.mosque_id, t.nik_hash),
 ]);
 
 /* ============================== ZAKAT PAYMENTS ============================== */
@@ -992,3 +992,8 @@ export const dkm_members = pgTable("dkm_members", {
 }, (t) => [
   index("dkm_members_user_mosque_idx").on(t.user_id, t.mosque_id),
 ]);
+
+/* ============================== TYPE EXPORTS ============================== */
+
+export type Membership = typeof memberships.$inferSelect;
+export type MembershipInsert = typeof memberships.$inferInsert;

@@ -172,9 +172,15 @@ export async function createTransaction(data: InsertTransaction) {
   return row;
 }
 
+/** Field yang boleh diedit client. Field identitas/audit tidak boleh ikut dari client. */
+export type UpdateTransaction = Omit<
+  Partial<InsertTransaction>,
+  "mosque_id" | "created_at" | "created_by" | "deleted_at"
+>;
+
 export async function updateTransaction(
   id: string,
-  data: Partial<InsertTransaction>,
+  data: UpdateTransaction,
 ) {
   const profile = await requireAuth();
   const old = await getTransaction(id);
@@ -200,7 +206,10 @@ export async function updateTransaction(
   const [row] = await db
     .update(transactions)
     .set(updateData)
-    .where(eq(transactions.id, id))
+    .where(and(
+      eq(transactions.id, id),
+      eq(transactions.mosque_id, old.mosque_id),
+    ))
     .returning();
   if (!row) throw new Error("Operation failed");
 

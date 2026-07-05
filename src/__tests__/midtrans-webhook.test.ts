@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import crypto from "crypto";
 import { verifySignature } from "@/app/api/midtrans/webhook/route";
 
-function computeSignature(body: Record<string, unknown>, serverKey: string): string {
-  const orderId = String(body.order_id ?? "");
-  const statusCode = String(body.status_code ?? "");
-  const grossAmount = String(body.gross_amount ?? "");
+function computeSignature(body: Record<string, string>, serverKey: string): string {
+  const orderId = body.order_id ?? "";
+  const statusCode = body.status_code ?? "";
+  const grossAmount = body.gross_amount ?? "";
   return crypto
     .createHash("sha512")
     .update(orderId + statusCode + grossAmount + serverKey)
@@ -15,42 +15,52 @@ function computeSignature(body: Record<string, unknown>, serverKey: string): str
 const SERVER_KEY = "test-key";
 
 describe("verifySignature", () => {
-  const validBody = {
+  const validBodyObj: Record<string, string> = {
     order_id: "donation-abc-123",
     status_code: "200",
     gross_amount: "50000.00",
     transaction_status: "settlement",
   };
 
+  function toRaw(obj: Record<string, string>): string {
+    return JSON.stringify(obj);
+  }
+
   it("accepts correct signature", () => {
-    const sig = computeSignature(validBody, SERVER_KEY);
-    expect(verifySignature(validBody, sig, SERVER_KEY)).toBe(true);
+    const sig = computeSignature(validBodyObj, SERVER_KEY);
+    const raw = toRaw(validBodyObj);
+    expect(verifySignature(raw, sig, SERVER_KEY)).toBe(true);
   });
 
   it("rejects wrong signature", () => {
-    expect(verifySignature(validBody, "fake-signature", SERVER_KEY)).toBe(false);
+    const raw = toRaw(validBodyObj);
+    expect(verifySignature(raw, "fake-signature", SERVER_KEY)).toBe(false);
   });
 
   it("rejects empty signature", () => {
-    expect(verifySignature(validBody, "", SERVER_KEY)).toBe(false);
+    const raw = toRaw(validBodyObj);
+    expect(verifySignature(raw, "", SERVER_KEY)).toBe(false);
   });
 
   it("rejects signature from different server key", () => {
-    const sig = computeSignature(validBody, "different-key");
-    expect(verifySignature(validBody, sig, SERVER_KEY)).toBe(false);
+    const sig = computeSignature(validBodyObj, "different-key");
+    const raw = toRaw(validBodyObj);
+    expect(verifySignature(raw, sig, SERVER_KEY)).toBe(false);
   });
 
   it("rejects when body fields are tampered", () => {
-    const body = { ...validBody, gross_amount: "99999.00" };
-    const sig = computeSignature(validBody, SERVER_KEY);
-    expect(verifySignature(body, sig, SERVER_KEY)).toBe(false);
+    const tamperedBody = { ...validBodyObj, gross_amount: "99999.00" };
+    const sig = computeSignature(validBodyObj, SERVER_KEY);
+    const raw = toRaw(tamperedBody);
+    expect(verifySignature(raw, sig, SERVER_KEY)).toBe(false);
   });
 
-  it("handles missing fields gracefully", () => {
-    expect(verifySignature({}, "anything", SERVER_KEY)).toBe(false);
+  it("handles empty rawBody gracefully", () => {
+    expect(verifySignature("{}", "anything", SERVER_KEY)).toBe(false);
   });
 
   it("uses timingSafeEqual (does not throw on Buffer mismatch)", () => {
-    expect(verifySignature(validBody, "short", SERVER_KEY)).toBe(false);
+    const raw = toRaw(validBodyObj);
+    expect(verifySignature(raw, "short", SERVER_KEY)).toBe(false);
   });
 });

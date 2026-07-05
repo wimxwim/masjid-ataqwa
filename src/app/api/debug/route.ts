@@ -8,6 +8,11 @@ import { requireAuth, requireRole } from "@/lib/auth/server";
 import { resolveMosqueId } from "@/lib/actions/_helpers";
 
 export async function GET(request: Request) {
+  /* debug endpoint hanya aktif di development/testing */
+  if (process.env.NODE_ENV === "production") {
+    return new Response("Not Found", { status: 404 });
+  }
+
   /* proteksi — hanya admin yang bisa akses debug */
   try {
     const mid = await resolveMosqueId();

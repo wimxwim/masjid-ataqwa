@@ -25,15 +25,23 @@ function ipInRanges(ip: string, ranges: string[]): boolean {
   });
 }
 
+/* ─── ambil nilai field dari raw JSON body sebagai string persis ─── */
+function getRawField(rawBody: string, key: string): string | null {
+  const pattern = '"' + key + '"\\s*:\\s*"?([^"{},\\s\\]]+)"?';
+  const regex = new RegExp(pattern, "i");
+  const match = rawBody.match(regex);
+  return match?.[1] ?? null;
+}
+
 /* ─── verifikasi signature HMAC Midtrans ─── */
 export function verifySignature(
-  body: Record<string, unknown>,
+  rawBody: string,
   signatureHeader: string,
   serverKey: string,
 ): boolean {
-  const orderId = String(body.order_id ?? "");
-  const statusCode = String(body.status_code ?? "");
-  const grossAmount = String(body.gross_amount ?? "");
+  const orderId = getRawField(rawBody, "order_id") ?? "";
+  const statusCode = getRawField(rawBody, "status_code") ?? "";
+  const grossAmount = getRawField(rawBody, "gross_amount") ?? "";
 
   const hash = crypto
     .createHash("sha512")
@@ -182,7 +190,14 @@ export async function POST(request: Request) {
     return new Response("Forbidden", { status: 403 });
   }
 
-  const body = await request.json();
+  const rawBody = await request.text();
+  let body: Record<string, unknown>;
+  try {
+    body = JSON.parse(rawBody);
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
   const signatureKey = String(body.signature_key ?? "");
 
   if (!signatureKey) {
@@ -190,7 +205,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing signature_key" }, { status: 401 });
   }
 
-  if (!verifySignature(body, signatureKey, serverKey)) {
+  if (!verifySignature(rawBody, signatureKey, serverKey)) {
     log.error("Signature mismatch", { orderId: body.order_id });
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }

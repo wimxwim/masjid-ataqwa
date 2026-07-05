@@ -4,6 +4,7 @@ import { db } from "@/db/client";
 import { loan_applications, audit_logs } from "@/db/schema";
 import { requireAuth, requireRole } from "@/lib/auth/server";
 import { resolveMosqueId } from "./_helpers";
+import { getDefaultMosque } from "./public";
 import { encryptNik, hashNikServer } from "@/lib/nik-crypto";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { eq, and, desc, sql, isNull } from "drizzle-orm";
@@ -42,7 +43,9 @@ export async function createLoanApplication(data: InsertLoanApplication) {
   const rl = await rateLimit(data.phone);
   if (!rl.success) throw new Error("Terlalu banyak percobaan, coba lagi nanti.");
 
-  const mid = await resolveMosqueId();
+  const mosque = await getDefaultMosque();
+  if (!mosque) throw new Error("Konfigurasi masjid belum tersedia.");
+  const mid = mosque.id;
 
   const valid = await verifyTurnstile(data.turnstileToken);
   if (!valid) throw new Error("Verifikasi keamanan gagal. Refresh halaman dan coba lagi.");
